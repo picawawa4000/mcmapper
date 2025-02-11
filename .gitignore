@@ -1,0 +1,13 @@
+# macOS fluff
+.DS_Store
+*.dSYM/*
+
+# vscode fluff
+.vscode/*
+
+# binaries
+main
+test
+
+# log files
+*.log

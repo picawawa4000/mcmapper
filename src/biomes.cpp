@@ -1,0 +1,72 @@
+#include <mcmapper/biomes.hpp>
+
+std::string biomeRepr(Biome biome) {
+    switch (biome) {
+        case THE_VOID: return "The Void";
+        case PLAINS: return "Plains";
+        case SUNFLOWER_PLAINS: return "Sunflower Plains";
+        case SNOWY_PLAINS: return "Snowy Plains";
+        case ICE_SPIKES: return "Ice Spikes";
+        case DESERT: return "Desert";
+        case SWAMP: return "Swamp";
+        case MANGROVE_SWAMP: return "Mangrove Swamp";
+        case FOREST: return "Forest";
+        case FLOWER_FOREST: return "Flower Forest";
+        case BIRCH_FOREST: return "Birch Forest";
+        case DARK_FOREST: return "Dark Forest";
+        case PALE_GARDEN: return "Pale Garden";
+        case OLD_GROWTH_BIRCH_FOREST: return "Old Growth Birch Forest";
+        case OLD_GROWTH_PINE_TAIGA: return "Old Growth Pine Taiga";
+        case OLD_GROWTH_SPRUCE_TAIGA: return "Old Growth Spruce Taiga";
+        case TAIGA: return "Taiga";
+        case SNOWY_TAIGA: return "Snowy Taiga";
+        case SAVANNA: return "Savanna";
+        case SAVANNA_PLATEAU: return "Savanna Plateau";
+        case WINDSWEPT_HILLS: return "Windswept Hills";
+        case WINDSWEPT_GRAVELLY_HILLS: return "Windswept Gravelly Hills";
+        case WINDSWEPT_FOREST: return "Windswept Forest";
+        case WINDSWEPT_SAVANNA: return "Windswept Savanna";
+        case JUNGLE: return "Jungle";
+        case SPARSE_JUNGLE: return "Sparse Jungle";
+        case BAMBOO_JUNGLE: return "Bamboo Jungle";
+        case BADLANDS: return "Badlands";
+        case ERODED_BADLANDS: return "Eroded Badlands";
+        case WOODED_BADLANDS: return "Wooded Badlands";
+        case MEADOW: return "Meadow";
+        case CHERRY_GROVE: return "Cherry Grove";
+        case GROVE: return "Grove";
+        case SNOWY_SLOPES: return "Snowy Slopes";
+        case FROZEN_PEAKS: return "Frozen Peaks";
+        case JAGGED_PEAKS: return "Jagged Peaks";
+        case STONY_PEAKS: return "Stony Peaks";
+        case RIVER: return "River";
+        case FROZEN_RIVER: return "Frozen River";
+        case BEACH: return "Beach";
+        case SNOWY_BEACH: return "Snowy Beach";
+        case STONY_SHORE: return "Stony Shore";
+        case WARM_OCEAN: return "Warm Ocean";
+        case LUKEWARM_OCEAN: return "Lukewarm Ocean";
+        case DEEP_LUKEWARM_OCEAN: return "Deep Lukewarm Ocean";
+        case OCEAN: return "Ocean";
+        case DEEP_OCEAN: return "Deep Ocean";
+        case COLD_OCEAN: return "Cold Ocean";
+        case DEEP_COLD_OCEAN: return "Deep Cold Ocean";
+        case FROZEN_OCEAN: return "Frozen Ocean";
+        case DEEP_FROZEN_OCEAN: return "Deep Frozen Ocean";
+        case MUSHROOM_FIELDS: return "Mushroom Fields";
+        case DRIPSTONE_CAVES: return "Dripstone Caves";
+        case LUSH_CAVES: return "Lush Caves";
+        case DEEP_DARK: return "Deep Dark";
+        case NETHER_WASTES: return "Nether Wastes";
+        case WARPED_FOREST: return "Warped Forest";
+        case CRIMSON_FOREST: return "Crimson Forest";
+        case SOUL_SAND_VALLEY: return "Soul Sand Valley";
+        case BASALT_DELTAS: return "Basalt Deltas";
+        case THE_END: return "The End";
+        case END_HIGHLANDS: return "End Highlands";
+        case END_MIDLANDS: return "End Midlands";
+        case SMALL_END_ISLANDS: return "Small End Islands";
+        case END_BARRENS: return "End Barrens";
+        default: return "Unknown";
+    }
+}

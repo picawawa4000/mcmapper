@@ -1,0 +1,94 @@
+#ifndef BIOMETREE_HPP
+#define BIOMETREE_HPP
+
+#include <mcmapper/biomes.hpp>
+#include <vector>
+#include <optional>
+#include <utility>
+#include <cmath>
+#include <limits>
+#include <functional>
+
+#include <fstream>
+#include <iostream>
+
+struct NoisePoint {
+    i64 temperature;
+    i64 humidity;
+    i64 continentalness;
+    i64 erosion;
+    i64 depth;
+    i64 weirdness;
+
+    NoisePoint(i64 temperature, i64 humidity, i64 continentalness, i64 erosion, i64 depth, i64 weirdness) : temperature(temperature), humidity(humidity), continentalness(continentalness), erosion(erosion), depth(depth), weirdness(weirdness) {}
+
+    std::vector<i64> toList() {
+        return {this->temperature, this->humidity, this->continentalness, this->erosion, this->depth, this->weirdness, 0};
+    }
+};
+
+struct ParameterRange {
+    i64 min;
+    i64 max;
+
+    explicit constexpr ParameterRange(i64 min, i64 max) : min(min), max(max) {}
+    explicit constexpr ParameterRange(f32 min, f32 max) : min((i64)(min * 10000.f)), max((i64)(max * 10000.f)) {}
+    ParameterRange() : min(0), max(0) {}
+
+    ParameterRange combine(std::optional<ParameterRange> other) {
+        return other.has_value() ? ParameterRange(std::min(this->min, other.value().min), std::max(this->max, other.value().max)) : *this;
+    }
+
+    i64 getDistance(i64 point) {
+        if (point - this->max > 0) return point - this->max;
+        return std::max(this->min - point, 0LL);
+    }
+
+    operator std::string() {
+        return "[" + std::to_string(this->min) + ", " + std::to_string(this->max) + "]";
+    }
+};
+
+struct NoiseHypercube {
+    ParameterRange temperature;
+    ParameterRange humidity;
+    ParameterRange continentalness;
+    ParameterRange erosion;
+    ParameterRange depth;
+    ParameterRange weirdness;
+    i64 offset;
+
+    NoiseHypercube(ParameterRange temperature, ParameterRange humidity, ParameterRange continentalness, ParameterRange erosion, ParameterRange depth, ParameterRange weirdness, i64 offset) : temperature(temperature), humidity(humidity), continentalness(continentalness), erosion(erosion), depth(depth), weirdness(weirdness), offset(offset) {}
+
+    std::vector<ParameterRange> toList() {
+        return {this->temperature, this->humidity, this->continentalness, this->erosion, this->depth, this->weirdness, ParameterRange(this->offset, this->offset)};
+    }
+};
+
+struct TreeNode {
+    std::vector<ParameterRange> parameters;
+    std::vector<std::shared_ptr<TreeNode>> children;
+    Biome value;
+
+    TreeNode(std::vector<ParameterRange> parameters, Biome value, std::vector<std::shared_ptr<TreeNode>> children) : parameters(parameters), children(children), value(value) {}
+
+    TreeNode getResultingNode(std::vector<i64> point, const TreeNode& alternative);
+};
+
+struct SearchTree {
+    std::shared_ptr<TreeNode> root;
+
+    SearchTree(std::vector<std::pair<NoiseHypercube, Biome>> entries);
+
+    ~SearchTree() {
+        if (this->root.use_count() == 1) this->root.reset();
+    }
+
+    Biome get(NoisePoint point) const;
+};
+
+inline bool searchTreeGeneratedAtCompileTime = true;
+
+const SearchTree * getSearchTree();
+
+#endif
