@@ -127,61 +127,61 @@ Biome SearchTree::get(NoisePoint point) const {
     return ret.value;
 }
 
-static const ParameterRange * combine(const ParameterRange * a, const ParameterRange * b) {
-    return new ParameterRange(std::min(a->min, b->min), std::max(a->max, b->max));
+static const ParameterRange combine(const ParameterRange& a, const ParameterRange& b) {
+    return ParameterRange(std::min(a.min, b.min), std::max(a.max, b.max));
 }
 
 static constexpr ParameterRange defaultRange = ParameterRange(-1.f, 1.f);
 
-static const std::array<const ParameterRange *, 5> temperatureParameters = {new ParameterRange(-1.f, -0.45f), new ParameterRange(-0.45f, -0.15f), new ParameterRange(-0.15f, 0.2f), new ParameterRange(0.2f, 0.55f), new ParameterRange(0.55f, 1.f)};
-static const std::array<const ParameterRange *, 5> humidityParameters = {new ParameterRange(-1.f, -0.35f), new ParameterRange(-0.35f, -0.1f), new ParameterRange(-0.1f, 0.1f), new ParameterRange(0.1f, 0.3f), new ParameterRange(0.3f, 1.f)};
-static const std::array<const ParameterRange *, 7> erosionParameters = {new ParameterRange(-1.f, -0.78f), new ParameterRange(-0.78f, -0.375f), new ParameterRange(-0.375f, -0.2225f), new ParameterRange(-0.2225f, -0.05f), new ParameterRange(0.05f, 0.45f), new ParameterRange(0.45f, 0.55f), new ParameterRange(0.55f, 1.f)};
+static constexpr std::array<const ParameterRange, 5> temperatureParameters = {ParameterRange(-1.f, -0.45f), ParameterRange(-0.45f, -0.15f), ParameterRange(-0.15f, 0.2f), ParameterRange(0.2f, 0.55f), ParameterRange(0.55f, 1.f)};
+static constexpr std::array<const ParameterRange, 5> humidityParameters = {ParameterRange(-1.f, -0.35f), ParameterRange(-0.35f, -0.1f), ParameterRange(-0.1f, 0.1f), ParameterRange(0.1f, 0.3f), ParameterRange(0.3f, 1.f)};
+static constexpr std::array<const ParameterRange, 7> erosionParameters = {ParameterRange(-1.f, -0.78f), ParameterRange(-0.78f, -0.375f), ParameterRange(-0.375f, -0.2225f), ParameterRange(-0.2225f, -0.05f), ParameterRange(0.05f, 0.45f), ParameterRange(0.45f, 0.55f), ParameterRange(0.55f, 1.f)};
 
-static const ParameterRange * nonFrozenParameters = new ParameterRange(-0.45f, 1.f);
+static constexpr ParameterRange nonFrozenParameters = ParameterRange(-0.45f, 1.f);
 
-static const ParameterRange * coastContinentalness = new ParameterRange(-0.19f, -0.11f);
-static const ParameterRange * riverContinentalness = new ParameterRange(-0.11f, 0.55f);
-static const ParameterRange * nearInlandContinentalness = new ParameterRange(-0.11f, 0.03f);
-static const ParameterRange * midInlandContinentalness = new ParameterRange(0.03f, 0.3f);
-static const ParameterRange * farInlandContinentalness = new ParameterRange(0.3f, 1.0f);
+static constexpr ParameterRange coastContinentalness = ParameterRange(-0.19f, -0.11f);
+static constexpr ParameterRange riverContinentalness = ParameterRange(-0.11f, 0.55f);
+static constexpr ParameterRange nearInlandContinentalness = ParameterRange(-0.11f, 0.03f);
+static constexpr ParameterRange midInlandContinentalness = ParameterRange(0.03f, 0.3f);
+static constexpr ParameterRange farInlandContinentalness = ParameterRange(0.3f, 1.0f);
 
-static const std::vector<const std::array<Biome, 5>> oceanBiomes = {{DEEP_FROZEN_OCEAN, DEEP_COLD_OCEAN, DEEP_OCEAN, DEEP_LUKEWARM_OCEAN, WARM_OCEAN}, {FROZEN_OCEAN, COLD_OCEAN, OCEAN, LUKEWARM_OCEAN, WARM_OCEAN}};
-static const std::vector<const std::array<Biome, 5>> commonBiomes = {{SNOWY_PLAINS, SNOWY_PLAINS, SNOWY_PLAINS, SNOWY_TAIGA, TAIGA}, {PLAINS, PLAINS, FOREST, TAIGA, OLD_GROWTH_SPRUCE_TAIGA}, {FLOWER_FOREST, PLAINS, FOREST, BIRCH_FOREST, DARK_FOREST}, {SAVANNA, SAVANNA, FOREST, JUNGLE, JUNGLE}, {DESERT, DESERT, DESERT, DESERT, DESERT}};
-static const std::vector<const std::array<Biome, 5>> uncommonBiomes = {{ICE_SPIKES, THE_VOID, SNOWY_TAIGA, THE_VOID, THE_VOID}, {THE_VOID, THE_VOID, THE_VOID, THE_VOID, OLD_GROWTH_PINE_TAIGA}, {SUNFLOWER_PLAINS, THE_VOID, THE_VOID, OLD_GROWTH_BIRCH_FOREST, THE_VOID}, {THE_VOID, THE_VOID, PLAINS, SPARSE_JUNGLE, BAMBOO_JUNGLE}, {THE_VOID, THE_VOID, THE_VOID, THE_VOID, THE_VOID}};
-static const std::vector<const std::array<Biome, 5>> nearMountainBiomes = {{SNOWY_PLAINS, SNOWY_PLAINS, SNOWY_PLAINS, SNOWY_TAIGA, SNOWY_TAIGA}, {MEADOW, MEADOW, FOREST, TAIGA, OLD_GROWTH_SPRUCE_TAIGA}, {MEADOW, MEADOW, MEADOW, MEADOW, DARK_FOREST}, {SAVANNA_PLATEAU, SAVANNA_PLATEAU, FOREST, FOREST, JUNGLE}, {BADLANDS, BADLANDS, BADLANDS, WOODED_BADLANDS, WOODED_BADLANDS}};
-static const std::vector<const std::array<Biome, 5>> specialNearMountainBiomes = {{ICE_SPIKES, THE_VOID, THE_VOID, THE_VOID, THE_VOID}, {CHERRY_GROVE, THE_VOID, MEADOW, MEADOW, OLD_GROWTH_PINE_TAIGA}, {CHERRY_GROVE, CHERRY_GROVE, FOREST, BIRCH_FOREST, PALE_GARDEN}, {THE_VOID, THE_VOID, THE_VOID, THE_VOID, THE_VOID}, {ERODED_BADLANDS, ERODED_BADLANDS, THE_VOID, THE_VOID, THE_VOID}};
-static const std::vector<const std::array<Biome, 5>> windsweptBiomes = {{WINDSWEPT_GRAVELLY_HILLS, WINDSWEPT_GRAVELLY_HILLS, WINDSWEPT_HILLS, WINDSWEPT_FOREST, WINDSWEPT_FOREST}, {WINDSWEPT_GRAVELLY_HILLS, WINDSWEPT_GRAVELLY_HILLS, WINDSWEPT_HILLS, WINDSWEPT_FOREST, WINDSWEPT_FOREST}, {WINDSWEPT_HILLS, WINDSWEPT_HILLS, WINDSWEPT_HILLS, WINDSWEPT_FOREST, WINDSWEPT_FOREST}, {THE_VOID, THE_VOID, THE_VOID, THE_VOID, THE_VOID}, {THE_VOID, THE_VOID, THE_VOID, THE_VOID, THE_VOID}};
+static constexpr std::array<const std::array<Biome, 5>, 2> oceanBiomes = {{{DEEP_FROZEN_OCEAN, DEEP_COLD_OCEAN, DEEP_OCEAN, DEEP_LUKEWARM_OCEAN, WARM_OCEAN}, {FROZEN_OCEAN, COLD_OCEAN, OCEAN, LUKEWARM_OCEAN, WARM_OCEAN}}};
+static constexpr std::array<const std::array<Biome, 5>, 5> commonBiomes = {{{SNOWY_PLAINS, SNOWY_PLAINS, SNOWY_PLAINS, SNOWY_TAIGA, TAIGA}, {PLAINS, PLAINS, FOREST, TAIGA, OLD_GROWTH_SPRUCE_TAIGA}, {FLOWER_FOREST, PLAINS, FOREST, BIRCH_FOREST, DARK_FOREST}, {SAVANNA, SAVANNA, FOREST, JUNGLE, JUNGLE}, {DESERT, DESERT, DESERT, DESERT, DESERT}}};
+static constexpr std::array<const std::array<Biome, 5>, 5> uncommonBiomes = {{{ICE_SPIKES, THE_VOID, SNOWY_TAIGA, THE_VOID, THE_VOID}, {THE_VOID, THE_VOID, THE_VOID, THE_VOID, OLD_GROWTH_PINE_TAIGA}, {SUNFLOWER_PLAINS, THE_VOID, THE_VOID, OLD_GROWTH_BIRCH_FOREST, THE_VOID}, {THE_VOID, THE_VOID, PLAINS, SPARSE_JUNGLE, BAMBOO_JUNGLE}, {THE_VOID, THE_VOID, THE_VOID, THE_VOID, THE_VOID}}};
+static constexpr std::array<const std::array<Biome, 5>, 5> nearMountainBiomes = {{{SNOWY_PLAINS, SNOWY_PLAINS, SNOWY_PLAINS, SNOWY_TAIGA, SNOWY_TAIGA}, {MEADOW, MEADOW, FOREST, TAIGA, OLD_GROWTH_SPRUCE_TAIGA}, {MEADOW, MEADOW, MEADOW, MEADOW, DARK_FOREST}, {SAVANNA_PLATEAU, SAVANNA_PLATEAU, FOREST, FOREST, JUNGLE}, {BADLANDS, BADLANDS, BADLANDS, WOODED_BADLANDS, WOODED_BADLANDS}}};
+static constexpr std::array<const std::array<Biome, 5>, 5> specialNearMountainBiomes = {{{ICE_SPIKES, THE_VOID, THE_VOID, THE_VOID, THE_VOID}, {CHERRY_GROVE, THE_VOID, MEADOW, MEADOW, OLD_GROWTH_PINE_TAIGA}, {CHERRY_GROVE, CHERRY_GROVE, FOREST, BIRCH_FOREST, PALE_GARDEN}, {THE_VOID, THE_VOID, THE_VOID, THE_VOID, THE_VOID}, {ERODED_BADLANDS, ERODED_BADLANDS, THE_VOID, THE_VOID, THE_VOID}}};
+static constexpr std::array<const std::array<Biome, 5>, 5> windsweptBiomes = {{{WINDSWEPT_GRAVELLY_HILLS, WINDSWEPT_GRAVELLY_HILLS, WINDSWEPT_HILLS, WINDSWEPT_FOREST, WINDSWEPT_FOREST}, {WINDSWEPT_GRAVELLY_HILLS, WINDSWEPT_GRAVELLY_HILLS, WINDSWEPT_HILLS, WINDSWEPT_FOREST, WINDSWEPT_FOREST}, {WINDSWEPT_HILLS, WINDSWEPT_HILLS, WINDSWEPT_HILLS, WINDSWEPT_FOREST, WINDSWEPT_FOREST}, {THE_VOID, THE_VOID, THE_VOID, THE_VOID, THE_VOID}, {THE_VOID, THE_VOID, THE_VOID, THE_VOID, THE_VOID}}};
 
-static inline Biome getRegularBiome(int temperature, int humidity, const ParameterRange * weirdness) {
-    if (weirdness->max < 0) {
+static inline Biome getRegularBiome(int temperature, int humidity, const ParameterRange& weirdness) {
+    if (weirdness.max < 0) {
         return commonBiomes[temperature][humidity];
     }
     Biome uncommon = uncommonBiomes[temperature][humidity];
     return uncommon == THE_VOID ? commonBiomes[temperature][humidity] : uncommonBiomes[temperature][humidity];
 }
 
-static inline Biome getBadlandsBiome(int humidity, const ParameterRange * weirdness) {
-    if (humidity < 2) return weirdness->max < 0 ? BADLANDS : ERODED_BADLANDS;
+static inline Biome getBadlandsBiome(int humidity, const ParameterRange& weirdness) {
+    if (humidity < 2) return weirdness.max < 0 ? BADLANDS : ERODED_BADLANDS;
     if (humidity < 3) return BADLANDS;
     return WOODED_BADLANDS;
 }
 
-static inline Biome getBadlandsOrRegularBiome(int temperature, int humidity, const ParameterRange * weirdness) {
+static inline Biome getBadlandsOrRegularBiome(int temperature, int humidity, const ParameterRange& weirdness) {
     return temperature == 4 ? getBadlandsBiome(humidity, weirdness) : getRegularBiome(temperature, humidity, weirdness);
 }
 
-static inline Biome getNearMountainBiome(int temperature, int humidity, const ParameterRange * weirdness) {
-    if (weirdness->max > 0 and specialNearMountainBiomes[temperature][humidity] != THE_VOID) return specialNearMountainBiomes[temperature][humidity];
+static inline Biome getNearMountainBiome(int temperature, int humidity, const ParameterRange& weirdness) {
+    if (weirdness.max > 0 and specialNearMountainBiomes[temperature][humidity] != THE_VOID) return specialNearMountainBiomes[temperature][humidity];
     return nearMountainBiomes[temperature][humidity];
 }
 
-static inline Biome getMountainSlopeBiome(int temperature, int humidity, const ParameterRange * weirdness) {
+static inline Biome getMountainSlopeBiome(int temperature, int humidity, const ParameterRange& weirdness) {
     if (temperature >= 3) return getNearMountainBiome(temperature, humidity, weirdness);
     if (humidity <= 1) return SNOWY_SLOPES;
     return GROVE;
 }
 
-static inline Biome getMountainStartBiome(int temperature, int humidity, const ParameterRange * weirdness) {
+static inline Biome getMountainStartBiome(int temperature, int humidity, const ParameterRange& weirdness) {
     return temperature == 0 ? getMountainSlopeBiome(temperature, humidity, weirdness) : getBadlandsOrRegularBiome(temperature, humidity, weirdness);
 }
 
@@ -189,56 +189,56 @@ static inline Biome getShoreBiome(int temperature) {
     return temperature == 0 ? SNOWY_BEACH : (temperature == 4 ? DESERT : BEACH);
 }
 
-static inline Biome getBiomeOrWindsweptSavanna(int temperature, int humidity, const ParameterRange * weirdness, Biome alt) {
-    return (temperature > 1 and humidity < 4 and weirdness->max >= 0) ? WINDSWEPT_SAVANNA : alt;
+static inline Biome getBiomeOrWindsweptSavanna(int temperature, int humidity, const ParameterRange& weirdness, Biome alt) {
+    return (temperature > 1 and humidity < 4 and weirdness.max >= 0) ? WINDSWEPT_SAVANNA : alt;
 }
 
-static inline Biome getErodedShoreBiome(int temperature, int humidity, const ParameterRange * weirdness) {
-    Biome alt = weirdness->max >= 0 ? getRegularBiome(temperature, humidity, weirdness) : getShoreBiome(temperature);
+static inline Biome getErodedShoreBiome(int temperature, int humidity, const ParameterRange& weirdness) {
+    Biome alt = weirdness.max >= 0 ? getRegularBiome(temperature, humidity, weirdness) : getShoreBiome(temperature);
     return getBiomeOrWindsweptSavanna(temperature, humidity, weirdness, alt);
 }
 
-static inline Biome getWindsweptOrRegularBiome(int temperature, int humidity, const ParameterRange * weirdness) {
+static inline Biome getWindsweptOrRegularBiome(int temperature, int humidity, const ParameterRange& weirdness) {
     Biome alt = windsweptBiomes[temperature][humidity];
     return alt == THE_VOID ? getRegularBiome(temperature, humidity, weirdness) : alt;
 }
 
-static inline Biome getPeakBiome(int temperature, int humidity, const ParameterRange * weirdness) {
-    if (temperature <= 2) return weirdness->max < 0 ? JAGGED_PEAKS : FROZEN_PEAKS;
+static inline Biome getPeakBiome(int temperature, int humidity, const ParameterRange& weirdness) {
+    if (temperature <= 2) return weirdness.max < 0 ? JAGGED_PEAKS : FROZEN_PEAKS;
     if (temperature == 3) return STONY_PEAKS;
     return getBadlandsBiome(humidity, weirdness);
 }
 
-static void enterValleyBiomes(std::function<void(const std::array<const ParameterRange *,5>&,i64,Biome)> enter, const ParameterRange * weirdness) {
-    enter({temperatureParameters[0], &defaultRange, coastContinentalness, combine(erosionParameters[0], erosionParameters[1]), weirdness}, 0, weirdness->max < 0 ? STONY_SHORE : FROZEN_RIVER);
-    enter({nonFrozenParameters, &defaultRange, coastContinentalness, combine(erosionParameters[0], erosionParameters[1]), weirdness}, 0, weirdness->max < 0 ? STONY_SHORE : RIVER);
-    enter({temperatureParameters[0], &defaultRange, nearInlandContinentalness, combine(erosionParameters[0], erosionParameters[1]), weirdness}, 0, FROZEN_RIVER);
-    enter({nonFrozenParameters, &defaultRange, nearInlandContinentalness, combine(erosionParameters[0], erosionParameters[1]), weirdness}, 0, RIVER);
-    enter({temperatureParameters[0], &defaultRange, combine(nearInlandContinentalness, farInlandContinentalness), combine(erosionParameters[2], erosionParameters[5]), weirdness}, 0, FROZEN_RIVER);
-    enter({nonFrozenParameters, &defaultRange, combine(nearInlandContinentalness, farInlandContinentalness), combine(erosionParameters[2], erosionParameters[5]), weirdness}, 0, RIVER);
-    enter({temperatureParameters[0], &defaultRange, coastContinentalness, erosionParameters[6], weirdness}, 0, FROZEN_RIVER);
-    enter({nonFrozenParameters, &defaultRange, coastContinentalness, erosionParameters[6], weirdness}, 0, RIVER);
-    enter({combine(temperatureParameters[1], temperatureParameters[2]), &defaultRange, combine(riverContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, SWAMP);
-    enter({combine(temperatureParameters[3], temperatureParameters[4]), &defaultRange, combine(riverContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, MANGROVE_SWAMP);
-    enter({temperatureParameters[0], &defaultRange, combine(riverContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, FROZEN_RIVER);
+static void enterValleyBiomes(std::function<void(const std::array<const ParameterRange,5>&,i64,Biome)> enter, const ParameterRange& weirdness) {
+    enter({temperatureParameters[0], defaultRange, coastContinentalness, combine(erosionParameters[0], erosionParameters[1]), weirdness}, 0, weirdness.max < 0 ? STONY_SHORE : FROZEN_RIVER);
+    enter({nonFrozenParameters, defaultRange, coastContinentalness, combine(erosionParameters[0], erosionParameters[1]), weirdness}, 0, weirdness.max < 0 ? STONY_SHORE : RIVER);
+    enter({temperatureParameters[0], defaultRange, nearInlandContinentalness, combine(erosionParameters[0], erosionParameters[1]), weirdness}, 0, FROZEN_RIVER);
+    enter({nonFrozenParameters, defaultRange, nearInlandContinentalness, combine(erosionParameters[0], erosionParameters[1]), weirdness}, 0, RIVER);
+    enter({temperatureParameters[0], defaultRange, combine(nearInlandContinentalness, farInlandContinentalness), combine(erosionParameters[2], erosionParameters[5]), weirdness}, 0, FROZEN_RIVER);
+    enter({nonFrozenParameters, defaultRange, combine(nearInlandContinentalness, farInlandContinentalness), combine(erosionParameters[2], erosionParameters[5]), weirdness}, 0, RIVER);
+    enter({temperatureParameters[0], defaultRange, coastContinentalness, erosionParameters[6], weirdness}, 0, FROZEN_RIVER);
+    enter({nonFrozenParameters, defaultRange, coastContinentalness, erosionParameters[6], weirdness}, 0, RIVER);
+    enter({combine(temperatureParameters[1], temperatureParameters[2]), defaultRange, combine(riverContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, SWAMP);
+    enter({combine(temperatureParameters[3], temperatureParameters[4]), defaultRange, combine(riverContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, MANGROVE_SWAMP);
+    enter({temperatureParameters[0], defaultRange, combine(riverContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, FROZEN_RIVER);
     for (int i = 0; i < temperatureParameters.size(); ++i) {
-        const ParameterRange * temperature = temperatureParameters[i];
+        const ParameterRange temperature = temperatureParameters[i];
         for (int j = 0; j < humidityParameters.size(); ++j) {
-            const ParameterRange * humidity = humidityParameters[j];
+            const ParameterRange humidity = humidityParameters[j];
             Biome biome = getBadlandsOrRegularBiome(i, j, weirdness);
             enter({temperature, humidity, combine(midInlandContinentalness, farInlandContinentalness), combine(erosionParameters[0], erosionParameters[1]), weirdness}, 0, biome);
         }
     }
 }
 
-static void enterLowBiomes(std::function<void(const std::array<const ParameterRange *,5>&,i64,Biome)> enter, const ParameterRange * weirdness) {
-    enter({temperatureParameters[0], &defaultRange, coastContinentalness, combine(erosionParameters[0], erosionParameters[2]), weirdness}, 0, STONY_SHORE);
-    enter({combine(temperatureParameters[3], temperatureParameters[4]), &defaultRange, combine(nearInlandContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, SWAMP);
-    enter({combine(temperatureParameters[3], temperatureParameters[4]), &defaultRange, combine(nearInlandContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, SWAMP);
+static void enterLowBiomes(std::function<void(const std::array<const ParameterRange,5>&,i64,Biome)> enter, const ParameterRange& weirdness) {
+    enter({temperatureParameters[0], defaultRange, coastContinentalness, combine(erosionParameters[0], erosionParameters[2]), weirdness}, 0, STONY_SHORE);
+    enter({combine(temperatureParameters[3], temperatureParameters[4]), defaultRange, combine(nearInlandContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, SWAMP);
+    enter({combine(temperatureParameters[3], temperatureParameters[4]), defaultRange, combine(nearInlandContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, SWAMP);
     for (int i = 0; i < temperatureParameters.size(); ++i) {
-        const ParameterRange * temperature = temperatureParameters[i];
+        const ParameterRange temperature = temperatureParameters[i];
         for (int j = 0; j < humidityParameters.size(); ++j) {
-            const ParameterRange * humidity = humidityParameters[j];
+            const ParameterRange humidity = humidityParameters[j];
             Biome regular = getRegularBiome(i, j, weirdness);
             Biome badlandsOrRegular = getBadlandsOrRegularBiome(i, j, weirdness);
             Biome mountainStart = getMountainStartBiome(i, j, weirdness);
@@ -261,14 +261,14 @@ static void enterLowBiomes(std::function<void(const std::array<const ParameterRa
     }
 }
 
-static void enterMidBiomes(std::function<void(const std::array<const ParameterRange *,5>&,i64,Biome)> enter, const ParameterRange * weirdness) {
-    enter({&defaultRange, &defaultRange, coastContinentalness, combine(erosionParameters[0], erosionParameters[2]), weirdness}, 0, STONY_SHORE);
-    enter({combine(temperatureParameters[1], temperatureParameters[2]), &defaultRange, combine(nearInlandContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, SWAMP);
-    enter({combine(temperatureParameters[3], temperatureParameters[4]), &defaultRange, combine(nearInlandContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, MANGROVE_SWAMP);
+static void enterMidBiomes(std::function<void(const std::array<const ParameterRange,5>&,i64,Biome)> enter, const ParameterRange& weirdness) {
+    enter({defaultRange, defaultRange, coastContinentalness, combine(erosionParameters[0], erosionParameters[2]), weirdness}, 0, STONY_SHORE);
+    enter({combine(temperatureParameters[1], temperatureParameters[2]), defaultRange, combine(nearInlandContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, SWAMP);
+    enter({combine(temperatureParameters[3], temperatureParameters[4]), defaultRange, combine(nearInlandContinentalness, farInlandContinentalness), erosionParameters[6], weirdness}, 0, MANGROVE_SWAMP);
     for (int i = 0; i < temperatureParameters.size(); ++i) {
-        const ParameterRange * temperature = temperatureParameters[i];
+        const ParameterRange temperature = temperatureParameters[i];
         for (int j = 0; j < humidityParameters.size(); ++j) {
-            const ParameterRange * humidity = humidityParameters[j];
+            const ParameterRange humidity = humidityParameters[j];
             Biome regular = getRegularBiome(i, j, weirdness);
             Biome badlandsOrRegular = getBadlandsOrRegularBiome(i, j, weirdness);
             Biome mountainStart = getMountainStartBiome(i, j, weirdness);
@@ -286,7 +286,7 @@ static void enterMidBiomes(std::function<void(const std::array<const ParameterRa
             enter({temperature, humidity, farInlandContinentalness, erosionParameters[2], weirdness}, 0, nearMountain);
             enter({temperature, humidity, combine(coastContinentalness, nearInlandContinentalness), erosionParameters[3], weirdness}, 0, regular);
             enter({temperature, humidity, combine(midInlandContinentalness, farInlandContinentalness), erosionParameters[3], weirdness}, 0, badlandsOrRegular);
-            if (weirdness->max < 0) {
+            if (weirdness.max < 0) {
                 enter({temperature, humidity, coastContinentalness, erosionParameters[4], weirdness}, 0, shore);
                 enter({temperature, humidity, combine(nearInlandContinentalness, farInlandContinentalness), erosionParameters[4], weirdness}, 0, regular);
             } else
@@ -294,7 +294,7 @@ static void enterMidBiomes(std::function<void(const std::array<const ParameterRa
             enter({temperature, humidity, coastContinentalness, erosionParameters[5], weirdness}, 0, erodedShore);
             enter({temperature, humidity, nearInlandContinentalness, erosionParameters[5], weirdness}, 0, regularOrWindsweptSavanna);
             enter({temperature, humidity, combine(midInlandContinentalness, farInlandContinentalness), erosionParameters[5], weirdness}, 0, windsweptOrRegular);
-            if (weirdness->max < 0)
+            if (weirdness.max < 0)
                 enter({temperature, humidity, coastContinentalness, erosionParameters[6], weirdness}, 0, shore);
             else
                 enter({temperature, humidity, coastContinentalness, erosionParameters[6], weirdness}, 0, regular);
@@ -304,11 +304,11 @@ static void enterMidBiomes(std::function<void(const std::array<const ParameterRa
     }
 }
 
-static void enterHighBiomes(std::function<void(const std::array<const ParameterRange *,5>&,i64,Biome)> enter, const ParameterRange * weirdness) {
+static void enterHighBiomes(std::function<void(const std::array<const ParameterRange,5>&,i64,Biome)> enter, const ParameterRange& weirdness) {
     for (int i = 0; i < temperatureParameters.size(); ++i) {
-        const ParameterRange * temperature = temperatureParameters[i];
+        const ParameterRange temperature = temperatureParameters[i];
         for (int j = 0; j < humidityParameters.size(); ++j) {
-            const ParameterRange * humidity = humidityParameters[j];
+            const ParameterRange humidity = humidityParameters[j];
             Biome regular = getRegularBiome(i, j, weirdness);
             Biome badlandsOrRegular = getBadlandsOrRegularBiome(i, j, weirdness);
             Biome mountainStart = getMountainStartBiome(i, j, weirdness);
@@ -334,11 +334,11 @@ static void enterHighBiomes(std::function<void(const std::array<const ParameterR
     }
 }
 
-static void enterPeakBiomes(std::function<void(const std::array<const ParameterRange *,5>&,i64,Biome)> enter, const ParameterRange * weirdness) {
+static void enterPeakBiomes(std::function<void(const std::array<const ParameterRange,5>&,i64,Biome)> enter, const ParameterRange& weirdness) {
     for (int i = 0; i < temperatureParameters.size(); ++i) {
-        const ParameterRange * temperature = temperatureParameters[i];
+        const ParameterRange temperature = temperatureParameters[i];
         for (int j = 0; j < humidityParameters.size(); ++j) {
-            const ParameterRange * humidity = humidityParameters[j];
+            const ParameterRange humidity = humidityParameters[j];
             Biome regular = getRegularBiome(i, j, weirdness);
             Biome badlandsOrRegular = getBadlandsOrRegularBiome(i, j, weirdness);
             Biome mountainStart = getMountainStartBiome(i, j, weirdness);
@@ -361,45 +361,47 @@ static void enterPeakBiomes(std::function<void(const std::array<const ParameterR
     }
 }
 
-static constexpr SearchTree * genSearchTree() {
+//at some point this may just become a vector
+//which will be uglier but work a lot faster
+static SearchTree genSearchTree() {
     std::vector<std::pair<NoiseHypercube, Biome>> entries;
-    auto enter = [&entries](const std::array<const ParameterRange *, 5>& parameters, i64 offset, Biome biome){
-        entries.push_back(std::pair<NoiseHypercube, Biome>(NoiseHypercube(*parameters[0], *parameters[1], *parameters[2], *parameters[3], ParameterRange(0.f, 0.f), *parameters[4], offset), biome));
-        entries.push_back(std::pair<NoiseHypercube, Biome>(NoiseHypercube(*parameters[0], *parameters[1], *parameters[2], *parameters[3], ParameterRange(1.f, 1.f), *parameters[4], offset), biome));
+    auto enter = [&entries](const std::array<const ParameterRange, 5>& parameters, i64 offset, Biome biome){
+        entries.push_back(std::pair<NoiseHypercube, Biome>(NoiseHypercube(parameters[0], parameters[1], parameters[2], parameters[3], ParameterRange(0.f, 0.f), parameters[4], offset), biome));
+        entries.push_back(std::pair<NoiseHypercube, Biome>(NoiseHypercube(parameters[0], parameters[1], parameters[2], parameters[3], ParameterRange(1.f, 1.f), parameters[4], offset), biome));
     };
 
     //Ocean biomes
-    enter({&defaultRange, &defaultRange, new ParameterRange(-1.2f, -1.05f), &defaultRange, &defaultRange}, 0, MUSHROOM_FIELDS);
+    enter({defaultRange, defaultRange, ParameterRange(-1.2f, -1.05f), defaultRange, defaultRange}, 0, MUSHROOM_FIELDS);
     for (int i = 0; i < temperatureParameters.size(); ++i) {
-        const ParameterRange * temperature = temperatureParameters[i];
-        enter({temperature, &defaultRange, new ParameterRange(-1.05f, -0.455f), &defaultRange, &defaultRange}, 0, oceanBiomes[0][i]);
-        enter({temperature, &defaultRange, new ParameterRange(-0.455f, -0.19f), &defaultRange, &defaultRange}, 0, oceanBiomes[1][i]);
+        const ParameterRange temperature = temperatureParameters[i];
+        enter({temperature, defaultRange, ParameterRange(-1.05f, -0.455f), defaultRange, defaultRange}, 0, oceanBiomes[0][i]);
+        enter({temperature, defaultRange, ParameterRange(-0.455f, -0.19f), defaultRange, defaultRange}, 0, oceanBiomes[1][i]);
     }
 
     //Land biomes
-    enterMidBiomes(enter, new ParameterRange(-1.0f, -0.93333334f));
-    enterHighBiomes(enter, new ParameterRange(-0.93333334f, -0.7666667f));
-    enterPeakBiomes(enter, new ParameterRange(-0.7666667f, -0.56666666f));
-    enterHighBiomes(enter, new ParameterRange(-0.56666666f, -0.4f));
-    enterMidBiomes(enter, new ParameterRange(-0.4f, -0.26666668f));
-    enterLowBiomes(enter, new ParameterRange(-0.26666668f, -0.05f));
-    enterValleyBiomes(enter, new ParameterRange(-0.05f, 0.05f));
-    enterLowBiomes(enter, new ParameterRange(0.05f, 0.26666668f));
-    enterMidBiomes(enter, new ParameterRange(0.26666668f, 0.4f));
-    enterHighBiomes(enter, new ParameterRange(0.4f, 0.56666666f));
-    enterPeakBiomes(enter, new ParameterRange(0.56666666f, 0.7666667f));
-    enterHighBiomes(enter, new ParameterRange(0.7666667f, 0.93333334f));
-    enterMidBiomes(enter, new ParameterRange(0.93333334f, 1.0f));
+    enterMidBiomes(enter, ParameterRange(-1.0f, -0.93333334f));
+    enterHighBiomes(enter, ParameterRange(-0.93333334f, -0.7666667f));
+    enterPeakBiomes(enter, ParameterRange(-0.7666667f, -0.56666666f));
+    enterHighBiomes(enter, ParameterRange(-0.56666666f, -0.4f));
+    enterMidBiomes(enter, ParameterRange(-0.4f, -0.26666668f));
+    enterLowBiomes(enter, ParameterRange(-0.26666668f, -0.05f));
+    enterValleyBiomes(enter, ParameterRange(-0.05f, 0.05f));
+    enterLowBiomes(enter, ParameterRange(0.05f, 0.26666668f));
+    enterMidBiomes(enter, ParameterRange(0.26666668f, 0.4f));
+    enterHighBiomes(enter, ParameterRange(0.4f, 0.56666666f));
+    enterPeakBiomes(enter, ParameterRange(0.56666666f, 0.7666667f));
+    enterHighBiomes(enter, ParameterRange(0.7666667f, 0.93333334f));
+    enterMidBiomes(enter, ParameterRange(0.93333334f, 1.0f));
 
     //Cave biomes
     entries.push_back(std::pair<NoiseHypercube, Biome>(NoiseHypercube(defaultRange, ParameterRange(0.7f, 1.0f), defaultRange, defaultRange, ParameterRange(0.2f, 0.9f), defaultRange, 0), LUSH_CAVES));
     entries.push_back(std::pair<NoiseHypercube, Biome>(NoiseHypercube(defaultRange, defaultRange, ParameterRange(0.8f, 1.0f), defaultRange, ParameterRange(0.2f, 0.9f), defaultRange, 0), DRIPSTONE_CAVES));
-    entries.push_back(std::pair<NoiseHypercube, Biome>(NoiseHypercube(defaultRange, defaultRange, defaultRange, *combine(erosionParameters[0], erosionParameters[1]), ParameterRange(1.1f, 1.1f), defaultRange, 0), DEEP_DARK));
+    entries.push_back(std::pair<NoiseHypercube, Biome>(NoiseHypercube(defaultRange, defaultRange, defaultRange, combine(erosionParameters[0], erosionParameters[1]), ParameterRange(1.1f, 1.1f), defaultRange, 0), DEEP_DARK));
 
-    return new SearchTree(entries);
+    return SearchTree(entries);
 }
 
 const SearchTree * getSearchTree() {
-    static constexpr SearchTree * INSTANCE = genSearchTree();
-    return INSTANCE;
+    static const SearchTree INSTANCE = genSearchTree();
+    return &INSTANCE;
 }

@@ -87,8 +87,7 @@ struct SearchTree {
     Biome get(NoisePoint point) const;
 };
 
-inline bool searchTreeGeneratedAtCompileTime = true;
-
+// might replace this function with a simple variable
 const SearchTree * getSearchTree();
 
 #endif

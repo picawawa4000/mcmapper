@@ -5,12 +5,12 @@
 #include <fstream>
 #include <set>
 
-#include <mcmapper.hpp>
-#include <structure.hpp>
+#include <mcmapper/mcmapper.hpp>
+#include <mcmapper/structure.hpp>
 
 const i64 SEED = 684512;
 const StructurePlacement EVOKER_FORT(85, 50, SpreadType::LINEAR, SEED);
-const Tag<Biome> EVOKER_FORT_BIOMES = Tag<Biome>({Biome::WINDSWEPT_SAVANNA, Biome::SAVANNA, Biome::SAVANNA_PLATEAU}).add(Biome::DESERT).add({Biome::PLAINS, Biome::SUNFLOWER_PLAINS}).add(biomesets::HILL).add(biomesets::FOREST);
+const Tag<Biome> EVOKER_FORT_BIOMES = Tag<Biome>({Biome::WINDSWEPT_SAVANNA, Biome::SAVANNA, Biome::SAVANNA_PLATEAU}).add(Biome::DESERT).add({Biome::PLAINS, Biome::SUNFLOWER_PLAINS}).add(biometags::HILL).add(biometags::FOREST);
 
 int main() {
     std::fstream file("out.log", file.trunc | file.in | file.out);

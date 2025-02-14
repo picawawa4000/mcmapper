@@ -24,8 +24,6 @@ int main() {
 
     ClimateNoises noises(worldSeed);
 
-    printBool(searchTreeGeneratedAtCompileTime);
-
 /*
     std::cout << "Found village at " << placements::VILLAGE.findStart(worldSeed, 0, 0).chunkToBlock() << " in seed 3447; expected (48, 0)" << std::endl;
 */

@@ -74,46 +74,12 @@ struct ClimateNoises {
         this->seedHi = hi;
     }
 
-    f32 shiftX(f32 x, f32 z) const {
+    inline f32 shiftX(f32 x, f32 z) const {
         return this->offset.sample(x, 0, z) * 4.;
     }
 
-    f32 shiftZ(f32 x, f32 z) const {
+    inline f32 shiftZ(f32 x, f32 z) const {
         return this->offset.sample(z, x, 0) * 4.;
-    }
-
-    f32 sampleContinentalness(f32 x, f32 z) const {
-        f32 inX = std::floor(x * 0.25) + shiftX(x, z);
-        f32 inZ = std::floor(z * 0.25) + shiftZ(x, z);
-        return this->continentalness.sample(inX, 0, inZ);
-    }
-
-    f32 sampleErosion(f32 x, f32 z) const {
-        f32 inX = std::floor(x * 0.25) + shiftX(x, z);
-        f32 inZ = std::floor(z * 0.25) + shiftZ(x, z);
-        return this->continentalness.sample(inX, 0, inZ);
-    }
-
-    f32 sampleWeirdness(f32 x, f32 z) const {
-        f32 inX = std::floor(x * 0.25) + shiftX(x, z);
-        f32 inZ = std::floor(z * 0.25) + shiftZ(x, z);
-        return this->weirdness.sample(inX, 0, inZ);
-    }
-
-    f32 sampleDepth(f32 x, f32 y, f32 z) const {
-        f32 continentalnessOut = this->sampleContinentalness(x, z);
-        f32 erosionOut = this->sampleErosion(x, z);
-        f32 weirdnessOut = this->sampleWeirdness(x, z);
-        f32 depthOffset = ClimateNoises::offsetSpline.sample({continentalnessOut, erosionOut, static_cast<f32>(pvTransform(weirdnessOut)), weirdnessOut}) + 0.015f;
-        return 1.0 - (y * 4) / 128.0 - (83.f / 160.f) + depthOffset;
-    }
-
-    f32 sampleFactor(f32 x, f32 y, f32 z) const {
-        f32 continentalnessOut = this->sampleContinentalness(x, z);
-        f32 erosionOut = this->sampleErosion(x, z);
-        f32 weirdnessOut = this->sampleWeirdness(x, z);
-        f32 factor = ClimateNoises::factorSpline.sample({continentalnessOut, erosionOut, static_cast<f32>(pvTransform(weirdnessOut)), weirdnessOut});
-        return lerp(1, 10, factor);
     }
 
     f32 sampleInitialDensity(int x, int y, int z, bool biome_scale = false) const {

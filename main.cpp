@@ -5,8 +5,8 @@
 #include <fstream>
 #include <set>
 
-#include <mcmapper.hpp>
-#include <structure.hpp>
+#include <mcmapper/mcmapper.hpp>
+#include <mcmapper/structure.hpp>
 
 int main() {
     XoroshiroRandom rng(25125321);
