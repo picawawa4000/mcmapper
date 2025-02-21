@@ -82,6 +82,35 @@ struct ClimateNoises {
         return this->offset.sample(z, x, 0) * 4.;
     }
 
+    NoisePoint sample(int x, int y, int z, bool biome_scale = false, bool no_shift = false, bool no_depth = false) const {
+        f32 inX = biome_scale ? x : (x >> 2), inY = biome_scale ? y : (y >> 2), inZ = biome_scale ? z : (z >> 2);
+        if (!no_shift) {
+            inX += this->shiftX(inX, inZ);
+            inZ += this->shiftZ(inX, inZ);
+        }
+
+        f32 temperatureOut = (f32)(this->temperature.sample(inX, 0, inZ));
+        f32 humidityOut = (f32)(this->humidity.sample(inX, 0, inZ));
+        f32 continentalnessOut = (f32)(this->continentalness.sample(inX, 0, inZ));
+        f32 erosionOut = (f32)(this->erosion.sample(inX, 0, inZ));
+        f32 weirdnessOut = (f32)(this->weirdness.sample(inX, 0, inZ));
+
+        f32 depth = 0.f;
+        if (!no_depth) {
+            std::array<f32, 4> params = {continentalnessOut, erosionOut, static_cast<f32>(pvTransform(weirdnessOut)), weirdnessOut};
+            f32 depthOffset = ClimateNoises::offsetSpline.sample(params) - 0.50375f;
+            depth = yClampedGradient(inY * 4., -64, 320, 1.5, -1.5) + depthOffset;
+        }
+        
+        return NoisePoint(temperatureOut * 10000.f, humidityOut * 10000.f, continentalnessOut * 10000.f, erosionOut * 10000.f, depth * 10000.f, weirdnessOut * 10000.f);
+    }
+
+    //api note: if not using the pale garden, it can just be unconditionally replaced with dark forest for accurate results
+    Biome getBiomeAt(int x, int y, int z, bool no_shift = false, bool no_depth = false) {
+        NoisePoint point = this->sample(x, y, z, false, no_shift, no_depth);
+        return this->biomeSearchTree->get(point);
+    }
+
     f32 sampleInitialDensity(int x, int y, int z, bool biome_scale = false) const {
         f32 inX = (x >> 2) + this->shiftX(x, z);
         f32 inZ = (z >> 2) + this->shiftZ(x, z);
@@ -111,37 +140,6 @@ struct ClimateNoises {
         f64 topLerp = lerp(topGradient, -0.078125, initialDensity);
         f64 bottomLerp = lerp(bottomGradient, 0.1171875, topLerp);
         return bottomLerp;
-    }
-
-    //Don't make this use the other functions in this class, because this is faster this way.
-    //The other functions are really just for debugging.
-    NoisePoint sample(int x, int y, int z, bool biome_scale = false, bool no_shift = false, bool no_depth = false) const {
-        f32 inX = biome_scale ? x : (x >> 2), inY = biome_scale ? y : (y >> 2), inZ = biome_scale ? z : (z >> 2);
-        if (!no_shift) {
-            inX += this->shiftX(inX, inZ);
-            inZ += this->shiftZ(inX, inZ);
-        }
-
-        f32 temperatureOut = (f32)(this->temperature.sample(inX, 0, inZ));
-        f32 humidityOut = (f32)(this->humidity.sample(inX, 0, inZ));
-        f32 continentalnessOut = (f32)(this->continentalness.sample(inX, 0, inZ));
-        f32 erosionOut = (f32)(this->erosion.sample(inX, 0, inZ));
-        f32 weirdnessOut = (f32)(this->weirdness.sample(inX, 0, inZ));
-
-        f32 depth = 0.f;
-        if (!no_depth) {
-            std::array<f32, 4> params = {continentalnessOut, erosionOut, static_cast<f32>(pvTransform(weirdnessOut)), weirdnessOut};
-            f32 depthOffset = ClimateNoises::offsetSpline.sample(params) - 0.50375f;
-            depth = yClampedGradient(inY * 4., -64, 320, 1.5, -1.5) + depthOffset;
-        }
-        
-        return NoisePoint(temperatureOut * 10000.f, humidityOut * 10000.f, continentalnessOut * 10000.f, erosionOut * 10000.f, depth * 10000.f, weirdnessOut * 10000.f);
-    }
-
-    //api note: if not using the pale garden, it can just be unconditionally replaced with dark forest for accurate results
-    Biome getBiomeAt(int x, int y, int z, bool no_shift = false, bool no_depth = false) {
-        NoisePoint point = this->sample(x, y, z, false, no_shift, no_depth);
-        return this->biomeSearchTree->get(point);
     }
 
     ///TODO: remove everything that is y-independent (like factor) from the y-loop to boost performance

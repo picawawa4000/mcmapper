@@ -1,5 +1,7 @@
 #include <mcmapper/structures.hpp>
 #include <mcmapper/mcmapper.hpp>
+#include <mcmapper/loot.hpp>
+#include <mcmapper/builtin_loot.hpp>
 
 #include <iostream>
 #include <chrono>
@@ -71,6 +73,12 @@ int main() {
         std::cout << "At (" << x << ", " << z << "): " << estimate << std::endl;
     }
 */
+
+    LootContext context(33333);
+    std::shared_ptr<LootTable> pyramidTable = getOrBuildDesertPyramidLootTable();
+    pyramidTable->roll(context, [](ItemStack stack) -> void {
+        std::cout << stack.id << " x " << stack.count.value() << std::endl;
+    });
 
     return 0;
 }

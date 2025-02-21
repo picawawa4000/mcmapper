@@ -1,18 +1,17 @@
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <string>
-#include <fstream>
-#include <set>
+#include <mcmapper/util.hpp>
 
-#include <mcmapper/mcmapper.hpp>
-#include <mcmapper/structure.hpp>
+#include <iostream>
+
+inline u64 ror(u64 input, u32 shift) {
+    if ((shift &= 63) == 0) return input;
+    return (input >> shift) | (input << (64 - shift));
+}
 
 int main() {
-    XoroshiroRandom rng(25125321);
-    PerlinNoise noise(rng);
+    u64 dummy = 0b1001100010010101001010100101010100101010010101010010100101010010ULL;
 
-    for (int i = 0; i < 16; ++i) for (int j = 0; j < 16; ++j) std::cout << noise.sample(i, 0, j) << std::endl;
+    for (int i = 0; i < 64; ++i)
+        std::cout << ror(dummy, i) << ": " << rol(dummy, 64 - i) << std::endl;
 
     return 0;
 }

@@ -16,14 +16,13 @@ struct StructurePlacement {
     i32 separation;
     i32 salt;
     SpreadType spreadType;
-    const std::vector<Biome> * legalBiomes;
+    const std::vector<Biome> legalBiomes;
 
-    StructurePlacement(i32 spacing, i32 separation, SpreadType spreadType, i32 salt) : spacing(spacing), separation(separation), salt(salt), spreadType(spreadType), legalBiomes(nullptr) {}
-
-    StructurePlacement(i32 spacing, i32 separation, SpreadType spreadType, i32 salt, const std::vector<Biome> * legalBiomes) : spacing(spacing), separation(separation), salt(salt), spreadType(spreadType), legalBiomes(legalBiomes) {}
+    StructurePlacement(i32 spacing, i32 separation, SpreadType spreadType, i32 salt) : spacing(spacing), separation(separation), salt(salt), spreadType(spreadType), legalBiomes({}) {}
+    StructurePlacement(i32 spacing, i32 separation, SpreadType spreadType, i32 salt, const std::vector<Biome> legalBiomes) : spacing(spacing), separation(separation), salt(salt), spreadType(spreadType), legalBiomes(legalBiomes) {}
 
     Pos2D findStart(i64 worldSeed, i32 regionX, i32 regionZ) const {
-        CheckedRandom rng((i64)regionX * 341873128712ULL + (i64)regionZ * 132897987541ULL + worldSeed + (i64)salt);
+        CheckedRandom rng((i64)regionX * 341873128712ULL + (i64)regionZ * 132897987541ULL + worldSeed + (i64)this->salt);
         i32 dist = this->spacing - this->separation;
 
         //I tried to make this part an inline function but it didn't work...
