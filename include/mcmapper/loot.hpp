@@ -30,7 +30,7 @@ struct ItemStack {
 
 // Abstract
 struct LootNumberProvider {
-    virtual ~LootNumberProvider() {}
+    virtual ~LootNumberProvider() = default;
     virtual i32 next(LootContext& context) = 0;
 };
 
@@ -39,7 +39,7 @@ struct ConstantLootNumberProvider : public LootNumberProvider {
 
     explicit ConstantLootNumberProvider(i32 count) : count(count) {}
 
-    virtual ~ConstantLootNumberProvider() {}
+    virtual ~ConstantLootNumberProvider() = default;
 
     virtual i32 next(LootContext& context) override {
         return this->count;
@@ -49,9 +49,9 @@ struct ConstantLootNumberProvider : public LootNumberProvider {
 struct UniformLootNumberProvider : public LootNumberProvider {
     i32 min, max;
 
-    UniformLootNumberProvider(i32 min, i32 max) : min(min), max(max) {};
+    UniformLootNumberProvider(i32 min, i32 max) : min(min), max(max) {}
 
-    virtual ~UniformLootNumberProvider() {}
+    virtual ~UniformLootNumberProvider() = default;
 
     virtual i32 next(LootContext& context) override {
         return context.random.next_i32(max - min + 1) + min;
@@ -94,33 +94,28 @@ struct LootWeights {
 
 // Abstract
 struct LootEntry {
-    virtual ~LootEntry() {}
+    virtual ~LootEntry() = default;
     virtual void generateLoot(LootContext& context, std::function<void(ItemStack)> enter) = 0;
 };
 
 struct ItemEntry : public LootEntry {
-    const std::string& stackID;
+    const std::string stackID;
     std::unique_ptr<LootNumberProvider> count;
 
-    ItemEntry(const std::string& stackID) : stackID(stackID), count(std::unique_ptr<LootNumberProvider>(new ConstantLootNumberProvider(1))) {}
-    // Invalidates count
-    ItemEntry(const std::string& stackID, std::unique_ptr<LootNumberProvider> count) : stackID(stackID) {
-        this->count.swap(count);
-    }
+    ItemEntry(const std::string& stackID, i32 count) : stackID(stackID), count(std::make_unique<ConstantLootNumberProvider>(count)) {}
+    ItemEntry(const std::string& stackID, i32 min, i32 max) : stackID(stackID), count(std::make_unique<UniformLootNumberProvider>(min, max)) {}
+    explicit ItemEntry(const std::string& stackID) : ItemEntry(stackID, 1) {}
 
-    // For builders
-    template <class T> ItemEntry(const std::string& stackID, T count) : stackID(stackID) {
-        static_assert(std::is_convertible_v<T*, LootNumberProvider*>);
-        this->count.reset(&count);
-    }
+    virtual ~ItemEntry() = default;
 
     virtual void generateLoot(LootContext& context, std::function<void(ItemStack)> enter) override {
         i32 itemCount = this->count->next(context);
-        enter(ItemStack(stackID, (u32)itemCount));
+        enter(ItemStack(this->stackID, (u32)itemCount));
     }
 };
 
 struct NothingEntry : public LootEntry {
+    virtual ~NothingEntry() = default;
     virtual void generateLoot(LootContext& context, std::function<void(ItemStack)> enter) override {}
 };
 
@@ -143,8 +138,8 @@ struct LootPool {
     // Builder constructor
     template <class T> LootPool(T rolls, std::vector<std::pair<u32, std::unique_ptr<LootEntry>>> entries) {
         static_assert(std::is_convertible_v<T*, LootNumberProvider*>);
-        this->rolls.reset(&rolls);
-
+        this->rolls = std::make_unique<T>(rolls);
+        
         this->weights.weights.reserve(entries.size());
         this->entries.reserve(entries.size());
         for (std::pair<u32, std::unique_ptr<LootEntry>>& entry : entries) {
@@ -155,6 +150,7 @@ struct LootPool {
     }
 
     //"Copy" constructor (invalidates other)
+/*
     explicit LootPool(LootPool& other) {
         this->rolls.swap(other.rolls);
         this->weights = other.weights;
@@ -165,9 +161,11 @@ struct LootPool {
             this->entries[i].swap(other.entries[i]);
         }
     }
+*/
 
     void roll(LootContext& context, std::function<void(ItemStack)> enter) {
-        for (i32 rollCount = rolls->next(context); rollCount > 0; --rollCount)
+        i32 rollCount = this->rolls->next(context);
+        for (; rollCount > 0; --rollCount)
             this->rollOnce(context, enter);
     }
 
@@ -185,7 +183,8 @@ struct LootTable {
     LootTable(std::vector<std::unique_ptr<LootPool>>& lootPools) : lootPools(std::move(lootPools)) {}
 
     void roll(LootContext& context, std::function<void(ItemStack)> enter) {
-        for (std::unique_ptr<LootPool>& pool : this->lootPools) pool->roll(context, enter);
+        for (std::unique_ptr<LootPool>& pool : this->lootPools)
+            pool->roll(context, enter);
     }
 };
 

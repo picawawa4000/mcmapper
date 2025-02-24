@@ -1,16 +1,15 @@
 #include <mcmapper/loot.hpp>
 
+#include <iostream>
+
 struct LootPoolBuilder {
-    template <class T> LootPoolBuilder(T rolls) {
-        static_assert(std::is_convertible_v<T*, LootNumberProvider*>);
-        this->rolls.reset(&rolls);
+    explicit LootPoolBuilder(i32 count) {
+        this->rolls = std::make_unique<ConstantLootNumberProvider>(count);
+    }
+    LootPoolBuilder(i32 min, i32 max) {
+        this->rolls = std::make_unique<UniformLootNumberProvider>(min, max);
     }
 
-    // ItemEntry
-    void entry(u32 weight, ItemEntry * entry) {
-        this->weights.weights.push_back(LootWeight(weight));
-        this->entries.push_back(std::unique_ptr<LootEntry>(entry));
-    }
     // NothingEntry
     void entry(u32 weight) {
         this->weights.weights.push_back(LootWeight(weight));
@@ -19,17 +18,23 @@ struct LootPoolBuilder {
     }
 
     // Helpers
-    void entry(u32 weight, const std::string& stackID) {this->entry(weight, new ItemEntry(stackID));}
+    void entry(u32 weight, const std::string& stackID) {
+        this->weights.weights.push_back(LootWeight(weight));
+        this->entries.push_back(std::make_unique<ItemEntry>(stackID));
+    }
     void entry(u32 weight, const std::string& stackID, u32 count) {
+        this->weights.weights.push_back(LootWeight(weight));
         ConstantLootNumberProvider provider(count);
-        this->entry(weight, new ItemEntry(stackID, provider));
+        this->entries.push_back(std::make_unique<ItemEntry>(stackID, count));
     }
     void entry(u32 weight, const std::string& stackID, u32 min, u32 max) {
+        this->weights.weights.push_back(LootWeight(weight));
         UniformLootNumberProvider provider(min, max);
-        this->entry(weight, new ItemEntry(stackID, provider));
+        this->entries.push_back(std::make_unique<ItemEntry>(stackID, min, max));
     }
 
     LootPool * build() {
+        for (LootWeight& weight : this->weights.weights) std::cout << weight.baseWeight << std::endl;
         return new LootPool(this->rolls, this->weights, this->entries);
     }
 
@@ -41,7 +46,6 @@ private:
 
 struct LootTableBuilder {
     void pool(LootPool * pool) {
-        std::cout << this->pools.size() << std::endl;
         this->pools.push_back(std::unique_ptr<LootPool>(pool));
     }
     LootTable * build() {return new LootTable(this->pools);}
@@ -54,9 +58,7 @@ std::shared_ptr<LootTable> getOrBuildDesertPyramidLootTable() {
     static std::shared_ptr<LootTable> DESERT_PYRAMID = nullptr;
     if (DESERT_PYRAMID) return DESERT_PYRAMID;
 
-    LootTableBuilder * b = new LootTableBuilder();
-
-    LootPoolBuilder * p = new LootPoolBuilder(UniformLootNumberProvider(2, 4));
+    LootPoolBuilder * p = new LootPoolBuilder(2, 4);
     p->entry(5, "minecraft:diamond", 1, 3);
     p->entry(15, "minecraft:iron_ingot", 1, 5);
     p->entry(15, "minecraft:gold_ingot", 2, 7);
@@ -72,25 +74,30 @@ std::shared_ptr<LootTable> getOrBuildDesertPyramidLootTable() {
     p->entry(20, "minecraft:enchanted_book");
     p->entry(20, "minecraft:golden_apple");
     p->entry(2, "minecraft:enchanted_golden_apple");
-    p->entry(10, "minecraft:bone", 1, 8);
-    p->entry(10, "minecraft:gunpowder", 1, 8);
-    p->entry(10, "minecraft:rotten_flesh", 1, 8);
-    p->entry(10, "minecraft:string", 1, 8);
-    p->entry(10, "minecraft:sand", 1, 8);
+    p->entry(15);
 
-    LootPoolBuilder * trimPool = new LootPoolBuilder(ConstantLootNumberProvider(1));
+    LootPoolBuilder * j = new LootPoolBuilder(4); // j for junk
+    j->entry(10, "minecraft:bone", 1, 8);
+    j->entry(10, "minecraft:gunpowder", 1, 8);
+    j->entry(10, "minecraft:rotten_flesh", 1, 8);
+    j->entry(10, "minecraft:string", 1, 8);
+    j->entry(10, "minecraft:sand", 1, 8);
 
-    trimPool->entry(6);
-    trimPool->entry(1, "minecraft:dune_armor_trim_smithing_template", 2);
+    LootPoolBuilder * t = new LootPoolBuilder(1); // t for trim
+    t->entry(6);
+    t->entry(1, "minecraft:dune_armor_trim_smithing_template", 2);
 
+    LootTableBuilder * b = new LootTableBuilder();
     b->pool(p->build());
-    b->pool(trimPool->build());
+    b->pool(j->build());
+    b->pool(t->build());
 
     DESERT_PYRAMID = std::shared_ptr<LootTable>(b->build());
 
-    delete b;
     delete p;
-    delete trimPool;
+    delete j;
+    delete t;
+    delete b;
 
     return DESERT_PYRAMID;
 }

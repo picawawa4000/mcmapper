@@ -24,11 +24,11 @@ void printBool(bool b) {
 int main() {
     const i64 worldSeed = 3447;
 
-    ClimateNoises noises(worldSeed);
-
 /*
     std::cout << "Found village at " << placements::VILLAGE.findStart(worldSeed, 0, 0).chunkToBlock() << " in seed 3447; expected (48, 0)" << std::endl;
-*/
+*-/
+
+    ClimateNoises noises(worldSeed);
 
     std::chrono::high_resolution_clock clock;
     auto start = clock.now();
@@ -51,7 +51,7 @@ int main() {
     end = clock.now();
     std::cout << "Found biome " << biomeRepr(biome) << " at position -896, -48, 1152 in seed 3447; expected Deep Dark (time taken: " << end - start << ")" << std::endl;
 
-/*
+/-*
     int heightEstimate = noises.estimateHeight(-92, 327);
     std::cout << "Estimated surface at position (-92, 327) to be " << heightEstimate << ", expected about 70..." << std::endl;
 
