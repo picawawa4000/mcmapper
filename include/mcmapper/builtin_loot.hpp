@@ -2,6 +2,13 @@
 
 #include <iostream>
 
+// Helper to avoid u32s being cast to bools, which would cause overload resolution problems.
+struct bool_t {
+    bool val;
+    explicit bool_t(bool val) : val(val) {}
+    operator bool() {return this->val;}
+};
+
 struct LootPoolBuilder {
     explicit LootPoolBuilder(i32 count) {
         this->rolls = std::make_unique<ConstantLootNumberProvider>(count);
@@ -18,23 +25,29 @@ struct LootPoolBuilder {
     }
 
     // Helpers
-    void entry(u32 weight, const std::string& stackID) {
+    void entry(u32 weight, const std::string& stackID, bool_t enchant = bool_t(false)) {
         this->weights.weights.push_back(LootWeight(weight));
-        this->entries.push_back(std::make_unique<ItemEntry>(stackID));
+        if (enchant)
+            this->entries.push_back(std::make_unique<ItemEntry>(stackID, EnchantRandomlyLootFunction()));
+        else
+            this->entries.push_back(std::make_unique<ItemEntry>(stackID));
     }
-    void entry(u32 weight, const std::string& stackID, u32 count) {
+    void entry(u32 weight, const std::string& stackID, u32 count, bool_t enchant = bool_t(false)) {
         this->weights.weights.push_back(LootWeight(weight));
-        ConstantLootNumberProvider provider(count);
-        this->entries.push_back(std::make_unique<ItemEntry>(stackID, count));
+        if (enchant)
+            this->entries.push_back(std::make_unique<ItemEntry>(stackID, count, EnchantRandomlyLootFunction()));
+        else
+            this->entries.push_back(std::make_unique<ItemEntry>(stackID, count));
     }
-    void entry(u32 weight, const std::string& stackID, u32 min, u32 max) {
+    void entry(u32 weight, const std::string& stackID, u32 min, u32 max, bool_t enchant = bool_t(false)) {
         this->weights.weights.push_back(LootWeight(weight));
-        UniformLootNumberProvider provider(min, max);
-        this->entries.push_back(std::make_unique<ItemEntry>(stackID, min, max));
+        if (enchant)
+            this->entries.push_back(std::make_unique<ItemEntry>(stackID, min, max, EnchantRandomlyLootFunction()));
+        else
+            this->entries.push_back(std::make_unique<ItemEntry>(stackID, min, max));
     }
 
     LootPool * build() {
-        for (LootWeight& weight : this->weights.weights) std::cout << weight.baseWeight << std::endl;
         return new LootPool(this->rolls, this->weights, this->entries);
     }
 
@@ -71,7 +84,7 @@ std::shared_ptr<LootTable> getOrBuildDesertPyramidLootTable() {
     p->entry(10, "minecraft:golden_horse_armor");
     p->entry(5, "minecraft:diamond_horse_armor");
     /// TODO: item modifiers (i.e. enchantments)
-    p->entry(20, "minecraft:enchanted_book");
+    p->entry(20, "minecraft:enchanted_book", bool_t(true));
     p->entry(20, "minecraft:golden_apple");
     p->entry(2, "minecraft:enchanted_golden_apple");
     p->entry(15);

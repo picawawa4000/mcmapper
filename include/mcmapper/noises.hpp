@@ -111,6 +111,8 @@ struct ClimateNoises {
         return this->biomeSearchTree->get(point);
     }
 
+    // turns out that this is AS in the debug screen
+    // this is correct btw
     f32 sampleInitialDensity(int x, int y, int z, bool biome_scale = false) const {
         f32 inX = (x >> 2) + this->shiftX(x, z);
         f32 inZ = (z >> 2) + this->shiftZ(x, z);
@@ -127,7 +129,7 @@ struct ClimateNoises {
 
         f32 factor = ClimateNoises::factorSpline.sample(values);
 
-        std::cout << "depth = " << depth << ", factor = " << factor << std::endl;
+        //std::cout << "depth = " << depth << ", factor = " << factor << std::endl;
 
         f32 initialDensity = depth * factor;
         if (initialDensity > 0.) initialDensity *= 4.;

@@ -8,6 +8,66 @@
 #include <string>
 #include <memory>
 
+#include <iostream>
+
+// TODO: give items their own file
+struct Enchantment {
+    const std::string id;
+    u32 maxLevel = 1;
+
+    explicit Enchantment(const std::string& id) : id(id) {}
+    Enchantment(const std::string& id, u32 maxLevel) : id(id), maxLevel(maxLevel) {}
+};
+
+struct EnchantmentInstance {
+    const std::string id;
+    u32 level;
+    
+    EnchantmentInstance(Enchantment type, u32 level) : id(type.id), level(level) {}
+};
+
+const std::array<Enchantment, 39> vanillaRandomEnchants{
+    Enchantment("minecraft:protection", 4),
+    Enchantment("minecraft:fire_protection", 4),
+    Enchantment("minecraft:feather_falling", 4),
+    Enchantment("minecraft:blast_protection", 4),
+    Enchantment("minecraft:projectile_protection", 4),
+    Enchantment("minecraft:respiration", 3),
+    Enchantment("minecraft:aqua_affinity"),
+    Enchantment("minecraft:thorns", 3),
+    Enchantment("minecraft:depth_strider", 3),
+    Enchantment("minecraft:frost_walker", 2),
+    Enchantment("minecraft:binding_curse"),
+    Enchantment("minecraft:sharpness", 5),
+    Enchantment("minecraft:smite", 5),
+    Enchantment("minecraft:bane_of_arthropods", 5),
+    Enchantment("minecraft:knockback", 2),
+    Enchantment("minecraft:fire_aspect", 2),
+    Enchantment("minecraft:looting", 3),
+    Enchantment("minecraft:sweeping_edge", 3),
+    Enchantment("minecraft:efficiency", 5),
+    Enchantment("minecraft:silk_touch"),
+    Enchantment("minecraft:unbreaking", 3),
+    Enchantment("minecraft:fortune", 3),
+    Enchantment("minecraft:power", 5),
+    Enchantment("minecraft:punch", 2),
+    Enchantment("minecraft:flame"),
+    Enchantment("minecraft:infinity"),
+    Enchantment("minecraft:luck_of_the_sea", 3),
+    Enchantment("minecraft:lure", 3),
+    Enchantment("minecraft:loyalty", 3),
+    Enchantment("minecraft:impaling", 5),
+    Enchantment("minecraft:riptide", 3),
+    Enchantment("minecraft:channeling"),
+    Enchantment("minecraft:multishot"),
+    Enchantment("minecraft:quick_charge", 3),
+    Enchantment("minecraft:piercing", 4),
+    Enchantment("minecraft:density", 5),
+    Enchantment("minecraft:breach", 4),
+    Enchantment("minecraft:mending"),
+    Enchantment("minecraft:vanishing_curse")
+};
+
 struct LootContext {
     CheckedRandom random;
     float luck;
@@ -22,10 +82,13 @@ struct LootContext {
 // I don't know why I don't do that here, but I don't.
 struct ItemStack {
     std::string id;
-    std::optional<u32> count;
+    u32 count = 1;
+    std::optional<std::vector<EnchantmentInstance>> enchantments{};
 
-    ItemStack(std::string id) : id(id), count(std::optional<u32>()) {}
+    explicit ItemStack(std::string id) : id(id) {}
     ItemStack(std::string id, u32 count) : id(id), count(count) {}
+    ItemStack(std::string id, std::vector<EnchantmentInstance> enchantments) : id(id), enchantments(enchantments) {}
+    ItemStack(std::string id, u32 count, std::vector<EnchantmentInstance> enchantments) : id(id), count(count), enchantments(enchantments) {}
 };
 
 // Abstract
@@ -55,6 +118,29 @@ struct UniformLootNumberProvider : public LootNumberProvider {
 
     virtual i32 next(LootContext& context) override {
         return context.random.next_i32(max - min + 1) + min;
+    }
+};
+
+//Abstract
+struct LootFunction {
+    virtual ~LootFunction() = default;
+    virtual ItemStack apply(const ItemStack& input, LootContext& context) = 0;
+};
+
+struct EnchantRandomlyLootFunction : public LootFunction {
+    virtual ~EnchantRandomlyLootFunction() = default;
+
+    virtual ItemStack apply(const ItemStack& input, LootContext& context) {
+        i32 idx = context.random.next_i32(vanillaRandomEnchants.size());
+        std::cout << "idx = " << idx << " out of " << vanillaRandomEnchants.size() << std::endl;
+
+        i32 level = 1;
+        if (vanillaRandomEnchants[idx].maxLevel != 1)
+            level = context.random.next_i32(vanillaRandomEnchants[idx].maxLevel) + 1;
+        
+        std::cout << "level = " << level << " out of " << vanillaRandomEnchants[idx].maxLevel << std::endl;
+
+        return ItemStack(input.id, input.count, {EnchantmentInstance(vanillaRandomEnchants[idx], level)});
     }
 };
 
@@ -94,6 +180,8 @@ struct LootWeights {
 
 // Abstract
 struct LootEntry {
+    std::vector<std::unique_ptr<LootFunction>> functions{};
+
     virtual ~LootEntry() = default;
     virtual void generateLoot(LootContext& context, std::function<void(ItemStack)> enter) = 0;
 };
@@ -106,11 +194,29 @@ struct ItemEntry : public LootEntry {
     ItemEntry(const std::string& stackID, i32 min, i32 max) : stackID(stackID), count(std::make_unique<UniformLootNumberProvider>(min, max)) {}
     explicit ItemEntry(const std::string& stackID) : ItemEntry(stackID, 1) {}
 
+    template <class T, typename std::enable_if<std::is_base_of<LootFunction, T>::value>::type* = nullptr>
+    ItemEntry(const std::string& stackID, u32 count, T func) : ItemEntry(stackID, count) {
+        this->functions.push_back(std::move(std::make_unique<T>(func)));
+    }
+    template <class T, typename std::enable_if<std::is_base_of<LootFunction, T>::value>::type* = nullptr>
+    ItemEntry(const std::string& stackID, u32 min, u32 max, T func) : ItemEntry(stackID, min, max) {
+        this->functions.push_back(std::move(std::make_unique<T>(func)));
+    }
+    template <class T, typename std::enable_if<std::is_base_of<LootFunction, T>::value>::type* = nullptr>
+    ItemEntry(const std::string& stackID, T func) : ItemEntry(stackID) {
+        this->functions.push_back(std::move(std::make_unique<T>(func)));
+    }
+
     virtual ~ItemEntry() = default;
 
     virtual void generateLoot(LootContext& context, std::function<void(ItemStack)> enter) override {
         i32 itemCount = this->count->next(context);
-        enter(ItemStack(this->stackID, (u32)itemCount));
+        ItemStack stack(this->stackID, (u32)itemCount);
+
+        for (std::unique_ptr<LootFunction>& func : this->functions)
+            stack = func->apply(stack, context);
+
+        enter(stack);
     }
 };
 
@@ -164,9 +270,10 @@ struct LootPool {
 */
 
     void roll(LootContext& context, std::function<void(ItemStack)> enter) {
-        i32 rollCount = this->rolls->next(context);
-        for (; rollCount > 0; --rollCount)
+        for (i32 rollCount = this->rolls->next(context); rollCount > 0; --rollCount) {
+            std::cout << rollCount << " rolls left" << std::endl;
             this->rollOnce(context, enter);
+        }
     }
 
 private:
