@@ -94,7 +94,7 @@ struct ItemStack {
 // Abstract
 struct LootNumberProvider {
     virtual ~LootNumberProvider() = default;
-    virtual i32 next(LootContext& context) = 0;
+    virtual i32 next(LootContext& context) const = 0;
 };
 
 struct ConstantLootNumberProvider : public LootNumberProvider {
@@ -104,7 +104,7 @@ struct ConstantLootNumberProvider : public LootNumberProvider {
 
     virtual ~ConstantLootNumberProvider() = default;
 
-    virtual i32 next(LootContext& context) override {
+    virtual i32 next(LootContext& context) const override {
         return this->count;
     }
 };
@@ -116,7 +116,7 @@ struct UniformLootNumberProvider : public LootNumberProvider {
 
     virtual ~UniformLootNumberProvider() = default;
 
-    virtual i32 next(LootContext& context) override {
+    virtual i32 next(LootContext& context) const override {
         return context.random.next_i32(max - min + 1) + min;
     }
 };
@@ -131,15 +131,16 @@ struct EnchantRandomlyLootFunction : public LootFunction {
     virtual ~EnchantRandomlyLootFunction() = default;
 
     virtual ItemStack apply(const ItemStack& input, LootContext& context) {
-        i32 idx = context.random.next_i32(vanillaRandomEnchants.size());
-        std::cout << "idx = " << idx << " out of " << vanillaRandomEnchants.size() << std::endl;
+        const UniformLootNumberProvider provider(0, vanillaRandomEnchants.size());
+
+        i32 idx = provider.next(context);
 
         i32 level = 1;
-        if (vanillaRandomEnchants[idx].maxLevel != 1)
-            level = context.random.next_i32(vanillaRandomEnchants[idx].maxLevel) + 1;
+        if (vanillaRandomEnchants[idx].maxLevel != 1) {
+            UniformLootNumberProvider levelProvider(1, vanillaRandomEnchants[idx].maxLevel);
+            level = levelProvider.next(context);
+        }
         
-        std::cout << "level = " << level << " out of " << vanillaRandomEnchants[idx].maxLevel << std::endl;
-
         return ItemStack(input.id, input.count, {EnchantmentInstance(vanillaRandomEnchants[idx], level)});
     }
 };
@@ -180,6 +181,7 @@ struct LootWeights {
 
 // Abstract
 struct LootEntry {
+    // should these be stored here? probably not. but they are.
     std::vector<std::unique_ptr<LootFunction>> functions{};
 
     virtual ~LootEntry() = default;
@@ -255,20 +257,6 @@ struct LootPool {
         }
     }
 
-    //"Copy" constructor (invalidates other)
-/*
-    explicit LootPool(LootPool& other) {
-        this->rolls.swap(other.rolls);
-        this->weights = other.weights;
-
-        this->entries.reserve(other.entries.size());
-        for (int i = 0; i < other.entries.size(); ++i) {
-            this->entries.push_back(std::unique_ptr<LootEntry>());
-            this->entries[i].swap(other.entries[i]);
-        }
-    }
-*/
-
     void roll(LootContext& context, std::function<void(ItemStack)> enter) {
         for (i32 rollCount = this->rolls->next(context); rollCount > 0; --rollCount) {
             std::cout << rollCount << " rolls left" << std::endl;
@@ -293,6 +281,71 @@ struct LootTable {
         for (std::unique_ptr<LootPool>& pool : this->lootPools)
             pool->roll(context, enter);
     }
+};
+
+// Helper to avoid u32s being cast to bools, which would cause overload resolution problems.
+struct bool_t {
+    bool val;
+    explicit bool_t(bool val) : val(val) {}
+    operator bool() {return this->val;}
+};
+
+struct LootPoolBuilder {
+    explicit LootPoolBuilder(i32 count) {
+        this->rolls = std::make_unique<ConstantLootNumberProvider>(count);
+    }
+    LootPoolBuilder(i32 min, i32 max) {
+        this->rolls = std::make_unique<UniformLootNumberProvider>(min, max);
+    }
+
+    // NothingEntry
+    void entry(u32 weight) {
+        this->weights.weights.push_back(LootWeight(weight));
+        NothingEntry * entry = new NothingEntry();
+        this->entries.push_back(std::unique_ptr<LootEntry>(entry));
+    }
+
+    // Helpers
+    void entry(u32 weight, const std::string& stackID, bool_t enchant = bool_t(false)) {
+        this->weights.weights.push_back(LootWeight(weight));
+        if (enchant)
+            this->entries.push_back(std::make_unique<ItemEntry>(stackID, EnchantRandomlyLootFunction()));
+        else
+            this->entries.push_back(std::make_unique<ItemEntry>(stackID));
+    }
+    void entry(u32 weight, const std::string& stackID, u32 count, bool_t enchant = bool_t(false)) {
+        this->weights.weights.push_back(LootWeight(weight));
+        if (enchant)
+            this->entries.push_back(std::make_unique<ItemEntry>(stackID, count, EnchantRandomlyLootFunction()));
+        else
+            this->entries.push_back(std::make_unique<ItemEntry>(stackID, count));
+    }
+    void entry(u32 weight, const std::string& stackID, u32 min, u32 max, bool_t enchant = bool_t(false)) {
+        this->weights.weights.push_back(LootWeight(weight));
+        if (enchant)
+            this->entries.push_back(std::make_unique<ItemEntry>(stackID, min, max, EnchantRandomlyLootFunction()));
+        else
+            this->entries.push_back(std::make_unique<ItemEntry>(stackID, min, max));
+    }
+
+    LootPool * build() {
+        return new LootPool(this->rolls, this->weights, this->entries);
+    }
+
+private:
+    std::unique_ptr<LootNumberProvider> rolls;
+    LootWeights weights;
+    std::vector<std::unique_ptr<LootEntry>> entries;
+};
+
+struct LootTableBuilder {
+    void pool(LootPool * pool) {
+        this->pools.push_back(std::unique_ptr<LootPool>(pool));
+    }
+    LootTable * build() {return new LootTable(this->pools);}
+
+private:
+    std::vector<std::unique_ptr<LootPool>> pools;
 };
 
 #endif

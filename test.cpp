@@ -52,7 +52,7 @@ int main() {
     std::cout << "Found biome " << biomeRepr(biome) << " at position -896, -48, 1152 in seed 3447; expected Deep Dark (time taken: " << end - start << ")" << std::endl;
 
 */
-//-*
+/*
     int heightEstimate = noises.estimateHeight(-92, 327);
     std::cout << "Estimated surface at position (-92, 327) to be " << heightEstimate << ", expected about 70..." << std::endl;
 
@@ -65,7 +65,6 @@ int main() {
 
     heightEstimate = noises.estimateStoneHeight(0, -512);
     std::cout << "Secondary estimate of surface height at position (0, -512) is " << heightEstimate << "..." << std::endl;
-    */
 
     sampleAll(noises, 0, -512);
     sampleAll(noises, -80, 320);
@@ -77,7 +76,6 @@ int main() {
     }*/
 //*/
 
-/*
     LootContext context(33333);
     std::shared_ptr<LootTable> pyramidTable = getOrBuildDesertPyramidLootTable();
     pyramidTable->roll(context, [](ItemStack stack) -> void {
@@ -85,7 +83,6 @@ int main() {
         if (stack.enchantments.has_value())
             std::cout << "\t" << stack.enchantments.value()[0].id << " " << stack.enchantments.value()[0].level << std::endl;
     });
-*/
 
     return 0;
 }

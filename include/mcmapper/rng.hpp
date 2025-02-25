@@ -86,15 +86,16 @@ struct CheckedRandom : public Random {
     }
 
     void setSeed(i64 seed) {
-        this->seed = (seed ^ 0x5deece66d) & 0xFFFFFFFFFFFF;
+        this->seed = (seed ^ 0x5deece66d) & ((1ULL << 48) - 1);
     }
 
     i32 next(i32 bits) {
-        this->seed = (this->seed * 25214903917 + 11) & 0xFFFFFFFFFFFF;
+        this->seed = (this->seed * 0x5deece66d + 11) & ((1ULL << 48) - 1);
         return (i32)(this->seed >> (48 - bits));
     }
 
     i32 next_i32(i32 bound) {
+        // if bound is a power of two
         if (((bound - 1) & bound) == 0) {
             return (i32)((bound * this->next(31)) >> 31);
         }
