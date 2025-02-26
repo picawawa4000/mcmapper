@@ -97,7 +97,7 @@ struct CheckedRandom : public Random {
     i32 next_i32(i32 bound) {
         // if bound is a power of two
         if (((bound - 1) & bound) == 0) {
-            return (i32)((bound * this->next(31)) >> 31);
+            return (i32)(((u64)bound * (u64)this->next(31)) >> 31);
         }
         i32 j, k;
         do {

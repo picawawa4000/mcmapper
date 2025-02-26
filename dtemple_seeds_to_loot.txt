@@ -1,0 +1,68 @@
+7,649,212,224,873,991,995
+
+ - Iron Ingot x5
+ - Gunpowder x8
+ - Bone x12
+ - String x4
+ - Rotten Flesh x1
+
+-8,966,357,268,501,797,250
+
+ - Emerald x2
+ - Golden Horse Armour x1
+ - String x1
+ - Gunpowder 6
+ - Bone x16
+
+-8,167,473,274,498,177,545
+
+ - Diamond x1
+ - Emerald x1
+ - Gunpowder x8
+ - Rotten Flesh x4
+ - Spider Eye x3
+ - String x7
+ - Bone x9
+ - Dune Armour Trim Smithing Template x2
+
+33,333
+
+ - Enchanted Book x1
+   - Protection IV
+ - Gunpowder x9
+ - Iron Ingot x5
+ - Golden Horse Armour
+ - String x2
+ - Sand x8
+
+-1,331,097,191,060,392,726
+
+ - Bone x4
+ - String x3
+ - Gunpowder x4
+ - Iron Horse Armour x1
+ - Sand x4
+
+-930,850,852,794,954,350
+
+ - Rotten Flesh x9
+ - Bone x16
+ - String x6
+ - Saddle x1
+
+4,620,269,222,256,373,860
+
+ - Sand x2
+ - Bone x5
+ - Gunpowder x1
+ - Emerald x3
+ - Rotten Flesh x9
+ - String x6
+
+4,168,939,827,926,510,175
+
+ - Sand x14
+ - String x8
+ - Bone x12
+ - Rotten Flesh x1
+ - Iron Horse Armour x1

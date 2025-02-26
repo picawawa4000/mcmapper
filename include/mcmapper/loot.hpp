@@ -117,7 +117,7 @@ struct UniformLootNumberProvider : public LootNumberProvider {
     virtual ~UniformLootNumberProvider() = default;
 
     virtual i32 next(LootContext& context) const override {
-        return context.random.next_i32(max - min + 1) + min;
+        return context.random.next_i32(this->max - this->min + 1) + this->min;
     }
 };
 
@@ -127,6 +127,8 @@ struct LootFunction {
     virtual ItemStack apply(const ItemStack& input, LootContext& context) = 0;
 };
 
+// Currently, this does not work correctly
+// (try loot seed 33333; expect enchanted_book with protection 4)
 struct EnchantRandomlyLootFunction : public LootFunction {
     virtual ~EnchantRandomlyLootFunction() = default;
 
@@ -212,7 +214,9 @@ struct ItemEntry : public LootEntry {
     virtual ~ItemEntry() = default;
 
     virtual void generateLoot(LootContext& context, std::function<void(ItemStack)> enter) override {
+        std::cout << "seed = " << context.random.seed;
         i32 itemCount = this->count->next(context);
+        std::cout << ", count = " << itemCount << std::endl;
         ItemStack stack(this->stackID, (u32)itemCount);
 
         for (std::unique_ptr<LootFunction>& func : this->functions)
@@ -258,16 +262,14 @@ struct LootPool {
     }
 
     void roll(LootContext& context, std::function<void(ItemStack)> enter) {
-        for (i32 rollCount = this->rolls->next(context); rollCount > 0; --rollCount) {
-            std::cout << rollCount << " rolls left" << std::endl;
+        for (i32 rollCount = this->rolls->next(context); rollCount > 0; --rollCount)
             this->rollOnce(context, enter);
-        }
     }
 
 private:
     void rollOnce(LootContext& context, std::function<void(ItemStack)> enter) {
-        u32 index = weights.select(context);
-        entries[index]->generateLoot(context, enter);
+        u32 index = this->weights.select(context);
+        this->entries[index]->generateLoot(context, enter);
     }
 };
 

@@ -10,7 +10,7 @@ std::shared_ptr<LootTable> getOrBuildDesertPyramidLootTable() {
     p->entry(15, "minecraft:gold_ingot", 2, 7);
     p->entry(15, "minecraft:emerald", 1, 3);
     p->entry(25, "minecraft:bone", 4, 6);
-    p->entry(25, "minecraft:bone", 1, 3);
+    p->entry(25, "minecraft:spider_eye", 1, 3);
     p->entry(25, "minecraft:rotten_flesh", 3, 7);
     p->entry(20, "minecraft:saddle");
     p->entry(15, "minecraft:iron_horse_armor");

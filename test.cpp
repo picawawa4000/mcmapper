@@ -59,7 +59,7 @@ int main() {
     heightEstimate = noises.estimateHeight(0, -512);
     std::cout << "Estimated surface at position (0, -512) to be " << heightEstimate << ", expected < 64 (ocean biome)..." << std::endl;
     
-    /*
+    /-*
     heightEstimate = noises.estimateStoneHeight(-92, 327);
     std::cout << "Secondary estimate of surface height at position (-92, 327) is " << heightEstimate << "..." << std::endl;
 
@@ -69,20 +69,32 @@ int main() {
     sampleAll(noises, 0, -512);
     sampleAll(noises, -80, 320);
 
-    /*int startX = -80, startZ = 320;
+    /-*int startX = -80, startZ = 320;
     for (int x = startX; x < startX + 16; ++x) for (int z = startZ; z < startZ + 16; ++z) {
         int estimate = noises.estimateStoneHeight(x, z);
         std::cout << "At (" << x << ", " << z << "): " << estimate << std::endl;
     }*/
 //*/
 
-    LootContext context(33333);
-    std::shared_ptr<LootTable> pyramidTable = getOrBuildDesertPyramidLootTable();
-    pyramidTable->roll(context, [](ItemStack stack) -> void {
+    auto logLoot = [](ItemStack stack) -> void {
         std::cout << stack.id << " x " << stack.count << std::endl;
         if (stack.enchantments.has_value())
             std::cout << "\t" << stack.enchantments.value()[0].id << " " << stack.enchantments.value()[0].level << std::endl;
-    });
+    };
+
+    std::shared_ptr<LootTable> pyramidTable = getOrBuildDesertPyramidLootTable();
+
+    std::cout << "33333" << std::endl;
+    LootContext context(33333);
+    pyramidTable->roll(context, logLoot);
+
+    std::cout << "7649212224873991995" << std::endl;
+    context = LootContext(7649212224873991995LL);
+    pyramidTable->roll(context, logLoot);
+
+    std::cout << "-8167473274498177545" << std::endl;
+    context = LootContext(-8167473274498177545LL);
+    pyramidTable->roll(context, logLoot);
 
     return 0;
 }
