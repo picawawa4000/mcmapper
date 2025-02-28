@@ -82,7 +82,7 @@ int main() {
             std::cout << "\t" << stack.enchantments.value()[0].id << " " << stack.enchantments.value()[0].level << std::endl;
     };
 
-    std::shared_ptr<LootTable> pyramidTable = getOrBuildDesertPyramidLootTable();
+    std::shared_ptr<LootTable> pyramidTable = desertPyramidLoot();
 
     std::cout << "33333" << std::endl;
     LootContext context(33333);

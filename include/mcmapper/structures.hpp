@@ -13,7 +13,6 @@ namespace placements {
     const StructurePlacement ANCIENT_CITY(24, 8, SpreadType::LINEAR, 20083232);
     const StructurePlacement OCEAN_MONUMENT(32, 5, SpreadType::TRIANGULAR, 10387313);
     const StructurePlacement WOODLAND_MANSION(80, 20, SpreadType::TRIANGULAR, 10387319);
-    const StructurePlacement BURIED_TREASURE(1, 0, SpreadType::LINEAR, 0);
     const StructurePlacement MINESHAFT(1, 0, SpreadType::LINEAR, 0);
     const StructurePlacement RUINED_PORTAL(40, 15, SpreadType::LINEAR, 34222645);
     const StructurePlacement SHIPWRECK(24, 4, SpreadType::LINEAR, 165745295);
@@ -23,6 +22,14 @@ namespace placements {
     const StructurePlacement END_CITY(20, 11, SpreadType::TRIANGULAR, 10387313);
     const StructurePlacement TRAIL_RUIN(34, 8, SpreadType::LINEAR, 83469867);
     const StructurePlacement TRIAL_CHAMBER(32, 8, SpreadType::LINEAR, 94251327);
+}
+
+// Buried treasures work differently from other structures.
+// They have a 1 in 100 chance to spawn in every chunk.
+bool checkBuriedTreasure(i64 worldSeed, i64 chunkX, i64 chunkZ) {
+    i64 blockX = chunkX * 16 + 9, blockZ = chunkZ * 16 + 9;
+    CheckedRandom rng(chunkX * 341873128712LL + chunkZ * 132897987541LL + worldSeed + 10387320LL);
+    return rng.next_f32() < 0.01;
 }
 
 namespace structures {

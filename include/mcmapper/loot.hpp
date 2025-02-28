@@ -26,7 +26,7 @@ struct EnchantmentInstance {
     EnchantmentInstance(Enchantment type, u32 level) : id(type.id), level(level) {}
 };
 
-const std::array<Enchantment, 39> vanillaRandomEnchants{
+const std::array<const Enchantment, 39> vanillaEnchants{
     Enchantment("minecraft:protection", 4),
     Enchantment("minecraft:fire_protection", 4),
     Enchantment("minecraft:feather_falling", 4),
@@ -66,6 +66,44 @@ const std::array<Enchantment, 39> vanillaRandomEnchants{
     Enchantment("minecraft:breach", 4),
     Enchantment("minecraft:mending"),
     Enchantment("minecraft:vanishing_curse")
+};
+
+const std::array<Enchantment, 35> vanillaBookNonTreasureEnchants{
+    Enchantment("minecraft:protection", 4),
+    Enchantment("minecraft:fire_protection", 4),
+    Enchantment("minecraft:feather_falling", 4),
+    Enchantment("minecraft:blast_protection", 4),
+    Enchantment("minecraft:projectile_protection", 4),
+    Enchantment("minecraft:respiration", 3),
+    Enchantment("minecraft:aqua_affinity"),
+    Enchantment("minecraft:thorns", 3),
+    Enchantment("minecraft:depth_strider", 3),
+    Enchantment("minecraft:sharpness", 5),
+    Enchantment("minecraft:smite", 5),
+    Enchantment("minecraft:bane_of_arthropods", 5),
+    Enchantment("minecraft:knockback", 2),
+    Enchantment("minecraft:fire_aspect", 2),
+    Enchantment("minecraft:looting", 3),
+    Enchantment("minecraft:sweeping_edge", 3),
+    Enchantment("minecraft:efficiency", 5),
+    Enchantment("minecraft:silk_touch"),
+    Enchantment("minecraft:unbreaking", 3),
+    Enchantment("minecraft:fortune", 3),
+    Enchantment("minecraft:power", 5),
+    Enchantment("minecraft:punch", 2),
+    Enchantment("minecraft:flame"),
+    Enchantment("minecraft:infinity"),
+    Enchantment("minecraft:luck_of_the_sea", 3),
+    Enchantment("minecraft:lure", 3),
+    Enchantment("minecraft:loyalty", 3),
+    Enchantment("minecraft:impaling", 5),
+    Enchantment("minecraft:riptide", 3),
+    Enchantment("minecraft:channeling"),
+    Enchantment("minecraft:multishot"),
+    Enchantment("minecraft:quick_charge", 3),
+    Enchantment("minecraft:piercing", 4),
+    Enchantment("minecraft:density", 5),
+    Enchantment("minecraft:breach", 4)
 };
 
 struct LootContext {
@@ -133,17 +171,42 @@ struct EnchantRandomlyLootFunction : public LootFunction {
     virtual ~EnchantRandomlyLootFunction() = default;
 
     virtual ItemStack apply(const ItemStack& input, LootContext& context) {
-        const UniformLootNumberProvider provider(0, vanillaRandomEnchants.size());
-
+        const UniformLootNumberProvider provider(0, vanillaEnchants.size());
         i32 idx = provider.next(context);
 
         i32 level = 1;
-        if (vanillaRandomEnchants[idx].maxLevel != 1) {
-            UniformLootNumberProvider levelProvider(1, vanillaRandomEnchants[idx].maxLevel);
+        if (vanillaEnchants[idx].maxLevel != 1) {
+            UniformLootNumberProvider levelProvider(1, vanillaEnchants[idx].maxLevel);
             level = levelProvider.next(context);
         }
         
-        return ItemStack(input.id, input.count, {EnchantmentInstance(vanillaRandomEnchants[idx], level)});
+        return ItemStack(input.id, input.count, {EnchantmentInstance(vanillaEnchants[idx], level)});
+    }
+};
+
+struct EnchantWithLevelsLootFunction : public LootFunction {
+    u32 levels;
+    u32 enchantability;
+
+    explicit EnchantWithLevelsLootFunction(u32 levels) : levels(levels), enchantability(1) {}
+    // Enchantability defaults to 1.
+    // Stone tools have 5.
+    // Iron armour and the turtle shell have 9.
+    // Diamond tools and armour have 10.
+    // Chain armour has 12.
+    // Iron tools have 14.
+    // Wood tools, leather armour, netherite tools and armour, and the mace have 15.
+    // Gold tools have 22.
+    // Gold armour has 25.
+    EnchantWithLevelsLootFunction(u32 levels, u32 enchantability) : levels(levels), enchantability(enchantability) {}
+
+    virtual ~EnchantWithLevelsLootFunction() = default;
+
+    virtual ItemStack apply(const ItemStack& input, LootContext& context) {
+        u32 l = this->levels + 1 + context.random.next_i32(this->enchantability / 4 + 1) + context.random.next_i32(this->enchantability / 4 + 1);
+        f32 f = (context.random.next_f32() + context.random.next_f32() - 1.f) * 0.15f;
+        l = std::clamp((i32)std::round((f32)l + (f32)l * f), 1, std::numeric_limits<i32>::max());
+        
     }
 };
 

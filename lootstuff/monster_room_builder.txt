@@ -1,0 +1,63 @@
+LootTable.builder(
+
+    ).pool(
+
+LootPool.builder().rolls(UniformLootNumberProvider.create(1.0f, 3.0f)
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.SADDLE).weight(20)
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.GOLDEN_APPLE).weight(15)
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.ENCHANTED_GOLDEN_APPLE).weight(2)
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.MUSIC_DISC_OTHERSIDE).weight(2)
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.MUSIC_DISC_13).weight(15)
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.MUSIC_DISC_CAT).weight(15)
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.NAME_TAG).weight(20)
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.GOLDEN_HORSE_ARMOR).weight(10)
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.IRON_HORSE_ARMOR).weight(15)
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.DIAMOND_HORSE_ARMOR).weight(5)
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.BOOK).weight(10)).apply(EnchantRandomlyLootFunction.builder(this.registries))))
+
+    ).pool(
+
+LootPool.builder().rolls(UniformLootNumberProvider.create(1.0f, 4.0f)
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.IRON_INGOT).weight(10)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 4.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.GOLD_INGOT).weight(5)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 4.0f))))
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.BREAD).weight(20)
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.WHEAT).weight(20)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 4.0f))))
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.BUCKET).weight(10)
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.REDSTONE).weight(15)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 4.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.COAL).weight(15)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 4.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.MELON_SEEDS).weight(10)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(2.0f, 4.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.PUMPKIN_SEEDS).weight(10)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(2.0f, 4.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.BEETROOT_SEEDS).weight(10)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(2.0f, 4.0f)))))
+
+    ).pool(
+
+LootPool.builder().rolls(ConstantLootNumberProvider.create(3.0f)
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.BONE).weight(10)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 8.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.GUNPOWDER).weight(10)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 8.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.ROTTEN_FLESH).weight(10)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 8.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.STRING).weight(10)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 8.0f))))))

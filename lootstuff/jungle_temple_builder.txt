@@ -1,0 +1,33 @@
+LootTable.builder(
+).pool(
+LootPool.builder().rolls(UniformLootNumberProvider.create(2.0f, 6.0f)
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.DIAMOND).weight(3)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 3.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.IRON_INGOT).weight(10)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 5.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.GOLD_INGOT).weight(15)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(2.0f, 7.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Blocks.BAMBOO).weight(15)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 3.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.EMERALD).weight(2)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(1.0f, 3.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.BONE).weight(20)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(4.0f, 6.0f))))
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.ROTTEN_FLESH).weight(16)).apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(3.0f, 7.0f))))
+).with(
+(LootPoolEntry.Builder<?>)ItemEntry.builder(Items.SADDLE).weight(3)
+).with(
+ItemEntry.builder(Items.IRON_HORSE_ARMOR)
+).with(
+ItemEntry.builder(Items.GOLDEN_HORSE_ARMOR)
+).with(
+ItemEntry.builder(Items.DIAMOND_HORSE_ARMOR)
+).with(
+(LootPoolEntry.Builder<?>)((Object)ItemEntry.builder(Items.BOOK).apply(EnchantWithLevelsLootFunction.builder(this.registries, ConstantLootNumberProvider.create(30.0f)))))
+).pool(
+LootPool.builder().rolls(ConstantLootNumberProvider.create(1.0f)
+).with(
+(LootPoolEntry.Builder<?>)EmptyEntry.builder().weight(2)
+).with(
+(LootPoolEntry.Builder<?>)((Object)((LeafEntry.Builder)ItemEntry.builder(Items.WILD_ARMOR_TRIM_SMITHING_TEMPLATE).weight(1)).apply(SetCountLootFunction.builder(ConstantLootNumberProvider.create(2.0f))))));

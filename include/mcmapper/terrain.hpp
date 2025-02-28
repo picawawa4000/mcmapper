@@ -1,7 +1,5 @@
-#ifndef SURFACE_HPP
-#define SURFACE_HPP
-
-#include <mcmapper/noises.hpp>
+#ifndef TERRAIN_HPP
+#define TERRAIN_HPP
 
 /*
 lv = spaghetti3dRarityNoise.sample(x * 2.0, y, z * 2.0)

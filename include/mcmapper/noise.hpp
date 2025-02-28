@@ -80,7 +80,6 @@ private:
         i32 o = this->map(l + sectionY + 1);
         i32 p = this->map(m + sectionY);
         i32 q = this->map(m + sectionY + 1);
-        //std::cout << l << ", " << m << ", " << n << ", " << o << ", " << p << ", " << q << std::endl;
         f64 h = grad(this->map(n + sectionZ), localX, localY, localZ);
         f64 r = grad(this->map(p + sectionZ), localX - 1.0, localY, localZ);
         f64 s = grad(this->map(o + sectionZ), localX, localY - 1.0, localZ);
@@ -89,11 +88,9 @@ private:
         f64 v = grad(this->map(p + sectionZ + 1), localX - 1.0, localY, localZ - 1.0);
         f64 w = grad(this->map(o + sectionZ + 1), localX, localY - 1.0, localZ - 1.0);
         f64 x = grad(this->map(q + sectionZ + 1), localX - 1.0, localY - 1.0, localZ - 1.0);
-        //std::cout << h << ", " << r << ", " << s << ", " << t << ", " << u << ", " << v << ", " << w << ", " << x << std::endl;
         f64 y = perlinFade(localX);
         f64 z = perlinFade(fadeLocalY);
         f64 aa = perlinFade(localZ);
-        //std::cout << y << ", " << z << ", " << aa << std::endl;
         return lerp3(y, z, aa, h, r, s, t, u, v, w, x);
     }
 };
@@ -170,15 +167,12 @@ struct OctavePerlinNoise {
         f64 ret = 0.0;
         f64 lac = this->lacunarity;
         f64 per = this->persistance;
-        //std::cout << "oct: " << this->octaves.size() << std::endl;
         for (i32 i = 0; i < this->octaves.size(); ++i) {
             if (this->octaves[i] != nullptr) {
-                //std::cout << "pln: " << this->octaves[i]->sample(x, y, z) << std::endl;
                 ret += per * this->amplitudes[i] * this->octaves[i]->sample(x * lac, y * lac, z * lac);
             }
             lac *= 2.;
             per /= 2.;
-            //std::cout << "oct: " << ret << ", " << lac << ", " << per << std::endl;
         }
         return ret;
     }
@@ -198,7 +192,6 @@ struct DoublePerlinNoise {
     f64 sample(f64 x, f64 y, f64 z) const {
         f64 i = this->first.sample(x, y, z);
         f64 j = this->second.sample(x * multiplier, y * multiplier, z * multiplier);
-        //std::cout << "dbl:" << i << ", " << j << std::endl;
         return (i + j) * this->amplitude;
     }
 
