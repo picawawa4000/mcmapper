@@ -43,7 +43,7 @@ struct ClimateNoises {
     const Spline offsetSpline = createOffsetSpline();
     const Spline factorSpline = createFactorSpline();
     
-    const SearchTree * biomeSearchTree = getSearchTree();
+    const std::shared_ptr<SearchTree> biomeSearchTree = getSearchTree();
 
     u64 seedLo, seedHi;
 
@@ -129,8 +129,6 @@ struct ClimateNoises {
 
         f32 factor = ClimateNoises::factorSpline.sample(values);
 
-        //std::cout << "depth = " << depth << ", factor = " << factor << std::endl;
-
         f32 initialDensity = depth * factor;
         if (initialDensity > 0.) initialDensity *= 4.;
         initialDensity -= 0.703125;
@@ -154,33 +152,78 @@ struct ClimateNoises {
         }
         return std::numeric_limits<int>::max();
     }
+};
 
-    ///Don't use this one unless you know what you're doing
-    int estimateStoneHeight(int x, int z) {
-        std::array<int, 4> estimatedHeights;
-        int inX = x - x % 16;
-        int inZ = z - z % 16;
+struct Noises {
+    DoublePerlinNoise temperature;
+    DoublePerlinNoise humidity;
+    DoublePerlinNoise continentalness;
+    DoublePerlinNoise erosion;
+    DoublePerlinNoise weirdness;
+    DoublePerlinNoise offset;
+    DoublePerlinNoise surface;
 
-        estimatedHeights[0] = this->estimateHeight(inX, inZ);
-        estimatedHeights[1] = this->estimateHeight(inX + 16, inZ);
-        estimatedHeights[2] = this->estimateHeight(inX, inZ + 16);
-        estimatedHeights[3] = this->estimateHeight(inX + 16, inZ + 16);
+    u64 seedLo, seedHi;
 
-        int initialEstimate;
-        if (estimatedHeights[0] == estimatedHeights[1] && estimatedHeights[0] == estimatedHeights[2] && estimatedHeights[0] == estimatedHeights[3]) {
-            //if they're all equal, we can skip the busy-work of lerping
-            initialEstimate = estimatedHeights[0];
-        } else {
-            initialEstimate = std::floor(lerp2((f32)(x & 0xF) / 16.f, (f32)(z & 0xF) / 16.f, estimatedHeights[0], estimatedHeights[1], estimatedHeights[2], estimatedHeights[3]));
+    explicit Noises(i64 worldSeed) {
+        XoroshiroRandom rng(worldSeed);
+        u64 lo = rng.next_u64();
+        u64 hi = rng.next_u64();
+
+        this->seedLo = lo;
+        this->seedHi = hi;
+
+        XoroshiroRandom temp(lo ^ data::hashtable[0][0], hi ^ data::hashtable[0][1]);
+        this->temperature = DoublePerlinNoise(temp, data::temperature_amplitudes, -10);
+
+        temp = XoroshiroRandom(lo ^ data::hashtable[1][0], hi ^ data::hashtable[1][1]);
+        this->humidity = DoublePerlinNoise(temp, data::humidity_amplitudes, -8);
+
+        temp = XoroshiroRandom(lo ^ data::hashtable[2][0], hi ^ data::hashtable[2][1]);
+        this->continentalness = DoublePerlinNoise(temp, data::continentalness_amplitudes, -9);
+
+        temp = XoroshiroRandom(lo ^ data::hashtable[3][0], hi ^ data::hashtable[3][1]);
+        this->erosion = DoublePerlinNoise(temp, data::erosion_amplitudes, -9);
+
+        temp = XoroshiroRandom(lo ^ data::hashtable[4][0], hi ^ data::hashtable[4][1]);
+        this->weirdness = DoublePerlinNoise(temp, data::weirdness_amplitudes, -7);
+
+        temp = XoroshiroRandom(lo ^ data::hashtable[5][0], hi ^ data::hashtable[5][1]);
+        this->offset = DoublePerlinNoise(temp, data::offset_amplitudes, -3);
+
+        temp = XoroshiroRandom(lo ^ data::hashtable[6][0], hi ^ data::hashtable[6][1]);
+        this->surface = DoublePerlinNoise(temp, data::surface_amplitudes, -6);
+    }
+
+    inline f32 shiftX(f32 x, f32 z) const {
+        return this->offset.sample(x, 0, z) * 4.;
+    }
+
+    inline f32 shiftZ(f32 x, f32 z) const {
+        return this->offset.sample(z, x, 0) * 4.;
+    }
+
+    NoisePoint sampleForBiomes(const i32 x, const i32 y, const i32 z, const bool biome_scale = false, const bool no_shift = false, const bool no_depth = false) const {
+        f32 inX = biome_scale ? x : (x >> 2), inY = biome_scale ? y : (y >> 2), inZ = biome_scale ? z : (z >> 2);
+        if (!no_shift) {
+            inX += this->shiftX(inX, inZ);
+            inZ += this->shiftZ(inX, inZ);
         }
 
-        f64 surfaceOut = 2.75 * this->surface.sample(x, 0, z);
-        std::cout << "surfaceOut = " << surfaceOut << std::endl;
-        f64 offset = 0.25 * split(this->seedLo, this->seedHi, x, 0, z).next_f64();
-        std::cout << "offset = " << offset << std::endl;
-        int runDepth = (int)(surfaceOut + 3. + offset);
+        f32 temperatureOut = (f32)(this->temperature.sample(inX, 0, inZ));
+        f32 humidityOut = (f32)(this->humidity.sample(inX, 0, inZ));
+        f32 continentalnessOut = (f32)(this->continentalness.sample(inX, 0, inZ));
+        f32 erosionOut = (f32)(this->erosion.sample(inX, 0, inZ));
+        f32 weirdnessOut = (f32)(this->weirdness.sample(inX, 0, inZ));
 
-        return initialEstimate + runDepth - 8;
+        f32 depth = 0.f;
+        if (!no_depth) {
+            std::array<f32, 4> params = {continentalnessOut, erosionOut, static_cast<f32>(pvTransform(weirdnessOut)), weirdnessOut};
+            f32 depthOffset = offsetSpline()->sample(params) - 0.50375f;
+            depth = yClampedGradient(inY * 4., -64, 320, 1.5, -1.5) + depthOffset;
+        }
+        
+        return NoisePoint(temperatureOut * 10000.f, humidityOut * 10000.f, continentalnessOut * 10000.f, erosionOut * 10000.f, depth * 10000.f, weirdnessOut * 10000.f);
     }
 };
 

@@ -1,9 +1,10 @@
-#include <mcmapper/builtin_loot.hpp>
+#include <mcmapper/rng.hpp>
 
 #include <iostream>
 
 int main() {
-    // expected: 6
-    CheckedRandom random(134598025224048LL);
-    std::cout << random.next_i32(8) << std::endl;
+    XoroshiroRandom rng(537207492169ULL);
+    std::cout << rng.next_u64() << std::endl;
+    std::cout << rng.next_u64() << std::endl;
+    return 0;
 }

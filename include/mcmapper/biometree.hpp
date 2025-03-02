@@ -20,7 +20,8 @@ struct NoisePoint {
     i64 depth;
     i64 weirdness;
 
-    NoisePoint(i64 temperature, i64 humidity, i64 continentalness, i64 erosion, i64 depth, i64 weirdness) : temperature(temperature), humidity(humidity), continentalness(continentalness), erosion(erosion), depth(depth), weirdness(weirdness) {}
+    explicit NoisePoint(i64 temperature, i64 humidity, i64 continentalness, i64 erosion, i64 depth, i64 weirdness) : temperature(temperature), humidity(humidity), continentalness(continentalness), erosion(erosion), depth(depth), weirdness(weirdness) {}
+    explicit NoisePoint(f32 temperature, f32 humidity, f32 continentalness, f32 erosion, f32 depth, f32 weirdness) : temperature(temperature * 10000), humidity(humidity * 10000), continentalness(continentalness * 10000), erosion(erosion * 10000), depth(depth * 10000), weirdness(weirdness * 10000) {}
 
     std::vector<i64> toList() {
         return {this->temperature, this->humidity, this->continentalness, this->erosion, this->depth, this->weirdness, 0};
@@ -88,6 +89,6 @@ struct SearchTree {
 };
 
 // might replace this function with a simple variable
-const SearchTree * getSearchTree();
+const std::shared_ptr<SearchTree> getSearchTree();
 
 #endif

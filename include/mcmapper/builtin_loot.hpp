@@ -1,5 +1,8 @@
 #include <mcmapper/loot.hpp>
 
+/// TODO: Refactor these functions so that they're more like the other static const shared_ptr getters
+/// (See spline.cpp)
+
 std::shared_ptr<LootTable> desertPyramidLoot() {
     static std::shared_ptr<LootTable> DESERT_PYRAMID{};
     if (DESERT_PYRAMID) return DESERT_PYRAMID;

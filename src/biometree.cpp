@@ -401,7 +401,7 @@ static SearchTree genSearchTree() {
     return SearchTree(entries);
 }
 
-const SearchTree * getSearchTree() {
-    static const SearchTree INSTANCE = genSearchTree();
-    return &INSTANCE;
+const std::shared_ptr<SearchTree> getSearchTree() {
+    static const std::shared_ptr<SearchTree> INSTANCE = std::make_shared<SearchTree>(genSearchTree());
+    return INSTANCE;
 }
