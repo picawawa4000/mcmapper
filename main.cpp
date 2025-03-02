@@ -1,4 +1,4 @@
-#include <mcmapper/generator.hpp>
+#include <mcmapper/misc/generator.hpp>
 
 #include <iostream>
 

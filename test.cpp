@@ -1,7 +1,7 @@
-#include <mcmapper/structures.hpp>
+#include <mcmapper/structure/structures.hpp>
 #include <mcmapper/mcmapper.hpp>
-#include <mcmapper/loot.hpp>
-#include <mcmapper/builtin_loot.hpp>
+#include <mcmapper/loot/builtin_loot.hpp>
+#include <mcmapper/misc/generator.hpp>
 
 #include <iostream>
 #include <chrono>
@@ -24,9 +24,35 @@ void printBool(bool b) {
 int main() {
     const i64 worldSeed = 3447;
 
-    ClimateNoises noises(worldSeed);
+    std::chrono::high_resolution_clock clock;
+    auto start = clock.now();
 
+    ClimateNoises cnoises(worldSeed);
+
+    for (int i = 0; i < 16; ++i) {
+        std::cout << biomeRepr(cnoises.getBiomeAt(i - i % 4, 256, i % 4)) << std::endl;
+    }
+
+    auto end = clock.now();
+    std::cout << "Finished ClimateNoises test in " << end - start << std::endl;
+
+    start = clock.now();
+
+    std::shared_ptr<Noises> noises = std::make_shared<Noises>(worldSeed);
+    const ChunkGeneratorFlags flags = {.biomes=true, .biomeSurfaceOnly=true};
+    ChunkGenerator generator(0, 0, noises, flags);
+
+    end = clock.now();
+    std::cout << "Finished ChunkGenerator test in " << end - start << std::endl;
+
+    for (int i = 0; i < 16; ++i) {
+        std::cout << biomeRepr(generator.getBiomeAt(std::floor(i / 4), 256, i % 4)) << std::endl;
+    }
+
+/*
     std::cout << "Found village at " << placements::VILLAGE.findStart(worldSeed, 0, 0).chunkToBlock() << " in seed 3447; expected (48, 0)" << std::endl;
+
+    ClimateNoises noises(worldSeed);
 
     std::chrono::high_resolution_clock clock;
     auto start = clock.now();
@@ -66,12 +92,12 @@ int main() {
     sampleAll(noises, 0, -512);
     sampleAll(noises, -80, 320);
 
-    /-*int startX = -80, startZ = 320;
+    int startX = -80, startZ = 320;
     for (int x = startX; x < startX + 16; ++x) for (int z = startZ; z < startZ + 16; ++z) {
         int estimate = noises.estimateStoneHeight(x, z);
         std::cout << "At (" << x << ", " << z << "): " << estimate << std::endl;
-    }*/
-//*/
+    }
+///
 
     auto logLoot = [](ItemStack stack) -> void {
         std::cout << stack.id << " x " << stack.count << std::endl;
@@ -92,6 +118,7 @@ int main() {
     std::cout << "-8167473274498177545" << std::endl;
     context = LootContext(-8167473274498177545LL);
     pyramidTable->roll(context, logLoot);
+*/
 
     return 0;
 }
