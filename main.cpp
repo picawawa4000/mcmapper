@@ -1,10 +1,9 @@
-#include <mcmapper/rng.hpp>
+#include <mcmapper/generator.hpp>
 
 #include <iostream>
 
 int main() {
-    XoroshiroRandom rng(537207492169ULL);
-    std::cout << rng.next_u64() << std::endl;
-    std::cout << rng.next_u64() << std::endl;
-    return 0;
+    const i64 seed = 3447;
+
+    ClimateNoises noises(seed);
 }

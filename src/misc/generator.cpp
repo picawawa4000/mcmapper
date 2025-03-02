@@ -1,5 +1,5 @@
-#include <mcmapper/generator.hpp>
-#include <mcmapper/spline.hpp>
+#include <mcmapper/misc/generator.hpp>
+#include <mcmapper/terrain/spline.hpp>
 
 typedef std::array<f32, 16> Samples2d;
 typedef std::array<std::array<f32, 96>, 16> Samples3d;

@@ -1,6 +1,6 @@
-#include <mcmapper/terrain.hpp>
+#include <mcmapper/terrain/terrain.hpp>
 
-#include <mcmapper/noise.hpp>
+#include <mcmapper/rng/noise.hpp>
 
 static f64 scaleCaves(f64 value) {
     if (value < -0.75) return 0.5;
@@ -25,5 +25,5 @@ static f64 sampleWeirdScaled(f64 x, f64 y, f64 z, f64 input, const DoublePerlinN
 }
 
 static f64 cavesEntrances(f64 x, f64 y, f64 z) {
-    
+    throw std::runtime_error("Unimplemented function cavesEntrances!");
 }

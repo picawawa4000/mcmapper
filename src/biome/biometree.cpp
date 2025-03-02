@@ -1,4 +1,4 @@
-#include <mcmapper/biometree.hpp>
+#include <mcmapper/biome/biometree.hpp>
 
 #include <memory>
 #include <type_traits>

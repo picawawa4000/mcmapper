@@ -1,4 +1,4 @@
-#include <mcmapper/biomes.hpp>
+#include <mcmapper/biome/biomes.hpp>
 
 std::string biomeRepr(Biome biome) {
     switch (biome) {

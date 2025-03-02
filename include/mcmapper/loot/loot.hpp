@@ -1,7 +1,7 @@
 #ifndef LOOT_HPP
 #define LOOT_HPP
 
-#include <mcmapper/rng.hpp>
+#include <mcmapper/rng/rng.hpp>
 #include <array>
 #include <functional>
 #include <optional>
@@ -206,7 +206,7 @@ struct EnchantWithLevelsLootFunction : public LootFunction {
         u32 l = this->levels + 1 + context.random.next_i32(this->enchantability / 4 + 1) + context.random.next_i32(this->enchantability / 4 + 1);
         f32 f = (context.random.next_f32() + context.random.next_f32() - 1.f) * 0.15f;
         l = std::clamp((i32)std::round((f32)l + (f32)l * f), 1, std::numeric_limits<i32>::max());
-        
+        throw std::runtime_error("Unimplemented function EnchantWithLevelsLootFunction::apply()!");
     }
 };
 

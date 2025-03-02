@@ -1,4 +1,4 @@
-#include <mcmapper/spline.hpp>
+#include <mcmapper/terrain/spline.hpp>
 
 f32 getOffsetValue(f32 weirdness, f32 continentalness) {
     f32 f0 = 1.0F - (1.0F - continentalness) * 0.5F;

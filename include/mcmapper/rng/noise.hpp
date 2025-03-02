@@ -1,7 +1,7 @@
 #ifndef NOISE_HPP
 #define NOISE_HPP
 
-#include <mcmapper/rng.hpp>
+#include <mcmapper/rng/rng.hpp>
 #include <cmath>
 #include <vector>
 #include <memory>

@@ -1,4 +1,4 @@
-#include <mcmapper/noise.hpp>
+#include <mcmapper/rng/noise.hpp>
 
 i32 gradients[16][3] = {
     {1, 1, 0}, 
@@ -40,7 +40,7 @@ PerlinNoise::PerlinNoise(Random& rng) {
     }
 }
 
-f64 PerlinNoise::sample(f64 x, f64 y, f64 z, f64 yScale = 0, f64 yMax = 0) const {
+f64 PerlinNoise::sample(f64 x, f64 y, f64 z, f64 yScale, f64 yMax) const {
     f64 s;
     f64 i = x + this->originX;
     f64 j = y + this->originY;

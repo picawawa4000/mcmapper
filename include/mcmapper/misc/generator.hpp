@@ -1,7 +1,7 @@
 #ifndef GENERATOR_HPP
 #define GENERATOR_HPP
 
-#include <mcmapper/noises.hpp>
+#include <mcmapper/rng/noises.hpp>
 
 #include <array>
 #include <optional>
@@ -20,7 +20,7 @@ struct ChunkGenerator {
     // x, y, and z in biome coordinates (>> 2 if block)
     Biome getBiomeAt(i32 x, i32 y, i32 z) {
         if (this->biome != THE_VOID) return this->biome;
-        return this->biomes->at(x + z >> 2).at(y >> 2);
+        return this->biomes->at(x + (z >> 2)).at(y >> 2);
     }
 
 private:

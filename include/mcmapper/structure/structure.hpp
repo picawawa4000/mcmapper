@@ -1,8 +1,8 @@
 #ifndef STRUCTURE_HPP
 #define STRUCTURE_HPP
 
-#include <mcmapper/rng.hpp>
-#include <mcmapper/biomes.hpp>
+#include <mcmapper/rng/rng.hpp>
+#include <mcmapper/biome/biomes.hpp>
 
 #include <vector>
 

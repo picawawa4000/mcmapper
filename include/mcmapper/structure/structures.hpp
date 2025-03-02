@@ -1,7 +1,7 @@
 #ifndef STRUCTURES_HPP
 #define STRUCTURES_HPP
 
-#include <mcmapper/structure.hpp>
+#include <mcmapper/structure/structure.hpp>
 
 namespace placements {
     const StructurePlacement VILLAGE(34, 8, SpreadType::LINEAR, 10387312);

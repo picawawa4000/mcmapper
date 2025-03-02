@@ -1,9 +1,9 @@
 #ifndef NOISES_HPP
 #define NOISES_HPP
 
-#include <mcmapper/noise.hpp>
-#include <mcmapper/biometree.hpp>
-#include <mcmapper/spline.hpp>
+#include <mcmapper/rng/noise.hpp>
+#include <mcmapper/biome/biometree.hpp>
+#include <mcmapper/terrain/spline.hpp>
 
 #include <numeric>
 #include <iostream>

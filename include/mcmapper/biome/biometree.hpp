@@ -1,7 +1,7 @@
 #ifndef BIOMETREE_HPP
 #define BIOMETREE_HPP
 
-#include <mcmapper/biomes.hpp>
+#include <mcmapper/biome/biomes.hpp>
 #include <vector>
 #include <optional>
 #include <utility>

@@ -1,4 +1,4 @@
-#include <mcmapper/loot.hpp>
+#include <mcmapper/loot/loot.hpp>
 
 /// TODO: Refactor these functions so that they're more like the other static const shared_ptr getters
 /// (See spline.cpp)
@@ -77,6 +77,8 @@ std::shared_ptr<LootTable> dungeonLoot() {
     q->entry(15, "minecraft:redstone", 1, 4);
 
     LootPoolBuilder * r = new LootPoolBuilder(3);
+    
+    throw std::runtime_error("Unimplemented function dungeonLoot!");
 }
 
 // Deprecated until enchant with levels becomes a thing.
