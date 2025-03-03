@@ -19,11 +19,21 @@ struct Enchantment {
     Enchantment(const std::string& id, u32 maxLevel) : id(id), maxLevel(maxLevel) {}
 };
 
+struct EnchantmentWithPower {
+    const std::string id;
+    u32 maxLevel;
+    u32 minBaseCost, minCostPerLevel;
+    u32 maxBaseCost, maxCostPerLevel;
+
+    EnchantmentWithPower(const std::string& id, u32 maxLevel, u32 minBaseCost, u32 minCostPerLevel, u32 maxBaseCost, u32 maxCostPerLevel) : id(id), maxLevel(maxLevel), minBaseCost(minBaseCost), minCostPerLevel(minCostPerLevel), maxBaseCost(maxBaseCost), maxCostPerLevel(maxCostPerLevel) {}
+};
+
 struct EnchantmentInstance {
     const std::string id;
     u32 level;
     
     EnchantmentInstance(Enchantment type, u32 level) : id(type.id), level(level) {}
+    EnchantmentInstance(EnchantmentWithPower type, u32 level) : id(type.id), level(level) {}
 };
 
 const std::array<const Enchantment, 39> vanillaEnchants{
@@ -68,42 +78,46 @@ const std::array<const Enchantment, 39> vanillaEnchants{
     Enchantment("minecraft:vanishing_curse")
 };
 
-const std::array<Enchantment, 35> vanillaBookNonTreasureEnchants{
-    Enchantment("minecraft:protection", 4),
-    Enchantment("minecraft:fire_protection", 4),
-    Enchantment("minecraft:feather_falling", 4),
-    Enchantment("minecraft:blast_protection", 4),
-    Enchantment("minecraft:projectile_protection", 4),
-    Enchantment("minecraft:respiration", 3),
-    Enchantment("minecraft:aqua_affinity"),
-    Enchantment("minecraft:thorns", 3),
-    Enchantment("minecraft:depth_strider", 3),
-    Enchantment("minecraft:sharpness", 5),
-    Enchantment("minecraft:smite", 5),
-    Enchantment("minecraft:bane_of_arthropods", 5),
-    Enchantment("minecraft:knockback", 2),
-    Enchantment("minecraft:fire_aspect", 2),
-    Enchantment("minecraft:looting", 3),
-    Enchantment("minecraft:sweeping_edge", 3),
-    Enchantment("minecraft:efficiency", 5),
-    Enchantment("minecraft:silk_touch"),
-    Enchantment("minecraft:unbreaking", 3),
-    Enchantment("minecraft:fortune", 3),
-    Enchantment("minecraft:power", 5),
-    Enchantment("minecraft:punch", 2),
-    Enchantment("minecraft:flame"),
-    Enchantment("minecraft:infinity"),
-    Enchantment("minecraft:luck_of_the_sea", 3),
-    Enchantment("minecraft:lure", 3),
-    Enchantment("minecraft:loyalty", 3),
-    Enchantment("minecraft:impaling", 5),
-    Enchantment("minecraft:riptide", 3),
-    Enchantment("minecraft:channeling"),
-    Enchantment("minecraft:multishot"),
-    Enchantment("minecraft:quick_charge", 3),
-    Enchantment("minecraft:piercing", 4),
-    Enchantment("minecraft:density", 5),
-    Enchantment("minecraft:breach", 4)
+const std::array<EnchantmentWithPower, 39> vanillaPowerEnchants{
+    EnchantmentWithPower("minecraft:protection", 4, 1, 11, 12, 11),
+    EnchantmentWithPower("minecraft:fire_protection", 4, 10, 8, 18, 8),
+    EnchantmentWithPower("minecraft:feather_falling", 4, 5, 6, 11, 6),
+    EnchantmentWithPower("minecraft:blast_protection", 4, 5, 8, 13, 8),
+    EnchantmentWithPower("minecraft:projectile_protection", 4, 3, 6, 9, 6),
+    EnchantmentWithPower("minecraft:respiration", 3, 10, 10, 40, 10),
+    EnchantmentWithPower("minecraft:aqua_affinity", 1, 1, 0, 41, 0),
+    EnchantmentWithPower("minecraft:thorns", 3, 10, 20, 60, 20),
+    EnchantmentWithPower("minecraft:depth_strider", 3, 10, 10, 25, 10),
+    EnchantmentWithPower("minecraft:frost_walker", 2, 10, 10, 25, 10),
+    EnchantmentWithPower("minecraft:binding_curse", 1, 25, 0, 50, 0),
+    EnchantmentWithPower("minecraft:sharpness", 5, 1, 11, 21, 11),
+    EnchantmentWithPower("minecraft:smite", 5, 5, 8, 25, 8),
+    EnchantmentWithPower("minecraft:bane_of_arthropods", 5, 5, 8, 25, 8),
+    EnchantmentWithPower("minecraft:knockback", 2, 5, 20, 55, 20),
+    EnchantmentWithPower("minecraft:fire_aspect", 2, 10, 20, 60, 20),
+    EnchantmentWithPower("minecraft:looting", 3, 15, 9, 65, 9),
+    EnchantmentWithPower("minecraft:sweeping_edge", 3, 5, 9, 20, 9),
+    EnchantmentWithPower("minecraft:efficiency", 5, 1, 10, 51, 10),
+    EnchantmentWithPower("minecraft:silk_touch", 1, 15, 0, 65, 0),
+    EnchantmentWithPower("minecraft:unbreaking", 3, 5, 8, 55, 8),
+    EnchantmentWithPower("minecraft:fortune", 3, 15, 9, 65, 9),
+    EnchantmentWithPower("minecraft:power", 5, 1, 10, 16, 10),
+    EnchantmentWithPower("minecraft:punch", 2, 12, 20, 37, 20),
+    EnchantmentWithPower("minecraft:flame", 1, 20, 0, 50, 0),
+    EnchantmentWithPower("minecraft:infinity", 1, 20, 0, 50, 0),
+    EnchantmentWithPower("minecraft:luck_of_the_sea", 3, 15, 9, 65, 9),
+    EnchantmentWithPower("minecraft:lure", 3, 15, 9, 65, 9),
+    EnchantmentWithPower("minecraft:loyalty", 3, 12, 7, 50, 0),
+    EnchantmentWithPower("minecraft:impaling", 5, 1, 8, 21, 8),
+    EnchantmentWithPower("minecraft:riptide", 3, 17, 7, 50, 0),
+    EnchantmentWithPower("minecraft:channeling", 1, 25, 0, 50, 0),
+    EnchantmentWithPower("minecraft:multishot", 1, 20, 0, 50, 0),
+    EnchantmentWithPower("minecraft:quick_charge", 3, 12, 20, 50, 0),
+    EnchantmentWithPower("minecraft:piercing", 4, 1, 10, 50, 0),
+    EnchantmentWithPower("minecraft:density", 5, 5, 8, 25, 8),
+    EnchantmentWithPower("minecraft:breach", 4, 15, 9, 65, 9),
+    EnchantmentWithPower("minecraft:mending", 1, 25, 0, 50, 0),
+    EnchantmentWithPower("minecraft:vanishing_curse", 1, 25, 0, 50, 0),
 };
 
 struct LootContext {
@@ -206,6 +220,17 @@ struct EnchantWithLevelsLootFunction : public LootFunction {
         u32 l = this->levels + 1 + context.random.next_i32(this->enchantability / 4 + 1) + context.random.next_i32(this->enchantability / 4 + 1);
         f32 f = (context.random.next_f32() + context.random.next_f32() - 1.f) * 0.15f;
         l = std::clamp((i32)std::round((f32)l + (f32)l * f), 1, std::numeric_limits<i32>::max());
+        std::vector<EnchantmentInstance> possibleEnchants;
+        for (EnchantmentWithPower enchantment : vanillaPowerEnchants)
+            for (int i = enchantment.maxLevel; i >= 1; --i) {
+                if (i < enchantment.minBaseCost + enchantment.minCostPerLevel * (i - 1) || i > enchantment.maxBaseCost + enchantment.maxCostPerLevel * (i - 1)) continue;
+                possibleEnchants.emplace_back(enchantment, i);
+                break;
+            }
+        std::vector<EnchantmentInstance> enchantments;
+        if (!possibleEnchants.empty()) {
+            
+        }
         throw std::runtime_error("Unimplemented function EnchantWithLevelsLootFunction::apply()!");
     }
 };
@@ -277,9 +302,7 @@ struct ItemEntry : public LootEntry {
     virtual ~ItemEntry() = default;
 
     virtual void generateLoot(LootContext& context, std::function<void(ItemStack)> enter) override {
-        std::cout << "seed = " << context.random.seed;
         i32 itemCount = this->count->next(context);
-        std::cout << ", count = " << itemCount << std::endl;
         ItemStack stack(this->stackID, (u32)itemCount);
 
         for (std::unique_ptr<LootFunction>& func : this->functions)
@@ -348,11 +371,17 @@ struct LootTable {
     }
 };
 
-// Helper to avoid u32s being cast to bools, which would cause overload resolution problems.
-struct bool_t {
-    bool val;
-    explicit bool_t(bool val) : val(val) {}
-    operator bool() {return this->val;}
+struct Modifier {
+    enum Type {
+        NONE,
+        ENCHANT_RANDOMLY,
+        ENCHANT_WITH_LEVELS,
+    };
+
+    Type type;
+    // ENCHANT_WITH_LEVELS
+    u32 levels = 1;
+    u32 enchantability = 1;
 };
 
 struct LootPoolBuilder {
@@ -371,26 +400,44 @@ struct LootPoolBuilder {
     }
 
     // Helpers
-    void entry(u32 weight, const std::string& stackID, bool_t enchant = bool_t(false)) {
+    void entry(u32 weight, const std::string& stackID, Modifier modifier = {.type=Modifier::Type::NONE}) {
         this->weights.weights.push_back(LootWeight(weight));
-        if (enchant)
-            this->entries.push_back(std::make_unique<ItemEntry>(stackID, EnchantRandomlyLootFunction()));
-        else
-            this->entries.push_back(std::make_unique<ItemEntry>(stackID));
+        switch (modifier.type) {
+            case Modifier::Type::ENCHANT_RANDOMLY:
+                this->entries.push_back(std::make_unique<ItemEntry>(stackID, EnchantRandomlyLootFunction()));
+                break;
+            case Modifier::Type::ENCHANT_WITH_LEVELS:
+                this->entries.push_back(std::make_unique<ItemEntry>(stackID, EnchantWithLevelsLootFunction(modifier.levels, modifier.enchantability)));
+                break;
+            default:
+                this->entries.push_back(std::make_unique<ItemEntry>(stackID));
+        }
     }
-    void entry(u32 weight, const std::string& stackID, u32 count, bool_t enchant = bool_t(false)) {
+    void entry(u32 weight, const std::string& stackID, u32 count, Modifier modifier = {.type=Modifier::Type::NONE}) {
         this->weights.weights.push_back(LootWeight(weight));
-        if (enchant)
-            this->entries.push_back(std::make_unique<ItemEntry>(stackID, count, EnchantRandomlyLootFunction()));
-        else
-            this->entries.push_back(std::make_unique<ItemEntry>(stackID, count));
+        switch (modifier.type) {
+            case Modifier::Type::ENCHANT_RANDOMLY:
+                this->entries.push_back(std::make_unique<ItemEntry>(stackID, count, EnchantRandomlyLootFunction()));
+                break;
+            case Modifier::Type::ENCHANT_WITH_LEVELS:
+                this->entries.push_back(std::make_unique<ItemEntry>(stackID, count, EnchantWithLevelsLootFunction(modifier.levels, modifier.enchantability)));
+                break;
+            default:
+                this->entries.push_back(std::make_unique<ItemEntry>(stackID, count));
+        }
     }
-    void entry(u32 weight, const std::string& stackID, u32 min, u32 max, bool_t enchant = bool_t(false)) {
+    void entry(u32 weight, const std::string& stackID, u32 min, u32 max, Modifier modifier = {.type=Modifier::Type::NONE}) {
         this->weights.weights.push_back(LootWeight(weight));
-        if (enchant)
-            this->entries.push_back(std::make_unique<ItemEntry>(stackID, min, max, EnchantRandomlyLootFunction()));
-        else
-            this->entries.push_back(std::make_unique<ItemEntry>(stackID, min, max));
+        switch (modifier.type) {
+            case Modifier::Type::ENCHANT_RANDOMLY:
+                this->entries.push_back(std::make_unique<ItemEntry>(stackID, min, max, EnchantRandomlyLootFunction()));
+                break;
+            case Modifier::Type::ENCHANT_WITH_LEVELS:
+                this->entries.push_back(std::make_unique<ItemEntry>(stackID, min, max, EnchantWithLevelsLootFunction(modifier.levels)));
+                break;
+            default:
+                this->entries.push_back(std::make_unique<ItemEntry>(stackID, min, max));
+        }
     }
 
     LootPool * build() {

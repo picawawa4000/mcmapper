@@ -16,8 +16,7 @@ std::shared_ptr<LootTable> desertPyramidLoot() {
     p->entry(15, "minecraft:iron_horse_armor");
     p->entry(10, "minecraft:golden_horse_armor");
     p->entry(5, "minecraft:diamond_horse_armor");
-    /// TODO: item modifiers (i.e. enchantments)
-    p->entry(20, "minecraft:enchanted_book", bool_t(true));
+    p->entry(20, "minecraft:enchanted_book", Modifier{.type=Modifier::Type::ENCHANT_RANDOMLY});
     p->entry(20, "minecraft:golden_apple");
     p->entry(2, "minecraft:enchanted_golden_apple");
     p->entry(15);
@@ -63,7 +62,7 @@ std::shared_ptr<LootTable> dungeonLoot() {
     p->entry(10, "minecraft:golden_horse_armour");
     p->entry(15, "minecraft:iron_horse_armour");
     p->entry(5, "minecraft:diamond_horse_armour");
-    p->entry(10, "minecraft:enchanted_book", bool_t(true));
+    p->entry(10, "minecraft:enchanted_book", Modifier{.type=Modifier::Type::ENCHANT_RANDOMLY});
 
     LootPoolBuilder * q = new LootPoolBuilder(1, 4);
     q->entry(10, "minecraft:iron_ingot", 1, 4);

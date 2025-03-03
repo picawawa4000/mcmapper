@@ -1,5 +1,8 @@
 #include <mcmapper/rng/noises.hpp>
 
+#include <iostream>
+#include <chrono>
+
 namespace data {
     std::vector<std::vector<u64>> hashtable = {
         {0x5c7e6b29735f0d7f, 0xf7d86f1bbc734988}, //"minecraft:temperature"
@@ -48,6 +51,9 @@ ClimateNoises::ClimateNoises(i64 worldSeed) {
 }
 
 Noises::Noises(i64 worldSeed) {
+    std::chrono::high_resolution_clock clock;
+    auto start = clock.now();
+
     XoroshiroRandom rng(worldSeed);
     u64 lo = rng.next_u64();
     u64 hi = rng.next_u64();
@@ -75,4 +81,7 @@ Noises::Noises(i64 worldSeed) {
 
     temp = XoroshiroRandom(lo ^ data::hashtable[6][0], hi ^ data::hashtable[6][1]);
     this->surface = DoublePerlinNoise(temp, data::surface_amplitudes, -6);
+
+    auto end = clock.now();
+    std::cout << "Creating noises took " << end - start << std::endl;
 }

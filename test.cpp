@@ -97,7 +97,7 @@ int main() {
         int estimate = noises.estimateStoneHeight(x, z);
         std::cout << "At (" << x << ", " << z << "): " << estimate << std::endl;
     }
-///
+///*/
 
     auto logLoot = [](ItemStack stack) -> void {
         std::cout << stack.id << " x " << stack.count << std::endl;
@@ -118,7 +118,6 @@ int main() {
     std::cout << "-8167473274498177545" << std::endl;
     context = LootContext(-8167473274498177545LL);
     pyramidTable->roll(context, logLoot);
-*/
 
     return 0;
 }
