@@ -5,5 +5,7 @@
 int main() {
     const i64 seed = 3447;
 
-    ClimateNoises noises(seed);
+    XoroshiroRandom rng(seed);
+
+    std::vector<i64> v;
 }

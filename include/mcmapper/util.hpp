@@ -154,4 +154,15 @@ inline i64 hashCode(i32 x, i32 y, i32 z) {
     return l >> 16;
 }
 
+enum Direction {
+    NORTH,
+    SOUTH,
+    EAST,
+    WEST,
+};
+
+u8 getOffsetX(Direction direction) {
+    throw std::runtime_error("Unimplemented function getOffsetX!");
+}
+
 #endif
