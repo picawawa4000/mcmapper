@@ -3,9 +3,11 @@
 #include <iostream>
 
 int main() {
-    const i64 seed = 3447;
+#if __cpp_modules >= 201810L
+    std::cout << "Modules!";
+#else
+    std::cout << "No modules!";
+#endif
 
-    XoroshiroRandom rng(seed);
-
-    std::vector<i64> v;
+    return 0;
 }

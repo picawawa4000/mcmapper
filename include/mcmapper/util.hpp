@@ -161,7 +161,7 @@ enum Direction {
     WEST,
 };
 
-u8 getOffsetX(Direction direction) {
+inline u8 getOffsetX(Direction direction) {
     throw std::runtime_error("Unimplemented function getOffsetX!");
 }
 
