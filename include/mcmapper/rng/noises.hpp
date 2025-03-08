@@ -110,13 +110,27 @@ struct ClimateNoises {
 };
 
 struct Noises {
+    // Climate noises
     DoublePerlinNoise temperature;
     DoublePerlinNoise humidity;
     DoublePerlinNoise continentalness;
     DoublePerlinNoise erosion;
     DoublePerlinNoise weirdness;
     DoublePerlinNoise offset;
+
+    // Surface noises
     DoublePerlinNoise surface;
+
+    // Cave noises
+    DoublePerlinNoise spaghetti3d_1;
+    DoublePerlinNoise spaghetti3d_2;
+    DoublePerlinNoise spaghetti3d_rarity;
+    DoublePerlinNoise spaghetti3d_thickness;
+    DoublePerlinNoise spaghetti_roughness;
+    DoublePerlinNoise spaghetti_roughness_modulator;
+    DoublePerlinNoise cave_entrance;
+    DoublePerlinNoise cave_layer;
+    DoublePerlinNoise cave_cheese;
 
     u64 seedLo, seedHi;
 

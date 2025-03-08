@@ -1,10 +1,10 @@
 #include <mcmapper/rng/noises.hpp>
 
-#include <iostream>
-#include <chrono>
+//#include <iostream>
+//#include <chrono>
 
 namespace data {
-    std::vector<std::vector<u64>> hashtable = {
+    const std::array<const std::array<const u64, 2>, 16> hashtable = {{
         {0x5c7e6b29735f0d7f, 0xf7d86f1bbc734988}, //"minecraft:temperature"
         {0x81bb4d22e8dc168e, 0xf1c8b4bea16303cd}, //"minecraft:vegetation"
         {0x83886c9d0ae3a662, 0xafa638a61b42e8ad}, //"minecraft:continentalness"
@@ -12,15 +12,26 @@ namespace data {
         {0xefc8ef4d36102b34, 0x1beeeb324a0f24ea}, //"minecraft:ridge"
         {0x080518cf6af25384, 0x3f3dfb40a54febd5}, //"minecraft:offset"
         {0x4b3097bbe1a7e1ac, 0xf49561571ec10de8}, //"minecraft:surface"
-    };
+        {0xa5053f53ce3f5840, 0x834fa38a3ded87b7}, //"minecraft:spaghetti_3d_1"
+        {0xb9a6367335a0ceef, 0xd61ccfd0fac10ac3}, //"minecraft:spaghetti_3d_2"
+        {0xee4780c98d93a439, 0xbe45d334fdb76d2c}, //"minecraft:spaghetti_3d_rarity"
+        {0x897e1f20ad2d2b27, 0xf4142f5a58d1d5ab}, //"minecraft:spaghetti_3d_thickness"
+        {0xf1008a17493d9a65, 0xbd1ce09e8bc70ea0}, //"minecraft:cave_entrance"
+        {0x7aed57fd327d6591, 0xd495a3593e4d67bd}, //"minecraft:spaghetti_roughness"
+        {0xe19387d2ceaf4eaa, 0xcacdcd34e1bc2003}, //"minecraft:spaghetti_roughness_modulator"
+        {0x4dfe67be2ef51a83, 0x5a4ae8c4423e7206}, //"minecraft:cave_layer"
+        {0xb159093bc7baaa50, 0x53abc45424417c20}, //"minecraft:cave_cheese"
+    }};
 
-    std::vector<f64> temperature_amplitudes = {1.5, 0., 1., 0., 0., 0.};
-    std::vector<f64> humidity_amplitudes = {1., 1., 0., 0., 0., 0.};
-    std::vector<f64> continentalness_amplitudes = {1., 1., 2., 2., 2., 1., 1., 1., 1.};
-    std::vector<f64> erosion_amplitudes = {1., 1., 0., 1., 1.};
-    std::vector<f64> weirdness_amplitudes = {1., 2., 1., 0., 0., 0.};
-    std::vector<f64> offset_amplitudes = {1., 1., 1., 0.};
-    std::vector<f64> surface_amplitudes = {1., 1., 1.};
+    const std::vector<f64> temperature_amplitudes = {1.5, 0., 1., 0., 0., 0.};
+    const std::vector<f64> humidity_amplitudes = {1., 1., 0., 0., 0., 0.};
+    const std::vector<f64> continentalness_amplitudes = {1., 1., 2., 2., 2., 1., 1., 1., 1.};
+    const std::vector<f64> erosion_amplitudes = {1., 1., 0., 1., 1.};
+    const std::vector<f64> weirdness_amplitudes = {1., 2., 1., 0., 0., 0.};
+    const std::vector<f64> offset_amplitudes = {1., 1., 1., 0.};
+    const std::vector<f64> surface_amplitudes = {1., 1., 1.};
+    const std::vector<f64> cave_entrance_amplitudes = {0.4, 0.5, 1.};
+    const std::vector<f64> cave_cheese_amplitudes = {0.5, 1., 2., 1., 2., 1., 0., 2., 2.};
 };
 
 ClimateNoises::ClimateNoises(i64 worldSeed) {
@@ -51,8 +62,8 @@ ClimateNoises::ClimateNoises(i64 worldSeed) {
 }
 
 Noises::Noises(i64 worldSeed) {
-    std::chrono::high_resolution_clock clock;
-    auto start = clock.now();
+//    std::chrono::high_resolution_clock clock;
+//    auto start = clock.now();
 
     XoroshiroRandom rng(worldSeed);
     u64 lo = rng.next_u64();
@@ -82,6 +93,33 @@ Noises::Noises(i64 worldSeed) {
     temp = XoroshiroRandom(lo ^ data::hashtable[6][0], hi ^ data::hashtable[6][1]);
     this->surface = DoublePerlinNoise(temp, data::surface_amplitudes, -6);
 
-    auto end = clock.now();
-    std::cout << "Creating noises took " << end - start << std::endl;
+    temp = XoroshiroRandom(lo ^ data::hashtable[7][0], hi ^ data::hashtable[7][1]);
+    this->spaghetti3d_1 = DoublePerlinNoise(temp, {1.}, -7);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[8][0], hi ^ data::hashtable[8][1]);
+    this->spaghetti3d_2 = DoublePerlinNoise(temp, {1.}, -7);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[9][0], hi ^ data::hashtable[9][1]);
+    this->spaghetti3d_rarity = DoublePerlinNoise(temp, {1.}, -11);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[10][0], hi ^ data::hashtable[10][1]);
+    this->spaghetti3d_thickness = DoublePerlinNoise(temp, {1.}, -8);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[11][0], hi ^ data::hashtable[11][1]);
+    this->cave_entrance = DoublePerlinNoise(temp, data::cave_entrance_amplitudes, -7);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[12][0], hi ^ data::hashtable[12][1]);
+    this->spaghetti_roughness = DoublePerlinNoise(temp, {1.}, -5);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[13][0], hi ^ data::hashtable[13][1]);
+    this->spaghetti_roughness_modulator = DoublePerlinNoise(temp, {1.}, -8);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[14][0], hi ^ data::hashtable[14][1]);
+    this->cave_layer = DoublePerlinNoise(temp, {1.}, -8);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[15][0], hi ^ data::hashtable[15][1]);
+    this->cave_cheese = DoublePerlinNoise(temp, data::cave_cheese_amplitudes, -8);
+
+//    auto end = clock.now();
+//    std::cout << "Creating noises took " << end - start << std::endl;
 }
