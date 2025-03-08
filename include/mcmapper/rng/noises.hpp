@@ -8,8 +8,8 @@
 #include <numeric>
 #include <iostream>
 
-//for now, no large biomes
-//I may eventually get around to adding those...
+// Deprecated for larger generation sizes; use ChunkGenerator instead.
+// ChunkGenerator can witness speedups of up to 2 orders of magnitude.
 struct ClimateNoises {
     DoublePerlinNoise temperature;
     DoublePerlinNoise humidity;

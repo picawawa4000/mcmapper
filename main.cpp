@@ -1,13 +1,12 @@
-#include <mcmapper/misc/generator.hpp>
+#include <mcmapper/rng/rng.hpp>
 
 #include <iostream>
 
 int main() {
-#if __cpp_modules >= 201810L
-    std::cout << "Modules!";
-#else
-    std::cout << "No modules!";
-#endif
+    XoroshiroRandom rng(3447);
+
+    std::cout << rng.next_u64() << std::endl;
+    std::cout << rng.next_u64() << std::endl;
 
     return 0;
 }
