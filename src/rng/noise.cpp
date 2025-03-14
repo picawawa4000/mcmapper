@@ -64,21 +64,21 @@ f64 PerlinNoise::sample(i32 sectionX, i32 sectionY, i32 sectionZ, f64 localX, f6
     i32 l = this->map(sectionX);
     i32 m = this->map(sectionX + 1);
     i32 n = this->map(l + sectionY);
-    i32 o = this->map(l + sectionY + 1);
+    i32 o = this->map(l + sectionY + 1); // ignore for y=0
     i32 p = this->map(m + sectionY);
-    i32 q = this->map(m + sectionY + 1);
+    i32 q = this->map(m + sectionY + 1); // ignore for y=0
     f64 h = grad(this->map(n + sectionZ), localX, localY, localZ);
     f64 r = grad(this->map(p + sectionZ), localX - 1.0, localY, localZ);
-    f64 s = grad(this->map(o + sectionZ), localX, localY - 1.0, localZ);
-    f64 t = grad(this->map(q + sectionZ), localX - 1.0, localY - 1.0, localZ);
+    f64 s = grad(this->map(o + sectionZ), localX, localY - 1.0, localZ); // ignore for y=0
+    f64 t = grad(this->map(q + sectionZ), localX - 1.0, localY - 1.0, localZ); // ignore for y=0
     f64 u = grad(this->map(n + sectionZ + 1), localX, localY, localZ - 1.0);
     f64 v = grad(this->map(p + sectionZ + 1), localX - 1.0, localY, localZ - 1.0);
-    f64 w = grad(this->map(o + sectionZ + 1), localX, localY - 1.0, localZ - 1.0);
-    f64 x = grad(this->map(q + sectionZ + 1), localX - 1.0, localY - 1.0, localZ - 1.0);
+    f64 w = grad(this->map(o + sectionZ + 1), localX, localY - 1.0, localZ - 1.0); // ignore for y=0
+    f64 x = grad(this->map(q + sectionZ + 1), localX - 1.0, localY - 1.0, localZ - 1.0); // ignore for y=0
     f64 y = perlinFade(localX);
-    f64 z = perlinFade(fadeLocalY);
+    f64 z = perlinFade(fadeLocalY); // equals 0 for y=0
     f64 aa = perlinFade(localZ);
-    return lerp3(y, z, aa, h, r, s, t, u, v, w, x);
+    return lerp3(y, z, aa, h, r, s, t, u, v, w, x); // y=0: a, a, <>, <>, a, a, <>, <> = lerp2(y, aa, h, r, u, v)
 }
 
 //pre-calculated tables to make things just a bit faster
@@ -120,6 +120,7 @@ OctavePerlinNoise::OctavePerlinNoise(XoroshiroRandom& rng, std::vector<f64> ampl
     }
 }
 
+// Probably redundant.
 OctavePerlinNoise::OctavePerlinNoise(CheckedRandom& rng, std::vector<f64> amplitudes, i32 firstOctave) : amplitudes(amplitudes) {
     i32 i;
     i32 size = amplitudes.size();

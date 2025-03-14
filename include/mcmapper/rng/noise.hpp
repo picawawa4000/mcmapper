@@ -14,7 +14,7 @@ struct PerlinNoise {
     f64 sample(f64 x, f64 y, f64 z, f64 yScale = 0, f64 yMax = 0) const;
 
 private:
-    u8 map(i32 input) const {return this->permutation[input & 0xFF] & 0xFF;}
+    u8 map(i32 input) const {return this->permutation[input & 0xFF];}
     f64 sample(i32 sectionX, i32 sectionY, i32 sectionZ, f64 localX, f64 localY, f64 localZ, f64 fadeLocalY) const;
 };
 

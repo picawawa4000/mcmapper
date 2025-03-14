@@ -50,13 +50,22 @@ static f64 slopedCheese(Noises& noises, f64 x, f64 y, f64 z) {
     throw std::runtime_error("unimplemented function!");
 }
 
+static f64 cavesPillars(Noises& noises, f64 x, f64 y, f64 z) {
+    throw std::runtime_error("unimplemented function!");
+}
+
 static f64 sampleCaves(Noises& noises, f64 x, f64 y, f64 z) {
     f64 spaghetti = spaghetti2d(noises, x, y, z);
     f64 roughness = spaghettiRoughness(noises, x, y, z);
     f64 layer = noises.cave_layer.sample(x, y * 8., z);
     layer = 4. * layer * layer;
     f64 cheese = noises.cave_cheese.sample(x, y * (2./3.), z);
-    
+    f64 f = std::clamp(0.27 + cheese, -1., 1.) + std::clamp(1.5 + -0.64 * slopedCheese(noises, x, y, z), 0., 0.5);
+    f64 g = f + layer;
+    f64 h = std::min(cavesEntrances(noises, x, y, z), std::min(g, spaghetti + roughness));
+    f64 pillars = cavesPillars(noises, x, y, z);
+    if (pillars < 0.03) return h; // the operation in-game returns -1000000.0 if pillars < 0.03, which is cancelled out by the next max() operation
+    return std::max(pillars, h);
 }
 
 f64 sampleFinalDensity(Noises& noises, f64 x, f64 y, f64 z) {
