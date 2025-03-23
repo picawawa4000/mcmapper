@@ -29,12 +29,18 @@ int main() {
 
     ClimateNoises cnoises(worldSeed);
 
+    std::array<Biome, 16> biomes;
+
     for (int i = 0; i < 16; ++i) {
-        std::cout << biomeRepr(cnoises.getBiomeAt(i - i % 4, 256, i % 4)) << std::endl;
+        biomes[i] = cnoises.getBiomeAt(i - i % 4, 256, i % 4);
     }
 
     auto end = clock.now();
-    std::cout << "Finished ClimateNoises test in " << end - start << std::endl;
+    std::cout << "Finished ClimateNoises test in " << (end - start).count() << "ns" << std::endl;
+
+    for (int i = 0; i < 16; ++i) {
+        std::cout << biomeRepr(biomes[i]) << std::endl;
+    }
 
     start = clock.now();
 
@@ -43,7 +49,7 @@ int main() {
     ChunkGenerator generator(0, 0, noises, flags);
 
     end = clock.now();
-    std::cout << "Finished ChunkGenerator test in " << end - start << std::endl;
+    std::cout << "Finished ChunkGenerator test in " << (end - start).count() << "ns" << std::endl;
 
     for (int i = 0; i < 16; ++i) {
         std::cout << biomeRepr(generator.getBiomeAt(std::floor(i / 4), 256, i % 4)) << std::endl;
@@ -97,7 +103,7 @@ int main() {
         int estimate = noises.estimateStoneHeight(x, z);
         std::cout << "At (" << x << ", " << z << "): " << estimate << std::endl;
     }
-///*/
+///*-/
 
     auto logLoot = [](ItemStack stack) -> void {
         std::cout << stack.id << " x " << stack.count << std::endl;
@@ -117,7 +123,7 @@ int main() {
 
     std::cout << "-8167473274498177545" << std::endl;
     context = LootContext(-8167473274498177545LL);
-    pyramidTable->roll(context, logLoot);
+    pyramidTable->roll(context, logLoot);//*/
 
     return 0;
 }

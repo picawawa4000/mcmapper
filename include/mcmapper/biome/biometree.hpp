@@ -36,17 +36,21 @@ struct ParameterRange {
     explicit constexpr ParameterRange(f32 min, f32 max) : min((i64)(min * 10000.f)), max((i64)(max * 10000.f)) {}
     ParameterRange() : min(0), max(0) {}
 
-    ParameterRange combine(std::optional<ParameterRange> other) {
+    ParameterRange combine(std::optional<ParameterRange> other) const {
         return other.has_value() ? ParameterRange(std::min(this->min, other.value().min), std::max(this->max, other.value().max)) : *this;
     }
 
-    i64 getDistance(i64 point) {
+    i64 getDistance(i64 point) const {
         if (point - this->max > 0) return point - this->max;
         return std::max(this->min - point, 0LL);
     }
 
-    operator std::string() {
+    operator std::string() const {
         return "[" + std::to_string(this->min) + ", " + std::to_string(this->max) + "]";
+    }
+
+    bool operator==(const ParameterRange& other) const {
+        return other.min == this->min && other.max == this->max;
     }
 };
 
@@ -69,6 +73,7 @@ struct NoiseHypercube {
 struct TreeNode {
     std::vector<ParameterRange> parameters;
     std::vector<std::shared_ptr<TreeNode>> children;
+    // 0 if this node is a branch
     Biome value;
 
     TreeNode(std::vector<ParameterRange> parameters, Biome value, std::vector<std::shared_ptr<TreeNode>> children) : parameters(parameters), children(children), value(value) {}
@@ -76,6 +81,7 @@ struct TreeNode {
     TreeNode getResultingNode(std::vector<i64> point, const TreeNode& alternative);
 };
 
+/// TODO: Serialise this structure into binary and then move the generator to a separate directory (or maybe even repository)
 struct SearchTree {
     std::shared_ptr<TreeNode> root;
 

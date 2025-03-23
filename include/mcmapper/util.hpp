@@ -86,18 +86,6 @@ struct Pos3D {
     }
 };
 
-//helper function for writing Pos2Ds to std::cout (and other streams)
-inline std::ostream& operator<<(std::ostream& stream, Pos2D pos) {
-    stream << (std::string)pos;
-    return stream;
-}
-
-//helper function for writing Pos3Ds to std::cout (and other streams)
-inline std::ostream& operator<<(std::ostream& stream, Pos3D pos) {
-    stream << (std::string)pos;
-    return stream;
-}
-
 template <typename T> struct Tag {
     std::vector<T> data;
 

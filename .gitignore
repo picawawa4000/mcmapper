@@ -6,8 +6,11 @@
 .vscode/*
 
 # binaries
+# how to set up a build folder?
 main
 test
+serialize_1_21_4
+*.bin
 
 # log files
 *.log

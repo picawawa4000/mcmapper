@@ -126,11 +126,18 @@ struct Noises {
     DoublePerlinNoise spaghetti3d_2;
     DoublePerlinNoise spaghetti3d_rarity;
     DoublePerlinNoise spaghetti3d_thickness;
+    DoublePerlinNoise spaghetti2d;
+    DoublePerlinNoise spaghetti2d_modulator;
+    DoublePerlinNoise spaghetti2d_elevation;
+    DoublePerlinNoise spaghetti2d_thickness;
     DoublePerlinNoise spaghetti_roughness;
     DoublePerlinNoise spaghetti_roughness_modulator;
     DoublePerlinNoise cave_entrance;
     DoublePerlinNoise cave_layer;
     DoublePerlinNoise cave_cheese;
+    DoublePerlinNoise pillar;
+    DoublePerlinNoise pillar_rareness;
+    DoublePerlinNoise pillar_thickness;
 
     u64 seedLo, seedHi;
 

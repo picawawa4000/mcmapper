@@ -12,7 +12,7 @@ Headers with a fairly stable API include:
 `mcmapper/rng/rng.hpp`
 `mcmapper/rng/noise.hpp`
 `mcmapper/biome/biomes.hpp`
-`mcmapper/biome/biometree.hpp`
+`mcmapper/biome/biometree.hpp` (although do note that this one will be replaced in the near future)
 `mcmapper/terrain/spline.hpp`
 
 Headers that are currently lacking features, or that may be split or otherwise refactored, include:

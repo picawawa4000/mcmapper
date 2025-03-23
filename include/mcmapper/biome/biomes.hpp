@@ -80,7 +80,7 @@ enum Biome {
 std::string biomeRepr(Biome biome);
 
 namespace biometags {
-    const Tag<Biome> DEEP_OCEAN({Biome::DEEP_FROZEN_OCEAN, Biome::DEEP_COLD_OCEAN, Biome::DEEP_OCEAN, Biome::DEEP_LUKEWARM_OCEAN});
+    const Tag<Biome> DEEP_OCEAN = Tag<Biome>({Biome::DEEP_FROZEN_OCEAN, Biome::DEEP_COLD_OCEAN, Biome::DEEP_OCEAN, Biome::DEEP_LUKEWARM_OCEAN});
     const Tag<Biome> OCEAN = Tag<Biome>({Biome::FROZEN_OCEAN, Biome::COLD_OCEAN, Biome::OCEAN, Biome::LUKEWARM_OCEAN, Biome::WARM_OCEAN}).add(DEEP_OCEAN);
     const Tag<Biome> BEACH = Tag<Biome>({Biome::BEACH, Biome::SNOWY_BEACH});
     const Tag<Biome> RIVER = Tag<Biome>({Biome::RIVER, Biome::FROZEN_RIVER});

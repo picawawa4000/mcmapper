@@ -361,8 +361,6 @@ static void enterPeakBiomes(std::function<void(const std::array<const ParameterR
     }
 }
 
-//at some point this may just become a vector
-//which will be uglier but work a lot faster
 static SearchTree genSearchTree() {
     std::vector<std::pair<NoiseHypercube, Biome>> entries;
     auto enter = [&entries](const std::array<const ParameterRange, 5>& parameters, i64 offset, Biome biome){

@@ -1,14 +1,12 @@
 #include <mcmapper/rng/noise.hpp>
 
+#include <sstream>
 #include <iostream>
 
 int main() {
-    XoroshiroRandom rng(3447);
-    PerlinNoise noise(rng);
-
-    std::cout << "permutation = [";
-    for (int i = 0; i < 256; ++i) std::cout << std::hex << +noise.permutation[i] << ", ";
-    std::cout << "]" << std::endl;
+    uint64_t data = (0x80ULL << 56) - 1;
+    int64_t signedData = data;
+    std::cout << signedData << std::endl << (int64_t)++signedData << std::endl;
 
     return 0;
 }

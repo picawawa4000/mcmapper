@@ -4,7 +4,7 @@
 //#include <chrono>
 
 namespace data {
-    const std::array<const std::array<const u64, 2>, 16> hashtable = {{
+    const std::array<const std::array<const u64, 2>, 23> hashtable = {{
         {0x5c7e6b29735f0d7f, 0xf7d86f1bbc734988}, //"minecraft:temperature"
         {0x81bb4d22e8dc168e, 0xf1c8b4bea16303cd}, //"minecraft:vegetation"
         {0x83886c9d0ae3a662, 0xafa638a61b42e8ad}, //"minecraft:continentalness"
@@ -21,6 +21,13 @@ namespace data {
         {0xe19387d2ceaf4eaa, 0xcacdcd34e1bc2003}, //"minecraft:spaghetti_roughness_modulator"
         {0x4dfe67be2ef51a83, 0x5a4ae8c4423e7206}, //"minecraft:cave_layer"
         {0xb159093bc7baaa50, 0x53abc45424417c20}, //"minecraft:cave_cheese"
+        {0x34748c98fa19c477, 0x2a02051eb9e9b9cd}, //"minecraft:spaghetti_2d"
+        {0x95e07097e4685522, 0x0232deaf95eb5fed}, //"minecraft:spaghetti_2d_modulator"
+        {0x29dd5fcf38d9edcd, 0x5bb1d7a839f6d4ab}, //"minecraft:spaghetti_2d_elevation"
+        {0x37e5cb432b85f4c8, 0xe5e16b35b407aebc}, //"minecraft:spaghetti_2d_thickness"
+        {0xd4defd1400fa5347, 0xccb6785451feaa1c}, //"minecraft:pillar"
+        {0x8ddd6be7cd4b24d0, 0x0485e8665333197a}, //"minecraft:pillar_rareness"
+        {0x1a28cb2542f8308d, 0xc4bba10b7fc7168c}, //"minecraft:pillar_thickness"
     }};
 
     const std::vector<f64> temperature_amplitudes = {1.5, 0., 1., 0., 0., 0.};
@@ -119,6 +126,27 @@ Noises::Noises(i64 worldSeed) {
 
     temp = XoroshiroRandom(lo ^ data::hashtable[15][0], hi ^ data::hashtable[15][1]);
     this->cave_cheese = DoublePerlinNoise(temp, data::cave_cheese_amplitudes, -8);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[16][0], hi ^ data::hashtable[16][1]);
+    this->spaghetti2d = DoublePerlinNoise(temp, {1.}, -7);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[17][0], hi ^ data::hashtable[17][1]);
+    this->spaghetti2d_modulator = DoublePerlinNoise(temp, {1.}, -11);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[18][0], hi ^ data::hashtable[18][1]);
+    this->spaghetti2d_elevation = DoublePerlinNoise(temp, {1.}, -8);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[19][0], hi ^ data::hashtable[19][1]);
+    this->spaghetti2d_thickness = DoublePerlinNoise(temp, {1.}, -11);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[20][0], hi ^ data::hashtable[20][1]);
+    this->pillar = DoublePerlinNoise(temp, {1., 1.}, -7);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[21][0], hi ^ data::hashtable[21][1]);
+    this->pillar_rareness = DoublePerlinNoise(temp, {1.}, -8);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[22][0], hi ^ data::hashtable[22][1]);
+    this->pillar_thickness = DoublePerlinNoise(temp, {1.}, -8);
 
 //    auto end = clock.now();
 //    std::cout << "Creating noises took " << end - start << std::endl;
