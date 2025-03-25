@@ -36,6 +36,7 @@ struct Spline {
 //IMPORTANT NOTE: if amplified, apply transformation (value > 0 ? value * 2 : value) to the input
 Spline createOffsetSpline();
 Spline createFactorSpline();
+Spline createJaggednessSpline();
 
 // Please use these instead of the above ones.
 // "Performance".
@@ -46,6 +47,11 @@ inline const std::shared_ptr<Spline> offsetSpline() {
 
 inline const std::shared_ptr<Spline> factorSpline() {
     static std::shared_ptr<Spline> SPLINE = std::make_shared<Spline>(createFactorSpline());
+    return SPLINE;
+}
+
+inline const std::shared_ptr<Spline> jaggednessSpline() {
+    static std::shared_ptr<Spline> SPLINE = std::make_shared<Spline>(createJaggednessSpline());
     return SPLINE;
 }
 

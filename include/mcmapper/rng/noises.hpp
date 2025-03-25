@@ -122,23 +122,36 @@ struct Noises {
     DoublePerlinNoise surface;
 
     // Cave noises
+    DoublePerlinNoise cave_entrance;
+    DoublePerlinNoise cave_layer;
+    DoublePerlinNoise cave_cheese;
+    DoublePerlinNoise jagged;
+
+    // 3D spaghetti caves
     DoublePerlinNoise spaghetti3d_1;
     DoublePerlinNoise spaghetti3d_2;
     DoublePerlinNoise spaghetti3d_rarity;
     DoublePerlinNoise spaghetti3d_thickness;
+
+    // 2D spaghetti caves
     DoublePerlinNoise spaghetti2d;
     DoublePerlinNoise spaghetti2d_modulator;
     DoublePerlinNoise spaghetti2d_elevation;
     DoublePerlinNoise spaghetti2d_thickness;
     DoublePerlinNoise spaghetti_roughness;
     DoublePerlinNoise spaghetti_roughness_modulator;
-    DoublePerlinNoise cave_entrance;
-    DoublePerlinNoise cave_layer;
-    DoublePerlinNoise cave_cheese;
+
+    // Cave pillars
     DoublePerlinNoise pillar;
     DoublePerlinNoise pillar_rareness;
     DoublePerlinNoise pillar_thickness;
 
+    // Noodle caves
+    DoublePerlinNoise noodle;
+    DoublePerlinNoise noodle_thickness;
+    DoublePerlinNoise noodle_ridge_a;
+    DoublePerlinNoise noodle_ridge_b;
+    
     u64 seedLo, seedHi;
 
     explicit Noises(i64 worldSeed);

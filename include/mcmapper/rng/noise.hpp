@@ -5,10 +5,11 @@
 #include <cmath>
 #include <vector>
 #include <memory>
+#include <array>
 
 struct PerlinNoise {
     f64 originX, originY, originZ;
-    u8 permutation[256];
+    std::array<u8, 256> permutation;
 
     PerlinNoise(Random& rng);
     f64 sample(f64 x, f64 y, f64 z, f64 yScale = 0, f64 yMax = 0) const;

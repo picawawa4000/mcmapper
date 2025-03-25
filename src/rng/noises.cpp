@@ -4,7 +4,7 @@
 //#include <chrono>
 
 namespace data {
-    const std::array<const std::array<const u64, 2>, 23> hashtable = {{
+    const std::array<const std::array<const u64, 2>, 27> hashtable = {{
         {0x5c7e6b29735f0d7f, 0xf7d86f1bbc734988}, //"minecraft:temperature"
         {0x81bb4d22e8dc168e, 0xf1c8b4bea16303cd}, //"minecraft:vegetation"
         {0x83886c9d0ae3a662, 0xafa638a61b42e8ad}, //"minecraft:continentalness"
@@ -28,6 +28,11 @@ namespace data {
         {0xd4defd1400fa5347, 0xccb6785451feaa1c}, //"minecraft:pillar"
         {0x8ddd6be7cd4b24d0, 0x0485e8665333197a}, //"minecraft:pillar_rareness"
         {0x1a28cb2542f8308d, 0xc4bba10b7fc7168c}, //"minecraft:pillar_thickness"
+        {0xd23ce12b0c37e44b, 0x66b1fdfbf6a474f3}, //"minecraft:noodle"
+        {0x2fa49bbe949d4212, 0x5f82c95251d19891}, //"minecraft:noodle_thickness"
+        {0x86172ac1315f6026, 0x4a664470c7d7205f}, //"minecraft:noodle_ridge_a"
+        {0xeb232b4b89fdde91, 0x031ee565ead84e5c}, //"minecraft:noodle_ridge_b"
+        {0xf902c0a7c9daa994, 0x71ecd96a8da5e503}, //"minecraft:jagged"
     }};
 
     const std::vector<f64> temperature_amplitudes = {1.5, 0., 1., 0., 0., 0.};
@@ -39,6 +44,7 @@ namespace data {
     const std::vector<f64> surface_amplitudes = {1., 1., 1.};
     const std::vector<f64> cave_entrance_amplitudes = {0.4, 0.5, 1.};
     const std::vector<f64> cave_cheese_amplitudes = {0.5, 1., 2., 1., 2., 1., 0., 2., 2.};
+    const std::vector<f64> jagged_amplitudes = {1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.};
 };
 
 ClimateNoises::ClimateNoises(i64 worldSeed) {
@@ -147,6 +153,21 @@ Noises::Noises(i64 worldSeed) {
 
     temp = XoroshiroRandom(lo ^ data::hashtable[22][0], hi ^ data::hashtable[22][1]);
     this->pillar_thickness = DoublePerlinNoise(temp, {1.}, -8);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[23][0], hi ^ data::hashtable[23][1]);
+    this->noodle = DoublePerlinNoise(temp, {1.}, -8);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[24][0], hi ^ data::hashtable[24][1]);
+    this->noodle_thickness = DoublePerlinNoise(temp, {1.}, -8);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[25][0], hi ^ data::hashtable[25][1]);
+    this->noodle_ridge_a = DoublePerlinNoise(temp, {1.}, -7);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[26][0], hi ^ data::hashtable[26][1]);
+    this->noodle_ridge_b = DoublePerlinNoise(temp, {1.}, -7);
+
+    temp = XoroshiroRandom(lo ^ data::hashtable[27][0], hi ^ data::hashtable[27][1]);
+    this->jagged = DoublePerlinNoise(temp, data::jagged_amplitudes, -16);
 
 //    auto end = clock.now();
 //    std::cout << "Creating noises took " << end - start << std::endl;

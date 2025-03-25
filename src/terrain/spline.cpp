@@ -1,6 +1,6 @@
 #include <mcmapper/terrain/spline.hpp>
 
-f32 getOffsetValue(f32 weirdness, f32 continentalness) {
+static f32 getOffsetValue(f32 weirdness, f32 continentalness) {
     f32 f0 = 1.0F - (1.0F - continentalness) * 0.5F;
     f32 f1 = 0.5F * (1.0F - continentalness);
     f32 f2 = (weirdness + 1.17F) * 0.46082947F;
@@ -9,7 +9,7 @@ f32 getOffsetValue(f32 weirdness, f32 continentalness) {
     else return off > 0 ? off : 0;
 }
 
-f32 sampleVariant(const std::variant<Spline, f32>& variant, std::array<f32, 4> values) {
+static f32 sampleVariant(const std::variant<Spline, f32>& variant, std::array<f32, 4> values) {
     if (std::holds_alternative<Spline>(variant)) {
         return std::get<Spline>(variant).sample(values);
     } else if (std::holds_alternative<f32>(variant)) {
@@ -45,7 +45,7 @@ f32 Spline::sample(std::array<f32, 4> values) const {
     return lerp(k, n, o) + k * (1.F - k) * lerp(k, p, q);
 }
 
-f32 getOffsetValue(f32 f, f32 g, f32 h) {
+static f32 getOffsetValue(f32 f, f32 g, f32 h) {
     f32 i = (1.f - g) * 0.5f;
     f32 j = 1.f - i;
     f32 k = (f + 1.17f) * 0.46082947f;
@@ -54,17 +54,17 @@ f32 getOffsetValue(f32 f, f32 g, f32 h) {
     return std::max(l, 0.f);
 }
 
-f32 getOffsetValue2(f32 f) {
+static f32 getOffsetValue2(f32 f) {
     f32 i = 1.f - (1.f - f) * 0.5f;
     f32 j = 0.5f * (1.f - f);
     return j / (0.46082947f * i) - 1.17f;
 }
 
-f32 riseOverRun(f32 y1, f32 y2, f32 x1, f32 x2) {
+static f32 riseOverRun(f32 y1, f32 y2, f32 x1, f32 x2) {
     return (y2 - y1) / (x2 - x1);
 }
 
-Spline createSpline1(float f, bool bl) {
+static Spline createSpline1(float f, bool bl) {
     Spline out(RIDGES);
     f32 g = getOffsetValue(-1.f, f, -0.7f);
     f32 h = getOffsetValue(1.f, f, -0.7f);
@@ -94,7 +94,7 @@ Spline createSpline1(float f, bool bl) {
     return out;
 }
 
-Spline createFlatOffsetSpline(f32 continentalness, f32 g, f32 h, f32 i, f32 j, f32 k) {
+static Spline createFlatOffsetSpline(f32 continentalness, f32 g, f32 h, f32 i, f32 j, f32 k) {
     Spline out(RIDGES);
     f32 l = std::max(0.5f * (g - continentalness), k);
     f32 m = 5.f * (h - g);
@@ -106,7 +106,7 @@ Spline createFlatOffsetSpline(f32 continentalness, f32 g, f32 h, f32 i, f32 j, f
     return out;
 }
 
-Spline createContinentalOffsetSpline(f32 continentalness, f32 a, f32 b, f32 c, f32 d, f32 e, bool bl) {
+static Spline createContinentalOffsetSpline(f32 continentalness, f32 a, f32 b, f32 c, f32 d, f32 e, bool bl) {
     Spline sp1 = createSpline1(lerp(c, 0.6f, 1.5f), bl);
     Spline sp2 = createSpline1(lerp(c, 0.6f, 1.5f), bl);
     Spline sp3 = createSpline1(c, bl);
@@ -161,7 +161,7 @@ Spline createOffsetSpline() {
     return out;
 }
 
-Spline createFactorErosionSpline(f32 f, bool bl) {
+static Spline createFactorErosionSpline(f32 f, bool bl) {
     Spline sp(WEIRDNESS);
     sp.add(-0.2f, 6.3f);
     sp.add(0.2f, f);
@@ -225,5 +225,55 @@ Spline createFactorSpline() {
     out.add(-0.1f, createFactorErosionSpline(5.47f, true));
     out.add(0.03f, createFactorErosionSpline(5.08f, true));
     out.add(0.06f, createFactorErosionSpline(4.69f, false));
+    return out;
+}
+
+static Spline createSpline2(f32 in) {
+    Spline out(WEIRDNESS);
+
+    f32 f = 0.63f * in;
+    f32 g = 0.3f * in;
+    
+    out.add(-0.01f, f);
+    out.add(0.01f, g);
+    return out;
+}
+
+static Spline createSpline3(f32 in1, f32 in2) {
+    Spline out(RIDGES);
+
+    f32 f = pvTransform(0.4f);
+    f32 g = pvTransform(0.56666666f);
+    f32 h = (f + g) / 2.f;
+
+    out.add(f, 0.f);
+    
+    if (in2 > 0.f) out.add(h, in2);
+    else out.add(h, 0.f);
+
+    if (in1 > 0.f) out.add(1.f, in1);
+    else out.add(1.f, 0.f);
+
+    return out;
+}
+
+static Spline createSpline4(f32 in1, f32 in2) {
+    Spline out(EROSION);
+
+    Spline sp1 = createSpline3(1.f, in2);
+    Spline sp2 = createSpline3(in1, 0.f);
+    
+    out.add(-1.f, sp1);
+    out.add(-0.78f, sp2);
+    out.add(-0.5775f, sp2);
+    out.add(-0.375f, 0.f);
+    return out;
+}
+
+Spline createJaggednessSpline() {
+    Spline out(CONTINENTALNESS);
+    out.add(-0.11f, 0.0f);
+    out.add(0.03f, createSpline4(0.5f, 0.f));
+    out.add(0.65f, createSpline4(1.f, 1.f));
     return out;
 }

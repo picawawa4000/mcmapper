@@ -84,6 +84,10 @@ f64 PerlinNoise::sample(i32 sectionX, i32 sectionY, i32 sectionZ, f64 localX, f6
 //pre-calculated tables to make things just a bit faster
 
 const u64 md5_hashes[][2] = {
+    {0xc613bf766619f992, 0x954753f86691b86a}, // md5 "octave_-16"
+    {0x7eee475a921c6cf5, 0xf2bd39426f8da413}, // md5 "octave_-15"
+    {0xfc0027cef9683114, 0xb758d3954dcbfdd3}, // md5 "octave_-14"
+    {0xd1fc8a05be565eca, 0xdc2a3915cbdda25b}, // md5 "octave_-13"
     {0xb198de63a8012672, 0x7b84cad43ef7b5a8}, // md5 "octave_-12"
     {0x0fd787bfbc403ec3, 0x74a4a31ca21b48b8}, // md5 "octave_-11"
     {0x36d326eed40efeb2, 0x5be9ce18223c636a}, // md5 "octave_-10"
@@ -113,7 +117,7 @@ OctavePerlinNoise::OctavePerlinNoise(XoroshiroRandom& rng, std::vector<f64> ampl
         if (amplitudes[i] == 0) {
             this->octaves.push_back(nullptr);
         } else {
-            XoroshiroRandom temp(temp_lo ^ md5_hashes[12 + firstOctave + i][0], temp_hi ^ md5_hashes[12 + firstOctave + i][1]);
+            XoroshiroRandom temp(temp_lo ^ md5_hashes[16 + firstOctave + i][0], temp_hi ^ md5_hashes[16 + firstOctave + i][1]);
             this->octaves.push_back(std::shared_ptr<PerlinNoise>(new PerlinNoise(temp)));
         }
         n++;

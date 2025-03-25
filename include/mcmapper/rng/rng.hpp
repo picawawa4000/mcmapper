@@ -6,6 +6,7 @@
 
 //Minecraft has two pseudo-random number generators, both of which are implemented here.
 
+// Note to self: this interface is actually somewhat useless and can probably be removed for a performance boost.
 struct Random {
     virtual i64 next_i64() = 0;
     virtual i32 next_i32(i32 bound) = 0;

@@ -54,8 +54,32 @@ static f64 spaghetti2d(Noises& noises, f64 x, f64 y, f64 z) {
     return std::clamp(std::max(f, g), -1., 1.); 
 }
 
-static f64 slopedCheese(Noises& noises, f64 x, f64 y, f64 z) {
+static inline f64 initialDensity(f64 factor, f64 depth) {
+    f64 f = depth * factor;
+    return f > 0. ? f * 4. : f;
+}
+
+static f64 base3dNoise(f64 x, f64 y, f64 z) {
     throw std::runtime_error("unimplemented function!");
+}
+
+static f64 slopedCheese(Noises& noises, f64 x, f64 y, f64 z) {
+    f64 weirdness = noises.weirdness.sample(x, 0, z);
+    std::array<f32, 4> params = {
+        noises.continentalness.sample(x, 0, z),
+        noises.erosion.sample(x, 0, z),
+        static_cast<f32>(pvTransform(weirdness)),
+        weirdness};
+    
+    f64 depth = offsetSpline()->sample(params) + yClampedGradient(y, -64, 320, 1.5, -1.5);
+    f64 factor = factorSpline()->sample(params);
+    f64 jagged = noises.jagged.sample(x * 1500., 0, z * 1500.);
+    jagged = jagged >= 0. ? jagged : jagged / 2.;
+    jagged *= jaggednessSpline()->sample(params);
+
+    f64 density = initialDensity(factor, depth + jagged);
+    
+    return density + base3dNoise(x, y, z);
 }
 
 static f64 cavesPillars(Noises& noises, f64 x, f64 y, f64 z) {
@@ -68,7 +92,16 @@ static f64 cavesPillars(Noises& noises, f64 x, f64 y, f64 z) {
 }
 
 static f64 cavesNoodle(Noises& noises, f64 x, f64 y, f64 z) {
-    throw std::runtime_error("unimplemented function!");
+    // Likely redundant
+    f64 yValue = yClampedGradient(y, -4064, 4062, -4064., 4062.);
+    f64 noodle = 60 <= yValue && yValue <= 320 ? noises.noodle.sample(x, y, z) : -1;
+    f64 noodleThickness = -0.025 * noises.noodle_thickness.sample(x, y, z) - 0.075;
+    noodleThickness = -60 <= yValue && yValue <= 320 ? noodleThickness : 0;
+    const f64 ridgeMult = 2. + 2. / 3.;
+    f64 ridgeA = -60 <= yValue && yValue <= 320 ? noises.noodle_ridge_a.sample(x * ridgeMult, y * ridgeMult, z * ridgeMult) : 0;
+    f64 ridgeB = -60 <= yValue && yValue <= 320 ? noises.noodle_ridge_b.sample(x * ridgeMult, y * ridgeMult, z * ridgeMult) : 0;
+    f64 f = 1.5 * std::max(std::abs(ridgeA), std::abs(ridgeB));
+    return noodle < 0. ? 64. : noodleThickness + f;
 }
 
 static f64 sampleCaves(Noises& noises, f64 x, f64 y, f64 z, f64 scheese) {
@@ -89,7 +122,7 @@ static f64 sampleCaves(Noises& noises, f64 x, f64 y, f64 z, f64 scheese) {
 static inline f64 surfaceSlides(f64 y, f64 density) {
     f64 ret = lerp(yClampedGradient(y, 240, 256, 1., 0.), -0.078125, density);
     return lerp(yClampedGradient(y, -64, -40, 0., 1.), 0.1171875, ret);
-;}
+}
 
 f64 sampleFinalDensity(Noises& noises, f64 x, f64 y, f64 z) {
     f64 cheese = slopedCheese(noises, x, y, z);
