@@ -10,6 +10,7 @@
 main
 test
 serialize_1_21_4
+deserialize_1_21_4
 *.bin
 
 # log files

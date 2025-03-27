@@ -60,16 +60,17 @@ static inline f64 initialDensity(f64 factor, f64 depth) {
 }
 
 static f64 base3dNoise(f64 x, f64 y, f64 z) {
-    throw std::runtime_error("unimplemented function!");
+    return sampleBase3dNoise(x, y, z);
 }
 
 static f64 slopedCheese(Noises& noises, f64 x, f64 y, f64 z) {
     f64 weirdness = noises.weirdness.sample(x, 0, z);
     std::array<f32, 4> params = {
-        noises.continentalness.sample(x, 0, z),
-        noises.erosion.sample(x, 0, z),
+        static_cast<f32>(noises.continentalness.sample(x, 0, z)),
+        static_cast<f32>(noises.erosion.sample(x, 0, z)),
         static_cast<f32>(pvTransform(weirdness)),
-        weirdness};
+        static_cast<f32>(weirdness)
+    };
     
     f64 depth = offsetSpline()->sample(params) + yClampedGradient(y, -64, 320, 1.5, -1.5);
     f64 factor = factorSpline()->sample(params);

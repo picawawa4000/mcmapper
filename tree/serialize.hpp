@@ -24,8 +24,8 @@ struct SerializeData {
         this->tree->put((char)((data & (0xFFULL << 8)) >> 8));
         this->tree->put((char)(data & 0xFFULL));
     }
-    void write(int64_t data) {
-        this->write((uint64_t)data);
+    void write(int16_t data) {
+        this->write((uint16_t)data);
     }
     
     uint16_t newNodeId() {
@@ -76,7 +76,7 @@ static void serialize(const std::vector<ParameterRange>& parameters, SerializeDa
     }
 }
 
-// Node format: [id, parentId, params, value]
+// Node format: [u16 id, u16 parentId, u16 params[7], u16 value]
 static std::size_t serialize(const std::shared_ptr<TreeNode>& node, uint16_t parentId, SerializeData& data) {
     std::size_t bytesWritten = 20;
 
@@ -97,12 +97,12 @@ static std::size_t serialize(const std::shared_ptr<TreeNode>& node, uint16_t par
     return bytesWritten;
 }
 
-// Serialized tree format: [headerSizeInBytes, paramsHeader, nodes]
+// Serialized tree format: [paramCount, paramsHeader, nodes]
 std::size_t serialize(const std::shared_ptr<TreeNode>& node, SerializeData& data) {
     // Pre-allocate space for the header
     std::size_t paramCount = putParameters(node, data);
-    std::size_t paramByteCount = paramCount * 7 * sizeof(ParameterRange);
-    data.write((uint64_t)paramByteCount);
+    std::size_t paramByteCount = paramCount * 2 * sizeof(uint16_t);
+    data.write((uint64_t)paramCount);
     for (int i = 0; i < paramByteCount; ++i)
         data.tree->put('\0');
     // Write the tree
@@ -111,8 +111,8 @@ std::size_t serialize(const std::shared_ptr<TreeNode>& node, SerializeData& data
     data.tree->seekp(8);
     for (const ParameterRange& range : data.parameterTable) {
         // These can be written as shorts instead of longs...
-        data.write(range.min);
-        data.write(range.max);
+        data.write((int16_t)range.min);
+        data.write((int16_t)range.max);
     }
 #ifndef NDEBUG
     if (data.tree->tellp() != paramByteCount + 8)

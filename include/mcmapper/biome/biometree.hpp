@@ -86,6 +86,7 @@ struct SearchTree {
     std::shared_ptr<TreeNode> root;
 
     SearchTree(std::vector<std::pair<NoiseHypercube, Biome>> entries);
+    SearchTree(std::shared_ptr<TreeNode> root) : root(root) {}
 
     ~SearchTree() {
         if (this->root.use_count() == 1) this->root.reset();

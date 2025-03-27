@@ -4,7 +4,7 @@
 //#include <chrono>
 
 namespace data {
-    const std::array<const std::array<const u64, 2>, 27> hashtable = {{
+    const std::array<const std::array<const u64, 2>, 28> hashtable = {{
         {0x5c7e6b29735f0d7f, 0xf7d86f1bbc734988}, //"minecraft:temperature"
         {0x81bb4d22e8dc168e, 0xf1c8b4bea16303cd}, //"minecraft:vegetation"
         {0x83886c9d0ae3a662, 0xafa638a61b42e8ad}, //"minecraft:continentalness"

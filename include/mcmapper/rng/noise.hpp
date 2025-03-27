@@ -46,4 +46,6 @@ private:
     void construct(std::vector<f64> amplitudes);
 };
 
+f64 sampleBase3dNoise(f64 x, f64 y, f64 z);
+
 #endif
