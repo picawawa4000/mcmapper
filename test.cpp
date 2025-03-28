@@ -2,14 +2,15 @@
 #include <mcmapper/mcmapper.hpp>
 #include <mcmapper/loot/builtin_loot.hpp>
 #include <mcmapper/misc/generator.hpp>
+#include <mcmapper/terrain/terrain.hpp>
 
 #include <iostream>
 #include <chrono>
 
-void sampleAll(ClimateNoises noises, int x, int z) {
-    for (int i = 320; i > -64; --i) {
-        f32 initialDensity = noises.sampleInitialDensity(x, i, z);
-        std::cout << i << ": " << initialDensity << std::endl;
+void sampleColumn(Noises& noises, f64 x, f64 z) {
+    for (int y = 256; y > 0; --y) {
+        f64 newDensity = sampleInitialDensity(noises, x, y, z);
+        std::cout << "[" << x << ", " << y << ", " << z << "] " << newDensity << std::endl;
     }
 }
 
@@ -124,6 +125,9 @@ int main() {
     std::cout << "-8167473274498177545" << std::endl;
     context = LootContext(-8167473274498177545LL);
     pyramidTable->roll(context, logLoot);//*/
+
+    sampleColumn(*noises, 92, 327);
+    sampleColumn(*noises, -768, 1024);
 
     return 0;
 }

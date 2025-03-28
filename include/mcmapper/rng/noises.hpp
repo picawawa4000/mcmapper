@@ -68,7 +68,7 @@ struct ClimateNoises {
 
     // turns out that this is AS in the debug screen
     // this is correct btw
-    f32 sampleInitialDensity(int x, int y, int z, bool biome_scale = false) const {
+    f32 sampleInitialDensity(int x, int y, int z) const {
         f32 inX = (x >> 2) + this->shiftX(x, z);
         f32 inZ = (z >> 2) + this->shiftZ(x, z);
 

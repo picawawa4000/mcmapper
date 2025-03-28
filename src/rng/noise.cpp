@@ -194,7 +194,7 @@ static void throwCallsPerlin(XoroshiroRandom& rng) {
     rng.next_u64();
     rng.next_u64();
 
-    for (u8 i = 0; i < 256; ++i)
+    for (int i = 0; i < 256; ++i)
         // Yes, I know that this is *almost* equal to throwCallsOctave(), but there's a small chance that it isn't.
         // This always uses the same RNG seed no matter the world seed, though, so further testing may allow for merging
         // these two functions.
@@ -212,15 +212,15 @@ static void initBase3d() {
     XoroshiroRandom rng(0);
 
     throwCallsPerlin(rng);
-    for (int k = 15; k >= 0; ++k)
+    for (int k = 15; k >= 0; --k)
         lower[k] = PerlinNoise(rng);
 
     throwCallsPerlin(rng);
-    for (int k = 15; k >= 0; ++k)
+    for (int k = 15; k >= 0; --k)
         upper[k] = PerlinNoise(rng);
 
     throwCallsPerlin(rng);
-    for (int k = 7; k >= 0; ++k)
+    for (int k = 7; k >= 0; --k)
         interpolation[k] = PerlinNoise(rng);
 }
 

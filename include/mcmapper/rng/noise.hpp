@@ -11,6 +11,7 @@ struct PerlinNoise {
     f64 originX, originY, originZ;
     std::array<u8, 256> permutation;
 
+    PerlinNoise() = default;
     PerlinNoise(Random& rng);
     f64 sample(f64 x, f64 y, f64 z, f64 yScale = 0, f64 yMax = 0) const;
 

@@ -64,10 +64,13 @@ static f64 base3dNoise(f64 x, f64 y, f64 z) {
 }
 
 static f64 slopedCheese(Noises& noises, f64 x, f64 y, f64 z) {
-    f64 weirdness = noises.weirdness.sample(x, 0, z);
+    f64 inX = x + noises.offset.sample(x, 0, z) * 4.;
+    f64 inZ = z + noises.offset.sample(z, x, 0) * 4.;
+
+    f64 weirdness = noises.weirdness.sample(inX, 0, inZ);
     std::array<f32, 4> params = {
-        static_cast<f32>(noises.continentalness.sample(x, 0, z)),
-        static_cast<f32>(noises.erosion.sample(x, 0, z)),
+        static_cast<f32>(noises.continentalness.sample(inX, 0, inZ)),
+        static_cast<f32>(noises.erosion.sample(inX, 0, inZ)),
         static_cast<f32>(pvTransform(weirdness)),
         static_cast<f32>(weirdness)
     };
@@ -125,9 +128,26 @@ static inline f64 surfaceSlides(f64 y, f64 density) {
     return lerp(yClampedGradient(y, -64, -40, 0., 1.), 0.1171875, ret);
 }
 
+f64 sampleInitialDensity(Noises& noises, f64 x, f64 y, f64 z) {
+    f64 inX = x / 4. + noises.offset.sample(x, 0, z) * 4.;
+    f64 inZ = x / 4. + noises.offset.sample(z, x, 0) * 4.;
+
+    f64 weirdness = noises.weirdness.sample(x / 4., 0, z / 4.);
+    std::array<f32, 4> params = {
+        static_cast<f32>(noises.continentalness.sample(x / 4., 0, z / 4.)),
+        static_cast<f32>(noises.erosion.sample(x / 4., 0, z / 4.)),
+        static_cast<f32>(pvTransform(weirdness)),
+        static_cast<f32>(weirdness)
+    };
+    
+    f64 depth = offsetSpline()->sample(params) + yClampedGradient(y, -64, 320, 1.5, -1.5) - 0.50375f;
+    f64 factor = factorSpline()->sample(params);
+
+    return surfaceSlides(y, std::clamp(initialDensity(factor, depth) - 0.703125f, -64., 64.));
+}
+
 f64 sampleFinalDensity(Noises& noises, f64 x, f64 y, f64 z) {
     f64 cheese = slopedCheese(noises, x, y, z);
-    f64 f = std::min(cheese, 5 * cavesEntrances(noises, x, y, z));
-    f64 g = cheese < 1.5625 ? f : sampleCaves(noises, x, y, z, cheese);
+    f64 g = cheese < 1.5625 ? std::min(cheese, 5 * cavesEntrances(noises, x, y, z)) : sampleCaves(noises, x, y, z, cheese);
     return std::min(cavesNoodle(noises, x, y, z), surfaceSlides(y, g));
 }
