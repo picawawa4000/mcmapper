@@ -2,6 +2,8 @@
 #define BIOMETREE_HPP
 
 #include <mcmapper/biome/biomes.hpp>
+#include <mcmapper/util.hpp>
+
 #include <vector>
 #include <optional>
 #include <utility>
@@ -65,7 +67,7 @@ struct NoiseHypercube {
 
     NoiseHypercube(ParameterRange temperature, ParameterRange humidity, ParameterRange continentalness, ParameterRange erosion, ParameterRange depth, ParameterRange weirdness, i64 offset) : temperature(temperature), humidity(humidity), continentalness(continentalness), erosion(erosion), depth(depth), weirdness(weirdness), offset(offset) {}
 
-    std::vector<ParameterRange> toList() {
+    std::vector<ParameterRange> toList() const {
         return {this->temperature, this->humidity, this->continentalness, this->erosion, this->depth, this->weirdness, ParameterRange(this->offset, this->offset)};
     }
 };
@@ -74,28 +76,30 @@ struct TreeNode {
     std::vector<ParameterRange> parameters;
     std::vector<std::shared_ptr<TreeNode>> children;
     // 0 if this node is a branch
-    Biome value;
+    // Using u16 instead of `Biome` because of the modular biome system and serialization
+    u16 value;
 
-    TreeNode(std::vector<ParameterRange> parameters, Biome value, std::vector<std::shared_ptr<TreeNode>> children) : parameters(parameters), children(children), value(value) {}
+    TreeNode(const std::vector<ParameterRange>& parameters, u16 value, const std::vector<std::shared_ptr<TreeNode>>& children) : parameters(parameters), children(children), value(value) {}
 
-    TreeNode getResultingNode(std::vector<i64> point, const TreeNode& alternative);
+    TreeNode getResultingNode(const std::vector<i64>& point, const TreeNode& alternative);
 };
 
 /// TODO: Serialise this structure into binary and then move the generator to a separate directory (or maybe even repository)
 struct SearchTree {
     std::shared_ptr<TreeNode> root;
 
-    SearchTree(std::vector<std::pair<NoiseHypercube, Biome>> entries);
-    SearchTree(std::shared_ptr<TreeNode> root) : root(root) {}
+    SearchTree(const std::vector<std::pair<NoiseHypercube, Biome>>& entries);
+    SearchTree(const std::vector<std::pair<NoiseHypercube, u16>>& entries);
+    SearchTree(const std::shared_ptr<TreeNode>& root) : root(root) {}
 
     ~SearchTree() {
         if (this->root.use_count() == 1) this->root.reset();
     }
 
-    Biome get(NoisePoint point) const;
+    u16 get(NoisePoint point) const;
 };
 
-// might replace this function with a simple variable
+// Try using the binary tree facilities instead because this is unimaginably slow.
 const std::shared_ptr<SearchTree> getSearchTree();
 
 #endif

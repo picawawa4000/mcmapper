@@ -33,7 +33,7 @@ struct SerializeData {
     }
 
 private:
-    uint16_t nextNodeId = 1;
+    uint16_t nextNodeId = 0;
 };
 
 static inline std::size_t get(const ParameterRange& parameters, SerializeData& data) {
@@ -97,7 +97,7 @@ static std::size_t serialize(const std::shared_ptr<TreeNode>& node, uint16_t par
     return bytesWritten;
 }
 
-// Serialized tree format: [paramCount, paramsHeader, nodes]
+// Serialized tree format: [u64 paramCount, i16[] paramsHeader, nodes]
 std::size_t serialize(const std::shared_ptr<TreeNode>& node, SerializeData& data) {
     // Pre-allocate space for the header
     std::size_t paramCount = putParameters(node, data);

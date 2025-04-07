@@ -1,19 +1,14 @@
 #include <mcmapper/biome/biometree.hpp>
 
+#include <mcmapper/biome/biomes.hpp>
+
 #include <memory>
 #include <type_traits>
 
-std::string paramsToString(std::vector<ParameterRange> parameters) {
-    //doing this the ugly way because it's a debug function and I don't care
-    std::string out = "";
-    for (int i = 0; i < 7; ++i) {
-        out += parameters[i];
-        if (i != 6) out += ", ";
-    }
-    return out;
-}
+// Replacement for `THE_VOID`
+#define BRANCH_NODE 0
 
-i64 getSquaredDistance(std::vector<ParameterRange> parameters, std::vector<i64> point) {
+static i64 getSquaredDistance(const std::vector<ParameterRange>& parameters, const std::vector<i64>& point) {
     i64 out = 0;
     for (int i = 0; i < 7; ++i) {
         i64 n = parameters[i].getDistance(point[i]);
@@ -22,7 +17,7 @@ i64 getSquaredDistance(std::vector<ParameterRange> parameters, std::vector<i64> 
     return out;
 }
 
-TreeNode TreeNode::getResultingNode(std::vector<i64> point, const TreeNode& alternative) {
+TreeNode TreeNode::getResultingNode(const std::vector<i64>& point, const TreeNode& alternative) {
     //this is how we define leaf nodes
     if (this->value) return *this;
     i64 retDistance = alternative.value ? getSquaredDistance(alternative.parameters, point) : std::numeric_limits<i64>::max();
@@ -42,7 +37,7 @@ TreeNode TreeNode::getResultingNode(std::vector<i64> point, const TreeNode& alte
     return ret;
 }
 
-std::vector<ParameterRange> getEnclosingParameters(std::vector<std::shared_ptr<TreeNode>> nodes) {
+static std::vector<ParameterRange> getEnclosingParameters(const std::vector<std::shared_ptr<TreeNode>>& nodes) {
     if (nodes.size() == 0) throw std::runtime_error("expected nodes, but found none!");
     std::vector<std::optional<ParameterRange>> res = {{}, {}, {}, {}, {}, {}, {}};
     for (int i = 0; i < nodes.size(); ++i) for (int j = 0; j < 7; ++j) res[j] = nodes[i]->parameters[j].combine(res[j]);
@@ -51,7 +46,7 @@ std::vector<ParameterRange> getEnclosingParameters(std::vector<std::shared_ptr<T
     return out;
 }
 
-void sortTree(std::vector<std::shared_ptr<TreeNode>> children, i32 currentParameter, bool abs) {
+static void sortTree(std::vector<std::shared_ptr<TreeNode>>& children, i32 currentParameter, bool abs) {
     std::sort(children.begin(), children.end(), [currentParameter, abs](std::shared_ptr<TreeNode> a, std::shared_ptr<TreeNode> b){
         for (int i = 0; i < 7; ++i) {
             i64 aOut = (a->parameters[(currentParameter + i) % 7].min + a->parameters[(currentParameter + i) % 7].max) / 2;
@@ -63,20 +58,20 @@ void sortTree(std::vector<std::shared_ptr<TreeNode>> children, i32 currentParame
     });
 }
 
-std::vector<std::shared_ptr<TreeNode>> batchTree(std::vector<std::shared_ptr<TreeNode>> children) {
+static std::vector<std::shared_ptr<TreeNode>> batchTree(const std::vector<std::shared_ptr<TreeNode>>& children) {
     std::vector<std::shared_ptr<TreeNode>> ret, inner;
     int count = std::pow(6.0, std::floor(std::log(children.size() - 0.01) / std::log(6.0)));
     for (int i = 0; i < children.size(); ++i) {
         inner.push_back(children[i]);
         if (inner.size() < count) continue;
-        ret.emplace_back(new TreeNode(getEnclosingParameters(inner), THE_VOID, inner));
+        ret.emplace_back(new TreeNode(getEnclosingParameters(inner), BRANCH_NODE, inner));
         inner = {};
     }
-    if (!inner.empty()) ret.emplace_back(new TreeNode(getEnclosingParameters(inner), THE_VOID, inner));
+    if (!inner.empty()) ret.emplace_back(new TreeNode(getEnclosingParameters(inner), BRANCH_NODE, inner));
     return ret;
 }
 
-std::shared_ptr<TreeNode> createNode(std::vector<std::shared_ptr<TreeNode>> children) {
+static std::shared_ptr<TreeNode> createNode(std::vector<std::shared_ptr<TreeNode>>& children) {
     if (children.empty()) throw std::runtime_error("can't create tree node without entries!");
     if (children.size() == 1) {
         return children[0];
@@ -90,7 +85,7 @@ std::shared_ptr<TreeNode> createNode(std::vector<std::shared_ptr<TreeNode>> chil
             }
             return aOut > bOut;
         });
-        return std::shared_ptr<TreeNode>(new TreeNode(getEnclosingParameters(children), THE_VOID, children));
+        return std::shared_ptr<TreeNode>(new TreeNode(getEnclosingParameters(children), BRANCH_NODE, children));
     }
     i64 span = std::numeric_limits<i64>::max();
     i32 param = -1;
@@ -108,20 +103,27 @@ std::shared_ptr<TreeNode> createNode(std::vector<std::shared_ptr<TreeNode>> chil
     sortTree(out, param, true);
     std::vector<std::shared_ptr<TreeNode>> ret(out.size());
     for (int i = 0; i < out.size(); ++i) ret[i] = std::shared_ptr<TreeNode>(createNode(out[i].get()->children));
-    return std::shared_ptr<TreeNode>(new TreeNode(getEnclosingParameters(ret), THE_VOID, ret));
+    return std::shared_ptr<TreeNode>(new TreeNode(getEnclosingParameters(ret), BRANCH_NODE, ret));
 }
 
 //doing it this way isn't as useful but it still helps knock out quite a couple of useless entries
-static TreeNode lastResult({}, THE_VOID, {});
+static TreeNode lastResult({}, BRANCH_NODE, {});
 
-SearchTree::SearchTree(std::vector<std::pair<NoiseHypercube, Biome>> entries) {
+SearchTree::SearchTree(const std::vector<std::pair<NoiseHypercube, Biome>>& entries) {
     if (entries.empty()) throw std::runtime_error("can't build search tree without entries!");
     std::vector<std::shared_ptr<TreeNode>> convertedList(entries.size());
     for (int i = 0; i < entries.size(); ++i) convertedList[i] = std::shared_ptr<TreeNode>(new TreeNode(entries[i].first.toList(), entries[i].second, std::vector<std::shared_ptr<TreeNode>>(0)));
     this->root = createNode(convertedList);
 }
 
-Biome SearchTree::get(NoisePoint point) const {
+SearchTree::SearchTree(const std::vector<std::pair<NoiseHypercube, u16>>& entries) {
+    if (entries.empty()) throw std::runtime_error("can't build search tree without entries!");
+    std::vector<std::shared_ptr<TreeNode>> convertedList(entries.size());
+    for (int i = 0; i < entries.size(); ++i) convertedList[i] = std::shared_ptr<TreeNode>(new TreeNode(entries[i].first.toList(), entries[i].second, std::vector<std::shared_ptr<TreeNode>>(0)));
+    this->root = createNode(convertedList);
+}
+
+u16 SearchTree::get(NoisePoint point) const {
     TreeNode ret = this->root->getResultingNode(point.toList(), lastResult);
     lastResult = ret;
     return ret.value;

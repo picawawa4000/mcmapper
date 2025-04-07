@@ -104,7 +104,7 @@ static std::pair<Biome, std::unique_ptr<Biomes3d>> populateBiomes(const Samples2
 
         for (int j = 0; j < 96; ++j) {
             point.depth = depth[i][j];
-            Biome biome = searchTree->get(point);
+            Biome biome = static_cast<Biome>(searchTree->get(point));
             biomes[i][j] = biome;
 
             if (canUseSharedBiome) {
@@ -138,7 +138,7 @@ static std::pair<Biome, std::unique_ptr<Biomes2d>> populateFlatBiomes(const Samp
     for (int i = 0; i < 16; ++i) {
         NoisePoint point(temperature[i], humidity[i], continentalness[i], erosion[i], 0, weirdness[i]);
 
-        Biome biome = searchTree->get(point);
+        Biome biome = static_cast<Biome>(searchTree->get(point));
         biomes[i] = biome;
 
         if (canUseSharedBiome) {

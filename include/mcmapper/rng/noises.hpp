@@ -2,14 +2,15 @@
 #define NOISES_HPP
 
 #include <mcmapper/rng/noise.hpp>
+#include <mcmapper/biome/biomes.hpp>
 #include <mcmapper/biome/biometree.hpp>
 #include <mcmapper/terrain/spline.hpp>
 
 #include <numeric>
 #include <iostream>
 
-// Deprecated for larger generation sizes; use ChunkGenerator instead.
-// ChunkGenerator can witness speedups of up to 2 orders of magnitude.
+// Deprecated for larger generation sizes; use `ChunkGenerator` instead.
+// `ChunkGenerator` can cause speedups of up to 2 orders of magnitude.
 struct ClimateNoises {
     DoublePerlinNoise temperature;
     DoublePerlinNoise humidity;
@@ -63,7 +64,7 @@ struct ClimateNoises {
     //api note: if not using the pale garden, it can just be unconditionally replaced with dark forest for accurate results
     Biome getBiomeAt(int x, int y, int z, bool no_shift = false, bool no_depth = false) {
         NoisePoint point = this->sample(x, y, z, false, no_shift, no_depth);
-        return this->biomeSearchTree->get(point);
+        return static_cast<Biome>(this->biomeSearchTree->get(point));
     }
 
     // turns out that this is AS in the debug screen
