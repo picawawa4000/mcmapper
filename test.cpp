@@ -9,8 +9,8 @@
 
 void sampleColumn(Noises& noises, f64 x, f64 z) {
     for (int y = 256; y > 0; --y) {
-        f64 newDensity = sampleInitialDensity(noises, x, y, z);
-        std::cout << "[" << x << ", " << y << ", " << z << "] " << newDensity << std::endl;
+        f64 newDensity = sampleFinalDensity(noises, x, y, z);
+        std::cout << "[" << y << "] " << newDensity << std::endl;
     }
 }
 
@@ -28,7 +28,9 @@ int main() {
     std::chrono::high_resolution_clock clock;
     auto start = clock.now();
 
-    ClimateNoises cnoises(worldSeed);
+    std::shared_ptr<Noises> noises = std::make_shared<Noises>(worldSeed);
+
+/*    ClimateNoises cnoises(worldSeed);
 
     std::array<Biome, 16> biomes;
 
@@ -45,7 +47,6 @@ int main() {
 
     start = clock.now();
 
-    std::shared_ptr<Noises> noises = std::make_shared<Noises>(worldSeed);
     const ChunkGeneratorFlags flags = {.biomes=true, .biomeSurfaceOnly=true};
     ChunkGenerator generator(0, 0, noises, flags);
 
@@ -126,8 +127,10 @@ int main() {
     context = LootContext(-8167473274498177545LL);
     pyramidTable->roll(context, logLoot);//*/
 
-    sampleColumn(*noises, 92, 327);
-    sampleColumn(*noises, -768, 1024);
+    //sampleColumn(*noises, 92, 327);
+    //sampleColumn(*noises, -768, 1024);
+
+    sampleColumn(*noises, 281, -233);
 
     return 0;
 }

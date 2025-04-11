@@ -1,12 +1,21 @@
-#include <mcmapper/rng/noise.hpp>
+#include <mcmapper/terrain/internoise.hpp>
 
 #include <sstream>
 #include <iostream>
+#include <fstream>
 
 int main() {
-    uint64_t data = (0x80ULL << 56) - 1;
-    int64_t signedData = data;
-    std::cout << signedData << std::endl << (int64_t)++signedData << std::endl;
+    InterpolatedNoise noise(0.25, 0.125, 80.0, 160.0, 8.0);
+
+    std::ofstream stream("interpolated_noise_results.log");
+
+    for (int x = 16; x > 0; --x)
+        for (int z = 16; z > 0; --z)
+            for (int y = 256; y > 0; --y)
+                stream << "[" << x << ", " << z << ", " << y << "] " << noise.sample(x, y, z) << "\n";
+    
+    stream.flush();
+    stream.close();
 
     return 0;
 }

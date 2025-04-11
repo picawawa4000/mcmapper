@@ -29,3 +29,4 @@ Headers that are completely unfinished include:
 `mcmapper/mcmapper.hpp`
 `mcmapper/structure/gen/mansion.hpp`
 `mcmapper/terrain/terrain.hpp`
+`mcmapper/terrain/internoise.hpp`

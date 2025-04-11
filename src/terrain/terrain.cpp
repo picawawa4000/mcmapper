@@ -59,6 +59,8 @@ static inline f64 initialDensity(f64 factor, f64 depth) {
     return f > 0. ? f * 4. : f;
 }
 
+/// TODO: I think that this function is giving incorrect results
+/// (I think that its amplitude is far too low)
 static f64 base3dNoise(f64 x, f64 y, f64 z) {
     return sampleBase3dNoise(x, y, z);
 }
@@ -82,6 +84,10 @@ static f64 slopedCheese(Noises& noises, f64 x, f64 y, f64 z) {
     jagged *= jaggednessSpline()->sample(params);
 
     f64 density = initialDensity(factor, depth + jagged);
+
+#ifndef NDEBUG
+    //std::cout << "initialDensity = " << density << std::endl;
+#endif
     
     return density + base3dNoise(x, y, z);
 }
@@ -148,6 +154,12 @@ f64 sampleInitialDensity(Noises& noises, f64 x, f64 y, f64 z) {
 
 f64 sampleFinalDensity(Noises& noises, f64 x, f64 y, f64 z) {
     f64 cheese = slopedCheese(noises, x, y, z);
+#ifndef NDEBUG
+    std::cout << "cheese = " << cheese << "\n"
+            << "cavesEntrances = " << 5 * cavesEntrances(noises, x, y, z) << "\n"
+            << "caves = " << sampleCaves(noises, x, y, z, cheese) << "\n"
+            << "cavesNoodle = " << cavesNoodle(noises, x, y, z) << std::endl;
+#endif
     f64 g = cheese < 1.5625 ? std::min(cheese, 5 * cavesEntrances(noises, x, y, z)) : sampleCaves(noises, x, y, z, cheese);
     return std::min(cavesNoodle(noises, x, y, z), surfaceSlides(y, g));
 }
