@@ -1,6 +1,6 @@
 #include <mcmapper/terrain/internoise.hpp>
 
-static std::array<std::shared_ptr<PerlinNoise>, 16> createLegacy(XoroshiroRandom& rng) {
+static std::array<std::shared_ptr<PerlinNoise>, 16> createLegacy(Random& rng) {
     const std::array<f64, 16> amplitudes = {1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.};
     const i32 firstOctave = -15;
 
@@ -23,7 +23,7 @@ static std::array<std::shared_ptr<PerlinNoise>, 16> createLegacy(XoroshiroRandom
     return octaves;
 }
 
-static std::array<std::shared_ptr<PerlinNoise>, 8> createInterpolationLegacy(XoroshiroRandom& rng) {
+static std::array<std::shared_ptr<PerlinNoise>, 8> createInterpolationLegacy(Random& rng) {
     const std::array<f64, 8> amplitudes = {1., 1., 1., 1., 1., 1., 1., 1.};
     const i32 firstOctave = -7;
 
@@ -46,14 +46,13 @@ static std::array<std::shared_ptr<PerlinNoise>, 8> createInterpolationLegacy(Xor
     return octaves;
 }
 
-InterpolatedNoise::InterpolatedNoise(double xzFactor, double yFactor, double xzScale, double yScale, double smearScaleMultiplier)
+InterpolatedNoise::InterpolatedNoise(Random& random, double xzScale, double yScale, double xzFactor, double yFactor, double smearScaleMultiplier)
     : xzFactor(xzFactor), yFactor(yFactor), xzScale(xzScale), yScale(yScale), smearScaleMultiplier(smearScaleMultiplier),
     scaledXzScale(684.412 * xzScale), scaledYScale(684.412 * yScale) {
-    XoroshiroRandom rng(0);
     
-    this->lowerInterpolatedNoise = createLegacy(rng);
-    this->upperInterpolatedNoise = createLegacy(rng);
-    this->interpolationNoise = createInterpolationLegacy(rng);
+    this->lowerInterpolatedNoise = createLegacy(random);
+    this->upperInterpolatedNoise = createLegacy(random);
+    this->interpolationNoise = createInterpolationLegacy(random);
 }
 
 double InterpolatedNoise::sample(double x, double y, double z) {

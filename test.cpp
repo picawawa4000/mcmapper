@@ -130,7 +130,7 @@ int main() {
     //sampleColumn(*noises, 92, 327);
     //sampleColumn(*noises, -768, 1024);
 
-    sampleColumn(*noises, 281, -233);
+    sampleColumn(*noises, 281, -233); // should be ~40
 
     return 0;
 }

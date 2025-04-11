@@ -1,6 +1,7 @@
 #include <mcmapper/terrain/terrain.hpp>
 
 #include <mcmapper/rng/noises.hpp>
+#include <mcmapper/terrain/internoise.hpp>
 
 static f64 scaleCaves(f64 value) {
     if (value < -0.75) return 0.5;
@@ -59,10 +60,12 @@ static inline f64 initialDensity(f64 factor, f64 depth) {
     return f > 0. ? f * 4. : f;
 }
 
-/// TODO: I think that this function is giving incorrect results
-/// (I think that its amplitude is far too low)
+/// TODO: This depends on seed as well (see Yarn `net.minecraft.world.gen.chunk.noise.NoiseConfig$LegacyNoiseDensityFunctionVisitor#applyNotCached`)
+/// (which means that string splitting will be required...)
 static f64 base3dNoise(f64 x, f64 y, f64 z) {
-    return sampleBase3dNoise(x, y, z);
+    //static InterpolatedNoise noise(0.25, 0.125, 80.0, 160.0, 8.0);
+    //return noise.sample(x, y, z);
+    throw std::runtime_error("Unimplemented function base3dNoise!");
 }
 
 static f64 slopedCheese(Noises& noises, f64 x, f64 y, f64 z) {

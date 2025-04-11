@@ -6,7 +6,7 @@
 #include <mcmapper/rng/noise.hpp>
 
 struct InterpolatedNoise {
-    InterpolatedNoise(double xzScale, double yScale, double xzFactor, double yFactor, double smearScaleMultiplier);
+    InterpolatedNoise(Random& random, double xzScale, double yScale, double xzFactor, double yFactor, double smearScaleMultiplier);
 
     double sample(double x, double y, double z);
 

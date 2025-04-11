@@ -14,6 +14,7 @@ Headers with a fairly stable API include:
 `mcmapper/biome/biomes.hpp`
 `mcmapper/biome/biometree.hpp` (although do note that this one will be replaced in the near future)
 `mcmapper/terrain/spline.hpp`
+`mcmapper/terrain/internoise.hpp`
 
 Headers that are currently lacking features, or that may be split or otherwise refactored, include:
 
@@ -29,4 +30,4 @@ Headers that are completely unfinished include:
 `mcmapper/mcmapper.hpp`
 `mcmapper/structure/gen/mansion.hpp`
 `mcmapper/terrain/terrain.hpp`
-`mcmapper/terrain/internoise.hpp`
+`mcmapper/terrain/terrainextra.hpp`
