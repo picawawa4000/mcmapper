@@ -2,15 +2,24 @@
 
 #include <mcmapper/terrain/internoise.hpp>
 
-static double sampleBase3dNoiseNether(double x, double y, double z, u64 seed) {
-    static InterpolatedNoise noise(0.25, 0.375, 80.0, 60.0, 8.0);
-    
+// 0, 128, 24, 0, 0.9375, -8, 24, 2.5
+static inline double netherSlides(double density, double y) {
+    double upper = yClampedGradient(y, 104, 128, 1., 0.);
+    double lower = yClampedGradient(y, -8, 24, 0., 1.);
+    return lerp(lower, 2.5, lerp(upper, 0.9375, density));
 }
 
-double sampleDensityNether(double x, double y, double z, u64 seed) {
-    return 0.0;
+static inline double squeeze(double density) {
+    double c = std::clamp(density, -1., 1.);
+    return c / 2. - c * c * c / 24.;
 }
 
-double sampleDensityEnd(double x, double y, double z, u64 seed) {
+double sampleDensityNether(TerrainGeneratorConfig& config, double x, double y, double z) {
+    double baseDensity = config.interNoise->sample(x, y, z);
+    double density = netherSlides(baseDensity, y);
+    return squeeze(density * 0.64);
+}
+
+double sampleDensityEnd(TerrainGeneratorConfig& config, double x, double y, double z) {
     return 0.0;
 }

@@ -143,14 +143,20 @@ inline i64 hashCode(i32 x, i32 y, i32 z) {
 }
 
 enum Direction {
-    NORTH,
-    SOUTH,
-    EAST,
-    WEST,
+    DIR_NORTH,
+    DIR_SOUTH,
+    DIR_EAST,
+    DIR_WEST,
 };
 
 inline u8 getOffsetX(Direction direction) {
     throw std::runtime_error("Unimplemented function getOffsetX!");
 }
+
+enum Dimension {
+    DIM_OVERWORLD,
+    DIM_NETHER,
+    DIM_END
+};
 
 #endif

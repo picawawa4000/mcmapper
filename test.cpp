@@ -2,15 +2,23 @@
 #include <mcmapper/mcmapper.hpp>
 #include <mcmapper/loot/builtin_loot.hpp>
 #include <mcmapper/misc/generator.hpp>
-#include <mcmapper/terrain/terrain.hpp>
+#include <mcmapper/terrain/terrainextra.hpp>
 
 #include <iostream>
 #include <chrono>
 
-void sampleColumn(Noises& noises, f64 x, f64 z) {
+void sampleColumn(TerrainGeneratorConfig& config, f64 x, f64 z) {
     for (int y = 256; y > 0; --y) {
-        f64 newDensity = sampleFinalDensity(noises, x, y, z);
+        f64 newDensity = sampleFinalDensity(config, x, y, z);
         std::cout << "[" << y << "] " << newDensity << std::endl;
+    }
+}
+
+void sampleNether(f64 x, f64 z, u64 worldSeed) {
+    TerrainGeneratorConfig config(worldSeed, Dimension::DIM_NETHER);
+    for (int y = 128; y > 0; --y) {
+        double density = sampleDensityNether(config, x, y, z);
+        std::cout << "[" << y << "] " << density << std::endl;
     }
 }
 
@@ -25,10 +33,12 @@ void printBool(bool b) {
 int main() {
     const i64 worldSeed = 3447;
 
-    std::chrono::high_resolution_clock clock;
-    auto start = clock.now();
+    sampleNether(0, 0, worldSeed);
 
-    std::shared_ptr<Noises> noises = std::make_shared<Noises>(worldSeed);
+    //std::chrono::high_resolution_clock clock;
+    //auto start = clock.now();
+
+    //std::shared_ptr<Noises> noises = std::make_shared<Noises>(worldSeed);
 
 /*    ClimateNoises cnoises(worldSeed);
 
@@ -130,7 +140,8 @@ int main() {
     //sampleColumn(*noises, 92, 327);
     //sampleColumn(*noises, -768, 1024);
 
-    sampleColumn(*noises, 281, -233); // should be ~40
+    //TerrainGeneratorConfig config(noises, worldSeed);
+    //sampleColumn(config, 281, -233); // should be ~40
 
     return 0;
 }

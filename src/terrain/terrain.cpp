@@ -3,6 +3,26 @@
 #include <mcmapper/rng/noises.hpp>
 #include <mcmapper/terrain/internoise.hpp>
 
+static inline std::unique_ptr<InterpolatedNoise> getInterpolatedNoise(u64 seed, Dimension dimension) {
+    CheckedRandom rng(seed);
+    switch (dimension) {
+        case DIM_OVERWORLD: return std::make_unique<InterpolatedNoise>(rng, 0.25, 0.125, 80.0, 160.0, 8.0);
+        case DIM_NETHER: return std::make_unique<InterpolatedNoise>(rng, 0.25, 0.375, 80.0, 60.0, 8.0);
+        case DIM_END: return std::make_unique<InterpolatedNoise>(rng, 0.25, 0.25, 80.0, 160.0, 4.0);
+        default: throw std::runtime_error("Unknown dimension " + std::to_string(dimension) + "!");
+    }
+}
+
+TerrainGeneratorConfig::TerrainGeneratorConfig(u64 seed, Dimension dimension) {
+    this->noises = std::make_shared<Noises>(seed);
+    this->interNoise = getInterpolatedNoise(seed, dimension);
+}
+
+TerrainGeneratorConfig::TerrainGeneratorConfig(std::shared_ptr<Noises> noises, u64 seed, Dimension dimension) {
+    this->noises = noises;
+    this->interNoise = getInterpolatedNoise(seed, dimension);
+}
+
 static f64 scaleCaves(f64 value) {
     if (value < -0.75) return 0.5;
     if (value < -0.5) return 0.75;
@@ -60,39 +80,27 @@ static inline f64 initialDensity(f64 factor, f64 depth) {
     return f > 0. ? f * 4. : f;
 }
 
-/// TODO: This depends on seed as well (see Yarn `net.minecraft.world.gen.chunk.noise.NoiseConfig$LegacyNoiseDensityFunctionVisitor#applyNotCached`)
-/// (which means that string splitting will be required...)
-static f64 base3dNoise(f64 x, f64 y, f64 z) {
-    //static InterpolatedNoise noise(0.25, 0.125, 80.0, 160.0, 8.0);
-    //return noise.sample(x, y, z);
-    throw std::runtime_error("Unimplemented function base3dNoise!");
-}
+static f64 slopedCheese(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z) {
+    f64 inX = x + config.noises->offset.sample(x, 0, z) * 4.;
+    f64 inZ = z + config.noises->offset.sample(z, x, 0) * 4.;
 
-static f64 slopedCheese(Noises& noises, f64 x, f64 y, f64 z) {
-    f64 inX = x + noises.offset.sample(x, 0, z) * 4.;
-    f64 inZ = z + noises.offset.sample(z, x, 0) * 4.;
-
-    f64 weirdness = noises.weirdness.sample(inX, 0, inZ);
+    f64 weirdness = config.noises->weirdness.sample(inX, 0, inZ);
     std::array<f32, 4> params = {
-        static_cast<f32>(noises.continentalness.sample(inX, 0, inZ)),
-        static_cast<f32>(noises.erosion.sample(inX, 0, inZ)),
+        static_cast<f32>(config.noises->continentalness.sample(inX, 0, inZ)),
+        static_cast<f32>(config.noises->erosion.sample(inX, 0, inZ)),
         static_cast<f32>(pvTransform(weirdness)),
         static_cast<f32>(weirdness)
     };
     
     f64 depth = offsetSpline()->sample(params) + yClampedGradient(y, -64, 320, 1.5, -1.5);
     f64 factor = factorSpline()->sample(params);
-    f64 jagged = noises.jagged.sample(x * 1500., 0, z * 1500.);
+    f64 jagged = config.noises->jagged.sample(x * 1500., 0, z * 1500.);
     jagged = jagged >= 0. ? jagged : jagged / 2.;
     jagged *= jaggednessSpline()->sample(params);
 
     f64 density = initialDensity(factor, depth + jagged);
-
-#ifndef NDEBUG
-    //std::cout << "initialDensity = " << density << std::endl;
-#endif
     
-    return density + base3dNoise(x, y, z);
+    return density + config.interNoise->sample(x, y, z);
 }
 
 static f64 cavesPillars(Noises& noises, f64 x, f64 y, f64 z) {
@@ -155,14 +163,14 @@ f64 sampleInitialDensity(Noises& noises, f64 x, f64 y, f64 z) {
     return surfaceSlides(y, std::clamp(initialDensity(factor, depth) - 0.703125f, -64., 64.));
 }
 
-f64 sampleFinalDensity(Noises& noises, f64 x, f64 y, f64 z) {
-    f64 cheese = slopedCheese(noises, x, y, z);
+f64 sampleFinalDensity(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z) {
+    f64 cheese = slopedCheese(config, x, y, z);
 #ifndef NDEBUG
     std::cout << "cheese = " << cheese << "\n"
-            << "cavesEntrances = " << 5 * cavesEntrances(noises, x, y, z) << "\n"
-            << "caves = " << sampleCaves(noises, x, y, z, cheese) << "\n"
-            << "cavesNoodle = " << cavesNoodle(noises, x, y, z) << std::endl;
+            << "cavesEntrances = " << 5 * cavesEntrances(*config.noises, x, y, z) << "\n"
+            << "caves = " << sampleCaves(*config.noises, x, y, z, cheese) << "\n"
+            << "cavesNoodle = " << cavesNoodle(*config.noises, x, y, z) << std::endl;
 #endif
-    f64 g = cheese < 1.5625 ? std::min(cheese, 5 * cavesEntrances(noises, x, y, z)) : sampleCaves(noises, x, y, z, cheese);
-    return std::min(cavesNoodle(noises, x, y, z), surfaceSlides(y, g));
+    f64 g = cheese < 1.5625 ? std::min(cheese, 5 * cavesEntrances(*config.noises, x, y, z)) : sampleCaves(*config.noises, x, y, z, cheese);
+    return std::min(cavesNoodle(*config.noises, x, y, z), surfaceSlides(y, g));
 }
