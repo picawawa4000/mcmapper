@@ -75,6 +75,14 @@ inline void getHeader(DeserializeData& data) {
 bool getNode(DeserializeData& data) {
     // There must be a better way to do this...
     u16 id = data.getus();
+    // Initial EOF check so that we don't do anything bad
+    if (data.file->eof()) return false;
+
+#ifndef NDEBUG
+    if (data.nodes.size() != id)
+        throw std::runtime_error("Node has wrong id!");
+#endif
+
     u16 parentId = data.getus();
     u16 value = data.getus();
 
@@ -85,17 +93,12 @@ bool getNode(DeserializeData& data) {
     // EOF check (EOF isn't set until EOF is read,
     // so any node at the end of the file won't be
     // skipped)
-    if (!data.file) return false;
+    if (data.file->eof()) return false;
 
     std::vector<ParameterRange> paramsFormat = {
         data.params[params[0]], data.params[params[1]], data.params[params[2]], data.params[params[3]],
         data.params[params[4]], data.params[params[5]], data.params[params[6]]
     };
-
-#ifndef NDEBUG
-    if (data.nodes.size() != id)
-        throw std::runtime_error("Node has wrong id!");
-#endif
 
     std::shared_ptr<TreeNode> ptr = std::make_shared<TreeNode>(paramsFormat, value, std::vector<std::shared_ptr<TreeNode>>());
     data.nodes.push_back(ptr);
