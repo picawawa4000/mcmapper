@@ -15,11 +15,17 @@ void sampleColumn(TerrainGeneratorConfig& config, f64 x, f64 z) {
 }
 
 void sampleNether(f64 x, f64 z, u64 worldSeed) {
+    std::chrono::high_resolution_clock clock;
+    auto start = clock.now();
+
     TerrainGeneratorConfig config(worldSeed, Dimension::DIM_NETHER);
     for (int y = 128; y > 0; --y) {
         double density = sampleDensityNether(config, x, y, z);
-        std::cout << "[" << y << "] " << density << std::endl;
+        std::cout << density << std::endl;
     }
+
+    auto end = clock.now();
+    std::cout << "With printing, test finished in " << (end - start).count() << "ns" << std::endl;
 }
 
 void printBool(bool b) {

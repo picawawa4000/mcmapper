@@ -84,11 +84,12 @@ bool getNode(DeserializeData& data) {
 #endif
 
     u16 parentId = data.getus();
-    u16 value = data.getus();
 
     std::array<u16, 7> params;
     for (int i = 0; i < 7; ++i)
         params[i] = data.getus();
+    
+    u16 value = data.getus();
     
     // EOF check (EOF isn't set until EOF is read,
     // so any node at the end of the file won't be

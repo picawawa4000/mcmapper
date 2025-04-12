@@ -37,16 +37,11 @@ int main() {
 
     std::shared_ptr<SearchTree> tree = deserialize(data);
 
-    std::ofstream log("btree_1_21_4.log");
-    walkTree(log, tree->root);
-
-/*
     ClimateNoises noises(3447);
     NoisePoint point = noises.sample(0, 256, 512);
 
     u16 b = tree->get(point);
     std::cout << b << ": " << biomeRepr(static_cast<Biome>(b)) << std::endl;
-*/
 
     return 0;
 }
