@@ -1,7 +1,7 @@
 #ifndef SERIALIZE_HPP
 #define SERIALIZE_HPP
 
-#include <mcmapper/biome/biometree.hpp>
+#include <mcmapper/biome/tree/biometree.hpp>
 
 #include <ostream>
 

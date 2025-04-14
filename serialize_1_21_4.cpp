@@ -1,6 +1,7 @@
-#include "tree/serialize.hpp"
+#include <mcmapper/biome/tree/serialize.hpp>
 
 #include <fstream>
+#include <chrono>
 
 inline void indent(std::ostream& log, int indentLevel) {
     for (int i = 0; i < indentLevel; ++i) log << "\t";
@@ -29,7 +30,13 @@ void walkTree(std::ostream& log, std::shared_ptr<TreeNode> node, int indentLevel
 }
 
 int main() {
+    std::chrono::high_resolution_clock clock;
+    auto start = clock.now();
+
     std::shared_ptr<SearchTree> tree = getSearchTree();
+
+    auto end = clock.now();
+    std::cout << "Generated search tree in " << (end - start).count() << "ns" << std::endl;
 
     std::ofstream log("btree_1_21_4_i.log");
     walkTree(log, tree->root);

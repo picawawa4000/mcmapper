@@ -3,7 +3,7 @@
 
 #include <mcmapper/rng/noise.hpp>
 #include <mcmapper/biome/biomes.hpp>
-#include <mcmapper/biome/biometree.hpp>
+#include <mcmapper/biome/tree/biometree.hpp>
 #include <mcmapper/terrain/spline.hpp>
 
 #include <numeric>

@@ -1,7 +1,7 @@
 #ifndef DESERIALIZE_HPP
 #define DESERIALIZE_HPP
 
-#include <mcmapper/biome/biometree.hpp>
+#include <mcmapper/biome/tree/biometree.hpp>
 
 #include <istream>
 #include <unordered_map>

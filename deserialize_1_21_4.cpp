@@ -1,9 +1,10 @@
-#include "tree/deserialize.hpp"
+#include <mcmapper/biome/tree/deserialize.hpp>
 
 #include <mcmapper/biome/biomes.hpp>
 #include <mcmapper/rng/noises.hpp>
 
 #include <fstream>
+#include <chrono>
 
 inline void indent(std::ostream& log, int indentLevel) {
     for (int i = 0; i < indentLevel; ++i) log << "\t";
@@ -35,7 +36,13 @@ int main() {
     DeserializeData data;
     data.file = new std::ifstream("btree_1_21_4.bin", std::ios_base::binary | std::ios_base::in);
 
+    std::chrono::high_resolution_clock clock;
+    auto start = clock.now();
+
     std::shared_ptr<SearchTree> tree = deserialize(data);
+
+    auto end = clock.now();
+    std::cout << "Deserialized in " << (end - start).count() << "ns" << std::endl;
 
     ClimateNoises noises(3447);
     NoisePoint point = noises.sample(0, 256, 512);

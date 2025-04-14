@@ -1,17 +1,11 @@
 # macOS fluff
 .DS_Store
-*.dSYM/*
 
 # vscode fluff
 .vscode/*
 
-# binaries
-# how to set up a build folder?
-main
-test
-serialize_1_21_4
-deserialize_1_21_4
-*.bin
+# build files
+build/*
 
 # log files
 *.log
