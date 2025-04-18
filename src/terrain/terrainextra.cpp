@@ -15,11 +15,26 @@ static inline double squeeze(double density) {
 }
 
 double sampleDensityNether(TerrainGeneratorConfig& config, double x, double y, double z) {
+    if (config.dimension != Dimension::DIM_NETHER)
+        throw std::runtime_error("Config used for Nether generation initialised for non-Nether dimension!");
+
     double baseDensity = config.interNoise->sample(x, y, z);
     double density = netherSlides(baseDensity, y);
     return squeeze(density * 0.64);
 }
 
+static inline double endSlides(double density, double y) {
+    double upper = yClampedGradient(y, 56, 312, 1., 0.);
+    double lower = yClampedGradient(y, 4, 32, 0., 1.);
+    return lerp(lower, -0.234375, lerp(upper, -23.4375, density));
+}
+
 double sampleDensityEnd(TerrainGeneratorConfig& config, double x, double y, double z) {
-    return 0.0;
+    if (config.dimension != Dimension::DIM_END)
+        throw std::runtime_error("Config used for End generation initialised for non-End dimension!");
+
+    double baseDensity = config.interNoise->sample(x, y, z);
+    double endIslands = config.endIslandsNoise->sample(x, z);
+    double density = endSlides(baseDensity + endIslands, y);
+    return squeeze(density * 0.64);
 }

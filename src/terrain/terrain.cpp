@@ -14,13 +14,21 @@ static inline std::unique_ptr<InterpolatedNoise> getInterpolatedNoise(u64 seed, 
 }
 
 TerrainGeneratorConfig::TerrainGeneratorConfig(u64 seed, Dimension dimension) {
+    this->dimension = dimension;
+
     this->noises = std::make_shared<Noises>(seed);
     this->interNoise = getInterpolatedNoise(seed, dimension);
+    if (dimension == Dimension::DIM_END)
+        this->endIslandsNoise = std::make_unique<EndIslandsNoise>(seed);
 }
 
 TerrainGeneratorConfig::TerrainGeneratorConfig(std::shared_ptr<Noises> noises, u64 seed, Dimension dimension) {
+    this->dimension = dimension;
+
     this->noises = noises;
     this->interNoise = getInterpolatedNoise(seed, dimension);
+    if (dimension == Dimension::DIM_END)
+        this->endIslandsNoise = std::make_unique<EndIslandsNoise>(seed);
 }
 
 static f64 scaleCaves(f64 value) {
@@ -164,6 +172,9 @@ f64 sampleInitialDensity(Noises& noises, f64 x, f64 y, f64 z) {
 }
 
 f64 sampleFinalDensity(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z) {
+    if (config.dimension != Dimension::DIM_OVERWORLD)
+        throw std::runtime_error("Config used for Overwolrd generation initialised for non-Overworld dimension!");
+    
     f64 cheese = slopedCheese(config, x, y, z);
 #ifndef NDEBUG
     std::cout << "cheese = " << cheese << "\n"

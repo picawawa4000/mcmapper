@@ -1,4 +1,4 @@
-#include <mcmapper/biome/biometree.hpp>
+#include <mcmapper/biome/tree/biometree.hpp>
 
 #include <mcmapper/biome/biomes.hpp>
 

@@ -28,6 +28,14 @@ void sampleNether(f64 x, f64 z, u64 worldSeed) {
     std::cout << "With printing, test finished in " << (end - start).count() << "ns" << std::endl;
 }
 
+void sampleEnd(f64 x, f64 z, u64 worldSeed) {
+    TerrainGeneratorConfig config(worldSeed, Dimension::DIM_END);
+    for (int y = 128; y > 0; --y) {
+        double density = sampleDensityEnd(config, x, y, z);
+        std::cout << "[" << y << "] " << density << std::endl;
+    }
+}
+
 void printBool(bool b) {
     if (b) std::cout << "true" << std::endl;
     else std::cout << "false" << std::endl;
@@ -39,7 +47,11 @@ void printBool(bool b) {
 int main() {
     const i64 worldSeed = 3447;
 
-    sampleNether(0, 0, worldSeed);
+    sampleEnd(0, 0, worldSeed);
+    // should not have any land
+    sampleEnd(1000, 0, worldSeed);
+    sampleEnd(1025, 1025, worldSeed);
+    sampleEnd(1113, 1011, worldSeed);
 
     //std::chrono::high_resolution_clock clock;
     //auto start = clock.now();

@@ -11,6 +11,9 @@ struct TerrainGeneratorConfig {
 
     std::shared_ptr<Noises> noises;
     std::unique_ptr<InterpolatedNoise> interNoise;
+    std::unique_ptr<EndIslandsNoise> endIslandsNoise;
+
+    Dimension dimension;
 };
 
 f64 sampleInitialDensity(Noises& noises, f64 x, f64 y, f64 z);

@@ -97,3 +97,129 @@ double InterpolatedNoise::sample(double x, double y, double z) {
     }
     return clampedLerp(lowerTotal / 512., upperTotal / 512., interpolationTotal) / 128.;
 }
+
+EndIslandsNoise::EndIslandsNoise(u64 seed) {
+    CheckedRandom rng(seed);
+    rng.skip(17292);
+
+    // Construct internal simplex sampler
+    this->originX = rng.next_f64() * 256.;
+    this->originY = rng.next_f64() * 256.;
+    this->originZ = rng.next_f64() * 256.;
+
+    for (int i = 0; i < 256; ++i) this->permutation[i] = i;
+
+    // Knuth shuffle (same as PerlinNoise ctor)
+    for (int i = 0; i < 256; ++i) {
+        u8 idx = (u8)rng.next_i32(256 - i);
+        u8 temp = this->permutation[i];
+        this->permutation[i] = this->permutation[i + idx];
+        this->permutation[i + idx] = temp;
+    }
+}
+
+double EndIslandsNoise::sample(double x, double z) {
+    i32 blockX = (i32)x / 8;
+    i32 blockZ = (i32)z / 8;
+
+    i32 sectionX = blockX / 2;
+    i32 sectionZ = blockZ / 2;
+    i32 localX = blockX | 1;
+    i32 localZ = blockZ | 1;
+    float f = 100. - std::sqrt(blockX * blockX + blockZ * blockZ) * 8.;
+    f = std::clamp(f, -100.f, 80.f);
+    
+    for (int xOffset = -12; xOffset <= 12; ++xOffset) {
+        for (int zOffset = -12; zOffset <= 12; ++zOffset) {
+            i32 newX = sectionX + xOffset;
+            i32 newZ = sectionZ + zOffset;
+            if (newX * newX + newZ * newZ <= 4096 || !(this->sampleSimplex(newX, newZ) < -0.9f)) continue;
+            float g = std::fmod(std::abs(newX) * 3439.0f + std::abs(newZ) * 147.f, 13.f) + 9.f;
+            float h = localX - xOffset * 2;
+            float i = localZ - zOffset * 2;
+            float newF = 100.f - std::sqrt(h * h + i * i) * g;
+            newF = std::clamp(newF, -100.f, 80.f);
+            f = std::max(f, newF);
+        }
+    }
+    
+    return (f - 8.) / 128.;
+}
+
+const i32 gradients[16][2] = {
+    {1, 1}, 
+    {-1, 1}, 
+    {1, -1}, 
+    {-1, -1}, 
+    {1, 0}, 
+    {-1, 0}, 
+    {1, 0},
+    {-1, 0}, 
+    {0, 1}, 
+    {0, -1}, 
+    {0, 1}, 
+    {0, -1}, 
+    {1, 1}, 
+    {0, -1}, 
+    {-1, 1}, 
+    {0, -1}
+};
+
+static f64 dot(i32 hash, f64 x, f64 z) {
+    const i32 * gradient = gradients[hash & 0xF];
+    return gradient[0] * x + gradient[1] * z;
+}
+
+double EndIslandsNoise::grad(i32 hash, double x, double z, double distance) {
+    double h = distance - x * x - z * z;
+    if (h < 0.) return 0.;
+    return h * h * h * h * dot(hash, x, z);
+}
+
+u8 EndIslandsNoise::map(i32 hash) {
+    return this->permutation[hash & 0xff];
+}
+
+double EndIslandsNoise::sampleSimplex(i32 x, i32 z) {
+    /// TODO: make all of these functions have descriptive names
+    const double sqrt3 = std::sqrt(3.);
+    const double skewFactor = 0.5 * (sqrt3 - 1.);
+    const double unskewFactor = (3. - sqrt3) / 6.;
+
+    double f = (x + z) * skewFactor;
+    i32 i = std::floor(x + f);
+    i32 j = std::floor(z + f);
+    double g = (i + j) * unskewFactor;
+    double h = i - g;
+
+    double l = x - h;
+    double k = j - g;
+    double m = z - k;
+
+    i32 n, o;
+    if (l > m) {
+        n = 1;
+        o = 0;
+    } else {
+        n = 0;
+        o = 1;
+    }
+
+    double p = l - n + unskewFactor;
+    double q = m - o + unskewFactor;
+    double r = l - 1. + 2. * unskewFactor;
+    double s = m - 1. + 2. * unskewFactor;
+
+    i32 t = i & 0xff;
+    i32 u = j & 0xff;
+    i32 v = this->map(t + this->map(u)) % 12;
+    i32 w = this->map(t + n + this->map(u + o)) % 12;
+    i32 y = this->map(t + 1 + this->map(u + 1)) % 12;
+
+    double
+        ret1 = this->grad(v, l, m, .5),
+        ret2 = this->grad(w, p, q, .5),
+        ret3 = this->grad(y, r, s, .5);
+    
+    return 70. * (ret1 + ret2 + ret3);
+}

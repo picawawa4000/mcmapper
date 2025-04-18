@@ -99,7 +99,8 @@ struct SearchTree {
     u16 get(NoisePoint point) const;
 };
 
-// Try using the binary tree facilities instead because this is unimaginably slow.
+// Generates a 1.21.4 search tree.
+// Check out `serialize.hpp`, `deserialize.hpp`, and `btree_1_21_4.bin` as faster alternatives to this incredibly slow function.
 const std::shared_ptr<SearchTree> getSearchTree();
 
 #endif
