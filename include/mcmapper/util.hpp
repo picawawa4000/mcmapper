@@ -159,4 +159,9 @@ enum Dimension {
     DIM_END
 };
 
+static inline double squeeze(double density) {
+    double c = std::clamp(density, -1., 1.);
+    return c / 2. - c * c * c / 24.;
+}
+
 #endif

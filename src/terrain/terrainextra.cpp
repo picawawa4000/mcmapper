@@ -9,11 +9,6 @@ static inline double netherSlides(double density, double y) {
     return lerp(lower, 2.5, lerp(upper, 0.9375, density));
 }
 
-static inline double squeeze(double density) {
-    double c = std::clamp(density, -1., 1.);
-    return c / 2. - c * c * c / 24.;
-}
-
 double sampleDensityNether(TerrainGeneratorConfig& config, double x, double y, double z) {
     if (config.dimension != Dimension::DIM_NETHER)
         throw std::runtime_error("Config used for Nether generation initialised for non-Nether dimension!");

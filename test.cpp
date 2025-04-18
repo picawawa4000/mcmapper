@@ -47,11 +47,8 @@ void printBool(bool b) {
 int main() {
     const i64 worldSeed = 3447;
 
-    sampleEnd(0, 0, worldSeed);
-    // should not have any land
-    sampleEnd(1000, 0, worldSeed);
-    sampleEnd(1025, 1025, worldSeed);
-    sampleEnd(1113, 1011, worldSeed);
+    TerrainGeneratorConfig config(worldSeed, Dimension::DIM_OVERWORLD);
+    sampleColumn(config, 92, 327);
 
     //std::chrono::high_resolution_clock clock;
     //auto start = clock.now();

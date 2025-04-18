@@ -28,8 +28,16 @@ struct ChunkGeneratorFlags {
 struct ChunkGenerator {
     i32 x, z;
 
-    std::shared_ptr<Samples2d> temperatureSamples, humiditySamples, continentalnessSamples, erosionSamples, weirdnessSamples, pvSamples, offsetSamples;
-    std::shared_ptr<Samples3d> depthSamples;
+    std::shared_ptr<Samples2d>
+        temperatureSamples,
+        humiditySamples,
+        continentalnessSamples,
+        erosionSamples,
+        weirdnessSamples,
+        pvSamples,
+        offsetSamples;
+    std::shared_ptr<Samples3d>
+        depthSamples;
 
     explicit ChunkGenerator(i32 chunkX, i32 chunkZ, std::shared_ptr<Noises> noises, const ChunkGeneratorFlags& flags) {
         this->x = chunkX;

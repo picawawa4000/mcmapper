@@ -183,5 +183,5 @@ f64 sampleFinalDensity(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z) {
             << "cavesNoodle = " << cavesNoodle(*config.noises, x, y, z) << std::endl;
 #endif
     f64 g = cheese < 1.5625 ? std::min(cheese, 5 * cavesEntrances(*config.noises, x, y, z)) : sampleCaves(*config.noises, x, y, z, cheese);
-    return std::min(cavesNoodle(*config.noises, x, y, z), surfaceSlides(y, g));
+    return std::min(cavesNoodle(*config.noises, x, y, z), squeeze(surfaceSlides(y, g) * 0.64));
 }
