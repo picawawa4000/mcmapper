@@ -186,7 +186,7 @@ static void updateRoomFlags(BaseMansionFlags& baseLayout, BaseMansionFlags& floo
         } else if (floor.get(x - 1, y) == 0 && baseLayout.get(x - 1, y) == ROOM) {
             --minX; sizeFlag = flags::MEDIUM_ROOM;
         } else if (floor.get(x, y - 1) == 0 && baseLayout.get(x, y - 1) == ROOM) {
-            --maxX; sizeFlag = flags::MEDIUM_ROOM;
+            --minY; sizeFlag = flags::MEDIUM_ROOM;
         }
 
         u32 r = rng.next_bool() ? minX : maxX;
@@ -231,17 +231,17 @@ static inline Direction findConnectedRoomDirection(BaseMansionFlags& floor, int 
     throw std::runtime_error("If this point is reached, a function is called on a null variable in the Java game code, causing the game to crash.");
 }
 
-static void layoutThirdFloor(BaseMansionFlags& thirdFloor, BaseMansionFlags& secondFloor, BaseMansionFlags& layout, Random& rng) {
+static void layoutThirdFloor(BaseMansionFlags& thirdFloorLayout, BaseMansionFlags& thirdFloor, BaseMansionFlags& secondFloor, BaseMansionFlags& baseLayout, Random& rng) {
     std::vector<std::pair<u32, u32>> candidates;
     for (int i = 0; i < 11; ++i) {
         for (int j = 0; j < 11; ++j) {
-            u32 val = secondFloor.get(i, j);
-            if ((val & flags::BIG_ROOM) != flags::BIG_ROOM || (val & flags::ENTRANCE_CELL) != flags::ENTRANCE_CELL) continue;
-            candidates.emplace_back(i, j);
+            u32 val = secondFloor.get(j, i);
+            if ((val & 0xf0000) != flags::MEDIUM_ROOM || (val & flags::ENTRANCE_CELL) != flags::ENTRANCE_CELL) continue;
+            candidates.emplace_back(j, i);
         }
     }
     if (candidates.empty()) {
-        thirdFloor.fill(0, 0, 11, 11, OUTSIDE);
+        thirdFloorLayout.fill(0, 0, 11, 11, OUTSIDE);
         return;
     }
 
@@ -255,35 +255,38 @@ static void layoutThirdFloor(BaseMansionFlags& thirdFloor, BaseMansionFlags& sec
     u32 m = j + getOffsetZ(direction);
     for (int n = 0; n < 11; ++n) {
         for (int o = 0; o < 11; ++o) {
-            if (layout.get(n, o) == ROOM || layout.get(n, o) == CORRIDOR || layout.get(n, o) == STAIRCASE || layout.get(n, o) == UNUSED) {
-                thirdFloor.set(n, o, OUTSIDE);
+            if (!(baseLayout.get(n, o) == ROOM || baseLayout.get(n, o) == CORRIDOR || baseLayout.get(n, o) == STAIRCASE || baseLayout.get(n, o) == UNUSED)) {
+                thirdFloorLayout.set(n, o, OUTSIDE);
                 continue;
             }
             if (n == i && o == j) {
-                thirdFloor.set(n, o, STAIRCASE);
+                thirdFloorLayout.set(n, o, STAIRCASE);
             }
             if (n != l || o != m) continue;
-            thirdFloor.set(n, o, STAIRCASE);
-            secondFloor.set(o, n, flags::CARPET_CELL);
+            thirdFloorLayout.set(n, o, STAIRCASE);
+            thirdFloor.set(n, o, flags::CARPET_CELL);
         }
     }
 
     std::vector<Direction> directions;
-    for (int i = 0; i < 4; ++i) {
-        direction = static_cast<Direction>(i);
-        if (thirdFloor.get(l + getOffsetX(direction), m + getOffsetZ(direction)) == 0)
+    // Iterate through array {DIR_NORTH, DIR_EAST, DIR_SOUTH, DIR_WEST}.
+    for (int dir = 2; dir < 6; ++dir) {
+        direction = static_cast<Direction>(dir & 0b11);
+        if (thirdFloorLayout.get(l + getOffsetX(direction), m + getOffsetZ(direction)) == UNSET)
             directions.push_back(direction);
     }
     if (directions.empty()) {
-        thirdFloor.fill(0, 0, 11, 11, OUTSIDE);
+        thirdFloorLayout.fill(0, 0, 11, 11, OUTSIDE);
         secondFloor.set(i, j, k);
         return;
     }
     direction = directions[rng.next_i32(directions.size())];
-    layoutCorridor(thirdFloor, rng, l + getOffsetX(direction), m + getOffsetX(direction), direction, 4);
-    while (adjustLayoutWithRooms(thirdFloor));
+    layoutCorridor(thirdFloorLayout, rng, l + getOffsetX(direction), m + getOffsetZ(direction), direction, 4);
+    while (adjustLayoutWithRooms(thirdFloorLayout));
 }
 
+/// TODO: make all of these subroutines (i.e. updateRoomFlags, layoutCorridor)
+/// into member functions of MansionLayout because this is ugly and probably slow
 MansionLayout::MansionLayout(Random& rng) {
     this->baseLayout.fill(7, 4, 8, 5, STAIRCASE);
     this->baseLayout.fill(6, 4, 6, 5, ROOM);
@@ -308,6 +311,6 @@ MansionLayout::MansionLayout(Random& rng) {
     this->firstFloor.fill(8, 4, 8, 5, flags::CARPET_CELL);
     this->secondFloor.fill(8, 4, 8, 5, flags::CARPET_CELL);
 
-    layoutThirdFloor(this->thirdFloorLayout, this->secondFloor, this->baseLayout, rng);
+    layoutThirdFloor(this->thirdFloorLayout, this->thirdFloor, this->secondFloor, this->baseLayout, rng);
     updateRoomFlags(this->thirdFloorLayout, this->thirdFloor, rng);
 }
