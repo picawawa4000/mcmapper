@@ -39,7 +39,7 @@ struct ClimateNoises {
     }
 
     NoisePoint sample(int x, int y, int z, bool biome_scale = false, bool no_shift = false, bool no_depth = false) const {
-        f32 inX = biome_scale ? x : (x >> 2), inY = biome_scale ? y : (y >> 2), inZ = biome_scale ? z : (z >> 2);
+        f32 inX = biome_scale ? x : (x >> 2), inZ = biome_scale ? z : (z >> 2);
         if (!no_shift) {
             inX += this->shiftX(inX, inZ);
             inZ += this->shiftZ(inX, inZ);
@@ -55,7 +55,7 @@ struct ClimateNoises {
         if (!no_depth) {
             std::array<f32, 4> params = {continentalnessOut, erosionOut, static_cast<f32>(pvTransform(weirdnessOut)), weirdnessOut};
             f32 depthOffset = ClimateNoises::offsetSp->sample(params) - 0.50375f;
-            depth = yClampedGradient(inY * 4., -64, 320, 1.5, -1.5) + depthOffset;
+            depth = yClampedGradient(y * 4., -64, 320, 1.5, -1.5) + depthOffset;
         }
         
         return NoisePoint(temperatureOut, humidityOut, continentalnessOut, erosionOut, depth, weirdnessOut);

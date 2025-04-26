@@ -12,6 +12,7 @@ struct Random {
     virtual i32 next_i32(i32 bound) = 0;
     virtual f64 next_f64() = 0;
     virtual f32 next_f32() = 0;
+    virtual bool next_bool() = 0;
     virtual void skip(i32 count) = 0;
 };
 
@@ -73,6 +74,10 @@ struct XoroshiroRandom : public Random {
         for (i32 i = 0; i < count; ++i) this->next_u64();
     }
 
+    bool next_bool() {
+        return (this->next_u64() & 1) == 1;
+    }
+
     //convert u64 to i64 using two's complement
     i64 next_i64() {
         throw std::runtime_error("shouldn't need XoroshiroRandom::next_i64!");
@@ -121,6 +126,10 @@ struct CheckedRandom : public Random {
         i32 j = this->next(27);
         i64 k = ((i64)i << 27) + (i64)j;
         return (f64)k * (f64)1.110223E-16f;
+    }
+
+    bool next_bool() {
+        return this->next(1) != 0;
     }
 
     void skip(i32 count) {

@@ -89,8 +89,8 @@ static inline f64 initialDensity(f64 factor, f64 depth) {
 }
 
 static f64 slopedCheese(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z) {
-    f64 inX = x + config.noises->offset.sample(x, 0, z) * 4.;
-    f64 inZ = z + config.noises->offset.sample(z, x, 0) * 4.;
+    f64 inX = x / 4. + config.noises->offset.sample(x, 0, z) * 4.;
+    f64 inZ = z / 4. + config.noises->offset.sample(z, x, 0) * 4.;
 
     f64 weirdness = config.noises->weirdness.sample(inX, 0, inZ);
     std::array<f32, 4> params = {
@@ -173,7 +173,7 @@ f64 sampleInitialDensity(Noises& noises, f64 x, f64 y, f64 z) {
 
 f64 sampleFinalDensity(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z) {
     if (config.dimension != Dimension::DIM_OVERWORLD)
-        throw std::runtime_error("Config used for Overwolrd generation initialised for non-Overworld dimension!");
+        throw std::runtime_error("Config used for Overworld generation initialised for non-Overworld dimension!");
     
     f64 cheese = slopedCheese(config, x, y, z);
 #ifndef NDEBUG

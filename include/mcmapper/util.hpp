@@ -142,15 +142,33 @@ inline i64 hashCode(i32 x, i32 y, i32 z) {
     return l >> 16;
 }
 
+// Ordered this way so that `static_cast<Direction>(i)` is equivalent
+// to `Direction.fromHorizontalQuarterTurns(i)`.
 enum Direction {
-    DIR_NORTH,
-    DIR_SOUTH,
-    DIR_EAST,
-    DIR_WEST,
+    DIR_SOUTH = 0,
+    DIR_WEST = 1,
+    DIR_NORTH = 2,
+    DIR_EAST = 3,
 };
 
-inline u8 getOffsetX(Direction direction) {
-    throw std::runtime_error("Unimplemented function getOffsetX!");
+inline i8 getOffsetX(Direction direction) {
+    if (direction == DIR_WEST) return -1;
+    if (direction == DIR_EAST) return 1;
+    return 0;
+}
+
+inline i8 getOffsetZ(Direction direction) {
+    if (direction == DIR_NORTH) return -1;
+    if (direction == DIR_SOUTH) return 1;
+    return 0;
+}
+
+inline Direction clockwise(Direction direction) {
+    return static_cast<Direction>(static_cast<int>(direction) + 1 & 0b11);
+}
+
+inline Direction counterclockwise(Direction direction) {
+    return static_cast<Direction>(static_cast<int>(direction) - 1 & 0b11);
 }
 
 enum Dimension {
