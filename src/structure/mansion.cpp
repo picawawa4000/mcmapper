@@ -141,7 +141,8 @@ static bool anyMatchAround(BaseMansionFlags& flags, u32 x, u32 y, u32 value) {
     return false;
 }
 
-static void updateRoomFlags(BaseMansionFlags& baseLayout, BaseMansionFlags& floor, Random& rng) {
+// Returns the number of unique rooms on this floor.
+static std::size_t updateRoomFlags(BaseMansionFlags& baseLayout, BaseMansionFlags& floor, Random& rng) {
     std::vector<std::pair<u32, u32>> rooms;
     for (int i = 0; i < 11; ++i) {
         for (int j = 0; j < 11; ++j) {
@@ -220,6 +221,8 @@ static void updateRoomFlags(BaseMansionFlags& baseLayout, BaseMansionFlags& floo
 
         ++i;
     }
+
+    return i - 10;
 }
 
 static inline Direction findConnectedRoomDirection(BaseMansionFlags& floor, int i, int j, u32 roomId) {
@@ -305,12 +308,14 @@ MansionLayout::MansionLayout(Random& rng) {
 
     while (adjustLayoutWithRooms(this->baseLayout));
 
-    updateRoomFlags(this->baseLayout, this->firstFloor, rng);
-    updateRoomFlags(this->baseLayout, this->secondFloor, rng);
+    std::size_t rooms = 0;
+
+    rooms += updateRoomFlags(this->baseLayout, this->firstFloor, rng);
+    rooms += updateRoomFlags(this->baseLayout, this->secondFloor, rng);
 
     this->firstFloor.fill(8, 4, 8, 5, flags::CARPET_CELL);
     this->secondFloor.fill(8, 4, 8, 5, flags::CARPET_CELL);
 
     layoutThirdFloor(this->thirdFloorLayout, this->thirdFloor, this->secondFloor, this->baseLayout, rng);
-    updateRoomFlags(this->thirdFloorLayout, this->thirdFloor, rng);
+    rooms += updateRoomFlags(this->thirdFloorLayout, this->thirdFloor, rng);
 }

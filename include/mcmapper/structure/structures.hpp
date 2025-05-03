@@ -2,6 +2,7 @@
 #define STRUCTURES_HPP
 
 #include <mcmapper/structure/structure.hpp>
+#include <mcmapper/rng/noises.hpp>
 
 namespace placements {
     const StructurePlacement VILLAGE(34, 8, SpreadType::LINEAR, 10387312);
@@ -26,10 +27,43 @@ namespace placements {
 
 // Buried treasures work differently from other structures.
 // They have a 1 in 100 chance to spawn in every chunk.
-bool checkBuriedTreasure(i64 worldSeed, i64 chunkX, i64 chunkZ) {
+bool checkBuriedTreasure(u64 worldSeed, i64 chunkX, i64 chunkZ) {
     i64 blockX = chunkX * 16 + 9, blockZ = chunkZ * 16 + 9;
     CheckedRandom rng(chunkX * 341873128712LL + chunkZ * 132897987541LL + worldSeed + 10387320LL);
     return rng.next_f32() < 0.01;
+}
+
+// Pillager outposts are really weirdly written.
+// I was not aware of this earlier.
+// This function is currently incomplete; it lacks biome checks for villages.
+// Please remind me about this if you happen to stumble across this function!
+bool checkPillagerOutpost(u64 worldSeed, i64 chunkX, i64 chunkZ) {
+    // constructor contains seed transformation
+    CheckedRandom rng(worldSeed);
+    u64 seed = rng.seed ^ (chunkX >> 4) ^ ((chunkX >> 4) << 4);
+    rng.setSeed(seed);
+    rng.next(31);
+    if (rng.next_i32(5) != 0) return false;
+
+    // check for nearby villages
+    i64
+        exX1 = chunkX - 10,
+        exX2 = chunkX + 10,
+        exZ1 = chunkZ - 10,
+        exZ2 = chunkZ + 10;
+    i64
+        exrX1 = exX1 / 34,
+        exrX2 = exX2 / 34,
+        exrZ1 = exZ1 / 34,
+        exrZ2 = exZ2 / 34;
+    for (int i = exrX1; i <= exrX2; ++i) {
+        for (int j = exrZ1; j <= exrZ2; ++j) {
+            Pos2D pos = placements::VILLAGE.findStart(worldSeed, i, j);
+            /// TODO: (VERY MAJOR) BIOME CHECK FOR VILLAGE START
+            if (exX1 <= pos.x && pos.x <= exX2 && exZ1 <= pos.z && pos.z <= exZ2)
+                return false;
+        }
+    }
 }
 
 namespace structures {

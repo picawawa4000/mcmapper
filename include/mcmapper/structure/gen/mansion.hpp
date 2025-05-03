@@ -2,6 +2,7 @@
 #define MANSION_HPP
 
 #include <mcmapper/rng/rng.hpp>
+#include <mcmapper/structure/gen/spiece.hpp>
 
 /// TODO: de-template-ify this because X_SIZE and Y_SIZE are always 11
 template <u32 X_SIZE, u32 Y_SIZE>
@@ -32,9 +33,11 @@ struct MansionLayout {
     // `CheckedRandom& random` is the correct parameter, but too lazy to change it for now
     explicit MansionLayout(Random& random);
 
-//private:
+private:
     BaseMansionFlags baseLayout = BaseMansionFlags(5 /*OUTSIDE*/);
     BaseMansionFlags thirdFloorLayout = BaseMansionFlags(5 /*OUTSIDE*/);
+
+    std::vector<StructurePiece> pieces;
 };
 
 #endif
