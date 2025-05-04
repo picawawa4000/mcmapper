@@ -100,13 +100,22 @@ static f64 slopedCheese(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z) {
         static_cast<f32>(weirdness)
     };
     
-    f64 depth = offsetSpline()->sample(params) + yClampedGradient(y, -64, 320, 1.5, -1.5);
+    f64 depth = offsetSpline()->sample(params) + yClampedGradient(y, -64, 320, 1.5, -1.5) - 0.50375f;
     f64 factor = factorSpline()->sample(params);
     f64 jagged = config.noises->jagged.sample(x * 1500., 0, z * 1500.);
     jagged = jagged >= 0. ? jagged : jagged / 2.;
     jagged *= jaggednessSpline()->sample(params);
 
     f64 density = initialDensity(factor, depth + jagged);
+
+#ifndef NDEBUG
+/*
+    std::cout << "Density: " << density
+                << "\nJaggedness: " << jagged
+                << "\nDepth: " << depth
+                << "\nFactor: " << factor << std::endl;
+*/
+#endif
     
     return density + config.interNoise->sample(x, y, z);
 }
@@ -153,14 +162,16 @@ static inline f64 surfaceSlides(f64 y, f64 density) {
     return lerp(yClampedGradient(y, -64, -40, 0., 1.), 0.1171875, ret);
 }
 
-f64 sampleInitialDensity(Noises& noises, f64 x, f64 y, f64 z) {
-    f64 inX = x / 4. + noises.offset.sample(x, 0, z) * 4.;
-    f64 inZ = x / 4. + noises.offset.sample(z, x, 0) * 4.;
+f64 sampleInitialDensity(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z) {
+    std::shared_ptr<Noises> noises = config.noises;
 
-    f64 weirdness = noises.weirdness.sample(x / 4., 0, z / 4.);
+    f64 inX = x / 4. + noises->offset.sample(x, 0, z) * 4.;
+    f64 inZ = x / 4. + noises->offset.sample(z, x, 0) * 4.;
+
+    f64 weirdness = noises->weirdness.sample(x / 4., 0, z / 4.);
     std::array<f32, 4> params = {
-        static_cast<f32>(noises.continentalness.sample(x / 4., 0, z / 4.)),
-        static_cast<f32>(noises.erosion.sample(x / 4., 0, z / 4.)),
+        static_cast<f32>(noises->continentalness.sample(x / 4., 0, z / 4.)),
+        static_cast<f32>(noises->erosion.sample(x / 4., 0, z / 4.)),
         static_cast<f32>(pvTransform(weirdness)),
         static_cast<f32>(weirdness)
     };
@@ -168,7 +179,10 @@ f64 sampleInitialDensity(Noises& noises, f64 x, f64 y, f64 z) {
     f64 depth = offsetSpline()->sample(params) + yClampedGradient(y, -64, 320, 1.5, -1.5) - 0.50375f;
     f64 factor = factorSpline()->sample(params);
 
-    return surfaceSlides(y, std::clamp(initialDensity(factor, depth) - 0.703125f, -64., 64.));
+    f64 iDensity = initialDensity(factor, depth);
+    std::cout << "Initial density: " << iDensity << std::endl;
+
+    return surfaceSlides(y, std::clamp(iDensity - 0.703125f, -64., 64.));
 }
 
 f64 sampleFinalDensity(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z) {
@@ -177,10 +191,12 @@ f64 sampleFinalDensity(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z) {
     
     f64 cheese = slopedCheese(config, x, y, z);
 #ifndef NDEBUG
+/*
     std::cout << "cheese = " << cheese << "\n"
             << "cavesEntrances = " << 5 * cavesEntrances(*config.noises, x, y, z) << "\n"
             << "caves = " << sampleCaves(*config.noises, x, y, z, cheese) << "\n"
             << "cavesNoodle = " << cavesNoodle(*config.noises, x, y, z) << std::endl;
+*/
 #endif
     f64 g = cheese < 1.5625 ? std::min(cheese, 5 * cavesEntrances(*config.noises, x, y, z)) : sampleCaves(*config.noises, x, y, z, cheese);
     return std::min(cavesNoodle(*config.noises, x, y, z), squeeze(surfaceSlides(y, g) * 0.64));
