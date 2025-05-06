@@ -13,7 +13,7 @@ Headers with a fairly stable API include:
 `mcmapper/rng/noise.hpp`  
 `mcmapper/biome/*.hpp`  
 `mcmapper/terrain/spline.hpp`  
-`mcmapper/terrain/internoise.hpp`
+`mcmapper/terrain/internoise.hpp`  
 `mcmapper/data/*.hpp`
 
 Headers that are currently lacking features, or that may be split or otherwise refactored, include:
@@ -23,14 +23,14 @@ Headers that are currently lacking features, or that may be split or otherwise r
 `mcmapper/loot/builtin_loot.hpp`  
 `mcmapper/misc/generator.hpp`  
 `mcmapper/structure/structure.hpp`  
-`mcmapper/structure/structures.hpp`
-`mcmapper/structure/gen/mansion.hpp`
-`mcmapper/terrain/terrain.hpp`
-`mcmapper/terrain/terrainextra.hpp`
+`mcmapper/structure/structures.hpp`  
+`mcmapper/structure/gen/mansion.hpp`  
+`mcmapper/terrain/terrain.hpp`  
+`mcmapper/terrain/terrainextra.hpp`  
 
 Headers that are completely unfinished include:
 
 `mcmapper/mcmapper.hpp`  
-`mcmapper/structure/gen/spiece.hpp`
+`mcmapper/structure/gen/spiece.hpp`  
 
 See [TODO.md](./TODO.md) for a more precise list of places where the library needs fixing.
