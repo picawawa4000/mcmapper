@@ -10,7 +10,7 @@ int main() {
     TerrainGeneratorConfig config(worldSeed, Dimension::DIM_OVERWORLD);
     
     for (int y = 256; y > 0; --y) {
-        double density = sampleFinalDensity(config, 32, y, 149);
+        double density = sampleInitialDensity(config, 32, y, 149);
         std::cout << "[32, " << y << ", 149] " << density << std::endl;
     }
 

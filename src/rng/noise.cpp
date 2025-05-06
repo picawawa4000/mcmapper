@@ -102,8 +102,8 @@ const u64 md5_hashes[][2] = {
     {0xdffa22b534c5f608, 0xb9b67517d3665ca9}, // md5 "octave_-1"
     {0xd50708086cef4d7c, 0x6e1651ecc7f43309}, // md5 "octave_0"
 };
-const f64 lacunarity_init[] =   {1, .5, .25,  1./8, 1./16, 1./32,  1./64,  1./128,  1./256,   1./512,   1./1024, 1./2048, 1./4096, 1./8192, 1./16384, 1./32768};
-const f64 persistance_init[] =  {0, 1,  2./3, 4./7, 8./15, 16./31, 32./63, 64./127, 128./255, 256./511, 512./1023, 1023./2047, 2048./4095, 4096./8191, /*After enough entries, the persistance rounds off to 0.5*/ 0.5, 0.5};
+const f64 lacunarity_init[] =   {1, .5, .25,  1./8, 1./16, 1./32,  1./64,  1./128,  1./256,   1./512,   1./1024, 1./2048, 1./4096, 1./8192, 1./16384, 1./32768, 1./65536};
+const f64 persistance_init[] =  {0, 1,  2./3, 4./7, 8./15, 16./31, 32./63, 64./127, 128./255, 256./511, 512./1023, 1023./2047, 2048./4095, 4096./8191, /*After enough entries, the persistance rounds off to 0.5*/ 0.5, 0.5, 0.5};
 
 OctavePerlinNoise::OctavePerlinNoise(XoroshiroRandom& rng, std::vector<f64> amplitudes, i32 firstOctave) : amplitudes(amplitudes) {
     i32 size = amplitudes.size();

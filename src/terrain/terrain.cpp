@@ -109,12 +109,10 @@ static f64 slopedCheese(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z) {
     f64 density = initialDensity(factor, depth + jagged);
 
 #ifndef NDEBUG
-/*
     std::cout << "Density: " << density
                 << "\nJaggedness: " << jagged
                 << "\nDepth: " << depth
                 << "\nFactor: " << factor << std::endl;
-*/
 #endif
     
     return density + config.interNoise->sample(x, y, z);
