@@ -16,7 +16,7 @@ struct TerrainGeneratorConfig {
     Dimension dimension;
 };
 
-f64 sampleInitialDensity(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z);
+f64 sampleInitialDensity(TerrainGeneratorConfig& config, i32 x, i32 y, i32 z);
 f64 sampleFinalDensity(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z);
 
 #endif

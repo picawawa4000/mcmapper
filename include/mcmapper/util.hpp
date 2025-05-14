@@ -41,12 +41,6 @@ inline f64 perlinFade(f64 value) {
     return ((value * 6. - 15.) * value + 10.) * value * value * value;
 }
 
-inline f64 clamp(f64 value, f64 lower, f64 upper) {
-    if (value < lower) return lower;
-    if (value > upper) return upper;
-    return value;
-}
-
 struct Pos2D {
     i32 x;
     i32 z;
@@ -122,17 +116,17 @@ inline double pvTransform(double weirdness) {
     return -3.f * (std::abs(std::abs(weirdness) - 0.6666667) - 0.33333334);
 }
 
-inline f32 getLerpProgress(f32 value, f32 start, f32 end) {
+inline f64 getLerpProgress(f64 value, f64 start, f64 end) {
     return (value - start) / (end - start);
 }
 
-inline f32 clampedLerp(f32 start, f32 end, f32 delta) {
+inline f64 clampedLerp(f64 start, f64 end, f64 delta) {
     if (delta < 0.0) return start;
     if (delta > 1.0) return end;
     return lerp(delta, start, end);
 }
 
-inline f32 yClampedGradient(f32 y, i32 fromY, i32 toY, f32 fromValue, f32 toValue) {
+inline f64 yClampedGradient(f64 y, i32 fromY, i32 toY, f64 fromValue, f64 toValue) {
     return clampedLerp(fromValue, toValue, getLerpProgress(y, fromY, toY));
 }
 
