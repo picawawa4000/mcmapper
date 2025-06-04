@@ -190,6 +190,9 @@ f64 sampleFinalDensity(TerrainGeneratorConfig& config, f64 x, f64 y, f64 z) {
     
     f64 cheese = slopedCheese(config, x, y, z);
 #ifndef NDEBUG
+    if ((int)x % 4 == 0 && (int)z % 4 == 0 && (int)y % 8 == 0) {
+        std::cout << "[" << x << ", " << y << ", " << z << "] cheese = " << cheese << std::endl;
+    }
 /*
     std::cout << "cheese = " << cheese << "\n"
             << "cavesEntrances = " << 5 * cavesEntrances(*config.noises, x, y, z) << "\n"

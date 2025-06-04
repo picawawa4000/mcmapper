@@ -67,7 +67,7 @@ static void layoutCorridor(BaseMansionFlags& layout, Random& rng, u32 x, u32 y, 
         Direction randomDirection = getRandomDirection(rng);
         if (
             opposites(direction, randomDirection) ||
-            randomDirection == DIR_EAST && rng.next_bool()
+            (randomDirection == DIR_EAST && rng.next_bool())
         ) continue;
         i32 m = x + getOffsetX(direction);
         i32 n = y + getOffsetZ(direction);

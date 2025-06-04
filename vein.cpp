@@ -87,6 +87,7 @@ OreVeinBlock getOreVeinBlockAt(i32 x, i32 y, i32 z, OreVeinParams& params) {
 }
 
 int main() {
+    //const u64 worldSeed = 537828016734021ULL;
     const u64 worldSeed = 8052710360952744907ULL;
     const Pos2D chunkPos = {0, 0};
 
@@ -110,35 +111,37 @@ int main() {
     u64 oreLo = rPositionalOre.next_u64();
     u64 oreHi = rPositionalOre.next_u64();
     
-    std::ofstream log("veinToggleLog.log");
+    std::cout << "This is a test message." << std::endl;
+
+    std::ofstream log("vein_params_log.log");
     OreVeinParams params{.veinA=&oreVeinA, .veinB=&oreVeinB, .veininess=&oreVeininess, .gap=&oreGap, .splitterLo=oreLo, .splitterHi=oreHi, .log=&log};
 
-    for (int x = -32; x < 32; ++x) {
-        for (int z = -32; z < 32; ++z) {
-            for (int y = -60; y < 50; ++y) {
-                logParams(x, y, z, params);
+    for (int x = /*-238*/ -64; x < /*-208*/ 64; ++x) {
+        for (int z = /*160*/ -64; z < /*191*/ 64; ++z) {
+            for (int y = -60; y < /*-8*/ 50; ++y) {
+                //logParams(x, y, z, params);
                 OreVeinBlock block = getOreVeinBlockAt(x, y, z, params);
                 if (!block) continue;
                 
-                std::cout << "[" << x << ", " << y << ", " << z << "] ";
+                log << "[" << x << ", " << y << ", " << z << "] ";
                 switch (block) {
                 case RAW_COPPER_BLOCK:
-                    std::cout << "Raw copper block!!" << std::endl;
+                    log << "Raw copper block!!" << std::endl;
                     break;
                 case RAW_IRON_BLOCK:
-                    std::cout << "Raw iron block!!" << std::endl;
+                    log << "Raw iron block!!" << std::endl;
                     break;
                 case COPPER_ORE:
-                    std::cout << "Copper ore!" << std::endl;
+                    log << "Copper ore!" << std::endl;
                     break;
                 case IRON_ORE:
-                    std::cout << "Iron ore!" << std::endl;
+                    log << "Iron ore!" << std::endl;
                     break;
                 case GRANITE:
-                    std::cout << "Granite" << std::endl;
+                    log << "Granite" << std::endl;
                     break;
                 case TUFF:
-                    std::cout << "Tuff" << std::endl;
+                    log << "Tuff" << std::endl;
                     break;
                 default: // unreachable
                     break;

@@ -27,10 +27,12 @@ inline f64 lerp(f64 part, f64 from, f64 to) {
     return from + part * (to - from);
 }
 
+// vxy (for example, v10: x = 1, y = 0)
 inline f64 lerp2(f64 dx, f64 dy, f64 v00, f64 v10, f64 v01, f64 v11) {
     return lerp(dy, lerp(dx, v00, v10), lerp(dx, v01, v11));
 }
 
+// see comment on lerp2
 inline f64 lerp3(f64 dx, f64 dy, f64 dz, f64 v000, f64 v100, f64 v010, f64 v110, f64 v001, f64 v101, f64 v011, f64 v111) {
     v000 = lerp2(dx, dy, v000, v100, v010, v110);
     v001 = lerp2(dx, dy, v001, v101, v011, v111);

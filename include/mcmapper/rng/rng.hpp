@@ -8,6 +8,7 @@
 
 // Note to self: this interface is actually somewhat useless and can probably be removed for a performance boost.
 struct Random {
+    virtual void setSeed(u64 seed) = 0;
     virtual i64 next_i64() = 0;
     virtual i32 next_i32(i32 bound) = 0;
     virtual f64 next_f64() = 0;
@@ -30,6 +31,10 @@ struct XoroshiroRandom : public Random {
     }
 
     XoroshiroRandom(u64 seed) {
+        this->setSeed(seed);
+    }
+
+    virtual void setSeed(u64 seed) {
         const u64 XL = 0x9e3779b97f4a7c15ULL;
         const u64 XH = 0x6a09e667f3bcc909ULL;
         const u64 A = 0xbf58476d1ce4e5b9ULL;
@@ -56,42 +61,42 @@ struct XoroshiroRandom : public Random {
         return i;
     }
 
-    i32 next_i32(i32 bound) {
+    virtual i32 next_i32(i32 bound) {
         u64 r = (this->next_u64() & 0xFFFFFFFF) * bound;
         if ((u32)r < bound) while ((u32)r < (~bound + 1) % bound) r = (this->next_u64() & 0xFFFFFFFF) * bound;
         return r >> 32;
     }
 
-    f64 next_f64() {
+    virtual f64 next_f64() {
         return (this->next_u64() >> 11) * 1.1102230246251565E-16;
     }
 
-    f32 next_f32() {
+    virtual f32 next_f32() {
         return (this->next_u64() >> 40) * 5.9604645E-8F;
     }
 
-    void skip(i32 count) {
+    virtual void skip(i32 count) {
         for (i32 i = 0; i < count; ++i) this->next_u64();
     }
 
-    bool next_bool() {
+    virtual bool next_bool() {
         return (this->next_u64() & 1) == 1;
     }
 
     //convert u64 to i64 using two's complement
-    i64 next_i64() {
+    virtual i64 next_i64() {
         throw std::runtime_error("shouldn't need XoroshiroRandom::next_i64!");
     }
 };
 
 struct CheckedRandom : public Random {
-    i64 seed;
+    u64 seed;
 
-    CheckedRandom(i64 seed) {
+    CheckedRandom(u64 seed) {
         this->setSeed(seed);
     }
 
-    void setSeed(i64 seed) {
+    virtual void setSeed(u64 seed) {
         this->seed = (seed ^ 0x5deece66d) & ((1ULL << 48) - 1);
     }
 
@@ -100,7 +105,7 @@ struct CheckedRandom : public Random {
         return (i32)(this->seed >> (48 - bits));
     }
 
-    i32 next_i32(i32 bound) {
+    virtual i32 next_i32(i32 bound) {
         // if bound is a power of two
         if (((bound - 1) & bound) == 0) {
             return (i32)(((u64)bound * (u64)this->next(31)) >> 31);
@@ -113,26 +118,26 @@ struct CheckedRandom : public Random {
         return k;
     }
 
-    i64 next_i64() {
+    virtual i64 next_i64() {
         return ((i64)this->next(32) << 32) + (i64)this->next(32);
     }
 
-    f32 next_f32() {
+    virtual f32 next_f32() {
         return (f32)this->next(24) * 5.9604645E-8f;
     }
 
-    f64 next_f64() {
+    virtual f64 next_f64() {
         i32 i = this->next(26);
         i32 j = this->next(27);
         i64 k = ((i64)i << 27) + (i64)j;
         return (f64)k * (f64)1.110223E-16f;
     }
 
-    bool next_bool() {
+    virtual bool next_bool() {
         return this->next(1) != 0;
     }
 
-    void skip(i32 count) {
+   virtual void skip(i32 count) {
         for (i32 i = 0; i < count; ++i) this->next(32);
     }
 };

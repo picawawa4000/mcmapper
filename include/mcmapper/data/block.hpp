@@ -9,6 +9,7 @@ enum BlockType {
     AIR,
     STONE,
     COBBLESTONE,
+    MOSSY_COBBLESTONE,
     OAK_PLANKS,
     SPRUCE_PLANKS,
     BIRCH_PLANKS,
