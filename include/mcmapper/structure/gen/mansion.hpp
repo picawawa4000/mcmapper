@@ -30,7 +30,7 @@ struct MansionLayout {
     BaseMansionFlags secondFloor = BaseMansionFlags(5 /*OUTSIDE*/);
     BaseMansionFlags thirdFloor = BaseMansionFlags(5 /*OUTSIDE*/);
 
-    // `CheckedRandom& random` is the correct parameter, but too lazy to change it for now
+    // `XoroshiroRandom& random` is the correct parameter, but too lazy to change it for now
     explicit MansionLayout(Random& random);
 
 private:

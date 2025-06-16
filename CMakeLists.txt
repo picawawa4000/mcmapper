@@ -13,6 +13,9 @@ set(srcfiles
     src/biome/biomes.cpp
     src/biome/biometree.cpp
 
+    src/densityfunction/cache.cpp
+    src/densityfunction/misc.cpp
+
     src/loot/builtin_loot.cpp
 
     src/misc/generator.cpp

@@ -49,11 +49,11 @@ struct Pos2D {
 
     Pos2D(i32 x, i32 z) : x(x), z(z) {}
 
-    std::string toString() {
+    std::string toString() const {
         return "(" + std::to_string(this->x) + ", " + std::to_string(this->z) + ")";
     }
 
-    Pos2D chunkToBlock() {
+    Pos2D chunkToBlock() const {
         return Pos2D(this->x << 4, this->z << 4);
     }
 
@@ -61,8 +61,20 @@ struct Pos2D {
         return this->x * this->x + this->z * this->z < other.x * other.x + other.z * other.z;
     }
 
-    operator std::string() {
+    operator std::string() const {
         return this->toString();
+    }
+
+    bool operator ==(const Pos2D& other) const {
+        return this->x == other.x && this->z == other.z;
+    }
+};
+
+// Pos3D isn't as easily hashable because there are more than 64 bits.
+template<> struct std::hash<Pos2D> {
+    // Relies on 64-bit std::size_t.
+    std::size_t operator()(const Pos2D& input) const noexcept {
+        return ((u64)input.x) << 32 | (u64)input.z;
     }
 };
 
