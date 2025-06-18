@@ -82,7 +82,7 @@ void CellCacheFunction::invalidate() {
     this->chunkPosToCache.clear();
 }
 
-InterpolatedFunction::InterpolatedFunction(std::shared_ptr<DensityFunction> target, u32 horizontalCellBlockCount, u32 verticalCellBlockCount, bool cacheTarget) : horizontalCellBlockCount(horizontalCellBlockCount), verticalCellBlockCount(verticalCellBlockCount) {
+InterpolatedFunction::InterpolatedFunction(std::shared_ptr<DensityFunction> target, i32 horizontalCellBlockCount, i32 verticalCellBlockCount, bool cacheTarget) : horizontalCellBlockCount(horizontalCellBlockCount), verticalCellBlockCount(verticalCellBlockCount) {
     if (cacheTarget)
         this->target = std::make_shared<CellCacheFunction>(target, horizontalCellBlockCount, verticalCellBlockCount);
     else

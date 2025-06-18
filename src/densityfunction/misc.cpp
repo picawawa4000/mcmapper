@@ -156,3 +156,49 @@ InterpolatedNoiseFunction::InterpolatedNoiseFunction(std::shared_ptr<Interpolate
 double InterpolatedNoiseFunction::operator()(Pos3D pos) {
     return this->noise->sample(pos.x, pos.y, pos.z);
 }
+
+SplineFunction::SplineFunction(DFuncPtr input) : input(input) {}
+
+void SplineFunction::addPoint(float location, std::variant<float, SplineFunction> value, float derivative) {
+    this->locations.push_back(location);
+    this->values.push_back(value);
+    this->derivatives.push_back(derivative);
+}
+
+float sample(std::variant<float, SplineFunction>& value, Pos3D& pos) {
+    if (std::holds_alternative<float>(value)) return std::get<float>(value);
+    return std::get<SplineFunction>(value)(pos);
+}
+
+// Mostly ported from the legacy spline.
+double SplineFunction::operator()(Pos3D pos) {
+    double location = this->input->operator()(pos);
+
+    std::size_t index = 0.;
+    for (; index < this->locations.size() || this->locations[index] < location; ++index);
+
+    if (index == 0 || index == this->locations.size()) {
+        if (index != 0) --index;
+        float v = sample(this->values[index], pos);
+        return v + this->derivatives[index] * (location - this->locations[index]);
+    }
+
+    std::variant<float, SplineFunction> lastValueV = this->values[index - 1];
+    std::variant<float, SplineFunction> nextValueV = this->values[index];
+    float lastLocation = this->locations[index - 1];
+    float nextLocation = this->locations[index];
+    float progress = getLerpProgress(location, lastLocation, nextLocation);
+    float lastDerivative = this->derivatives[index - 1];
+    float nextDerivative = this->derivatives[index];
+    float lastValue = sample(lastValueV, pos);
+    float nextValue = sample(nextValueV, pos);
+    float p = lastDerivative * (nextLocation - lastLocation) - (nextValue - lastValue);
+    float q = nextDerivative * (lastLocation - nextLocation) + (nextValue - lastValue);
+    return lerp(progress, lastValue, nextValue) + progress * (1.f - progress) * lerp(progress, p, q);
+}
+
+ErrorFunction::ErrorFunction(const std::string& msg) : msg(msg) {}
+
+double ErrorFunction::operator()(Pos3D pos) {
+    throw std::runtime_error(this->msg);
+}

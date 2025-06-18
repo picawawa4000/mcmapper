@@ -1,33 +1,18 @@
-#include <mcmapper/terrain/terrain.hpp>
-
-#include <sstream>
 #include <iostream>
-#include <fstream>
-
-void printHeightmap(TerrainGeneratorConfig& config, i32 fromX, i32 fromZ, i32 toX, i32 toZ, std::ostream& out) {
-    for (int x = fromX; x < toX; ++x) {
-        for (int z = fromZ; z < toZ;) {
-            for (int y = 256; y > -64; --y) {
-                if (sampleFinalDensity(config, x, y, z) >= 0.) {
-                    out << "[" << x << ", " << z << "] " << y << std::endl;
-                    goto COLUMN_HEIGHT_FOUND;
-                }
-            }
-            out << "[" << x << ", " << z << "] N/A" << std::endl;
-            COLUMN_HEIGHT_FOUND: ++z;
-        }
-    }
-}
+#include <filesystem>
 
 int main() {
-    u64 worldSeed = 3447ULL;
+    for (const auto& dir_entry : std::filesystem::recursive_directory_iterator{{"include/mcmapper"}}) {
+        auto path = dir_entry.path();
 
-    TerrainGeneratorConfig config(worldSeed, Dimension::DIM_OVERWORLD);
-    std::ofstream log("surface_heights.log");
+        auto begin = path.end();
+        while (*--begin != "mcmapper");
+        
+        std::filesystem::path relpath;
+        while (++begin != path.end()) relpath /= *begin;
 
-    printHeightmap(config, 44, 0, 49, 9, log);
-
-    log.close();
+        std::cout << relpath.replace_extension() << std::endl;
+    }
 
     return 0;
 }

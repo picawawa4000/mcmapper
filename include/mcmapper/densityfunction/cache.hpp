@@ -70,12 +70,12 @@ struct InterpolatedFunction : public DensityFunction {
     /// @param cacheTarget Whether to insert a `CellCacheFunction` in
     /// front of the target. Unless you are very strained for memory,
     /// it is recommended to leave this as `true`.
-    InterpolatedFunction(std::shared_ptr<DensityFunction> target, u32 horizontalCellBlockCount, u32 verticalCellBlockCount, bool cacheTarget = true);
+    InterpolatedFunction(std::shared_ptr<DensityFunction> target, i32 horizontalCellBlockCount, i32 verticalCellBlockCount, bool cacheTarget = true);
     virtual double operator()(Pos3D pos);
 
 private:
     std::shared_ptr<DensityFunction> target;
-    u32 horizontalCellBlockCount, verticalCellBlockCount;
+    i32 horizontalCellBlockCount, verticalCellBlockCount;
 };
 
 #endif

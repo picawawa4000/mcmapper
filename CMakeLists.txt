@@ -13,6 +13,8 @@ set(srcfiles
     src/biome/biomes.cpp
     src/biome/biometree.cpp
 
+    src/datapack/loader.cpp
+
     src/densityfunction/cache.cpp
     src/densityfunction/misc.cpp
 
@@ -46,3 +48,6 @@ target_link_libraries(main PUBLIC mcmapper)
 
 add_executable(mansion_test mansion_test.cpp)
 target_link_libraries(mansion_test PUBLIC mcmapper)
+
+add_executable(dfunc_tests dfunc_tests.cpp)
+target_link_libraries(dfunc_tests PUBLIC mcmapper)

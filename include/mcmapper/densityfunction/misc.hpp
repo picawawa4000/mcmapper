@@ -236,4 +236,24 @@ private:
     std::shared_ptr<InterpolatedNoise> noise;
 };
 
+struct SplineFunction : public DensityFunction {
+    SplineFunction(DFuncPtr input);
+    void addPoint(float location, std::variant<float, SplineFunction> value, float derivative = 0.);
+    virtual double operator()(Pos3D pos);
+
+private:
+    std::vector<float> locations;
+    std::vector<std::variant<float, SplineFunction>> values;
+    std::vector<float> derivatives;
+    DFuncPtr input;
+};
+
+struct ErrorFunction : public DensityFunction {
+    ErrorFunction(const std::string& msg);
+    virtual double operator()(Pos3D pos);
+
+private:
+    std::string msg;
+};
+
 #endif
