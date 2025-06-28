@@ -9,9 +9,16 @@
 
 #include <unordered_map>
 
+struct NoiseSettings {
+    
+};
+
 struct DataPack {
     std::map<std::string, std::shared_ptr<DoublePerlinNoise>> noises;
-    std::map<std::string, std::shared_ptr<DensityFunction>> densityFunctions;
+    std::map<std::string, std::shared_ptr<DensityFunction>> density_functions;
+    std::map<std::string, std::shared_ptr<NoiseSettings>> noise_settings;
+
+    std::vector<std::shared_ptr<InterpolatedNoise>> legacy_noises;
 };
 
 struct DFuncGenInfoCache {
@@ -39,6 +46,6 @@ std::shared_ptr<DensityFunction> loadDensityFunction(std::istream& file, DFuncGe
 /// @param rootpath The root path of the data pack. Should be a path
 /// to the folder containing the `pack.mcmeta` file.
 /// @return A data pack object.
-DataPack loadDataPack(std::string rootpath);
+DataPack loadDataPack(const std::string& rootpath);
 
 #endif

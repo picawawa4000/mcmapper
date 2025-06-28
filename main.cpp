@@ -1,18 +1,11 @@
+#include <mcmapper/rng/rng.hpp>
 #include <iostream>
-#include <filesystem>
 
 int main() {
-    for (const auto& dir_entry : std::filesystem::recursive_directory_iterator{{"include/mcmapper"}}) {
-        auto path = dir_entry.path();
-
-        auto begin = path.end();
-        while (*--begin != "mcmapper");
-        
-        std::filesystem::path relpath;
-        while (++begin != path.end()) relpath /= *begin;
-
-        std::cout << relpath.replace_extension() << std::endl;
-    }
+    XoroshiroRandom rng(14759979931341644915ULL, 310579217366ULL);
+    std::cout << rng.lo << ", " << rng.hi << std::endl;
+    std::cout << rng.next_u64() << std::endl;
+    std::cout << rng.next_u64() << std::endl;
 
     return 0;
 }

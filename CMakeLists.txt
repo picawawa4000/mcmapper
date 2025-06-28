@@ -9,6 +9,7 @@ if (POLICY CMP0025)
 endif ()
 
 set(srcfiles
+
     src/biome/biomeextra.cpp
     src/biome/biomes.cpp
     src/biome/biometree.cpp
@@ -34,7 +35,16 @@ set(srcfiles
     src/terrain/terrainextra.cpp
 )
 
+set(thirdpartysrcfiles
+
+    thirdparty/src/hash_library/hl_md5.cpp
+)
+
+add_library(thirdparty ${thirdpartysrcfiles})
+target_include_directories(thirdparty PUBLIC thirdparty/include)
+
 add_library(mcmapper ${srcfiles})
+target_link_libraries(mcmapper PUBLIC thirdparty)
 target_include_directories(mcmapper PUBLIC include)
 
 add_executable(vein vein.cpp)

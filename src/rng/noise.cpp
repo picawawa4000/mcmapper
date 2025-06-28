@@ -64,21 +64,21 @@ f64 PerlinNoise::sample(i32 sectionX, i32 sectionY, i32 sectionZ, f64 localX, f6
     i32 l = this->map(sectionX);
     i32 m = this->map(sectionX + 1);
     i32 n = this->map(l + sectionY);
-    i32 o = this->map(l + sectionY + 1); // ignore for y=0
+    i32 o = this->map(l + sectionY + 1);
     i32 p = this->map(m + sectionY);
-    i32 q = this->map(m + sectionY + 1); // ignore for y=0
+    i32 q = this->map(m + sectionY + 1);
     f64 h = grad(this->map(n + sectionZ), localX, localY, localZ);
     f64 r = grad(this->map(p + sectionZ), localX - 1.0, localY, localZ);
-    f64 s = grad(this->map(o + sectionZ), localX, localY - 1.0, localZ); // ignore for y=0
-    f64 t = grad(this->map(q + sectionZ), localX - 1.0, localY - 1.0, localZ); // ignore for y=0
+    f64 s = grad(this->map(o + sectionZ), localX, localY - 1.0, localZ);
+    f64 t = grad(this->map(q + sectionZ), localX - 1.0, localY - 1.0, localZ);
     f64 u = grad(this->map(n + sectionZ + 1), localX, localY, localZ - 1.0);
     f64 v = grad(this->map(p + sectionZ + 1), localX - 1.0, localY, localZ - 1.0);
-    f64 w = grad(this->map(o + sectionZ + 1), localX, localY - 1.0, localZ - 1.0); // ignore for y=0
-    f64 x = grad(this->map(q + sectionZ + 1), localX - 1.0, localY - 1.0, localZ - 1.0); // ignore for y=0
+    f64 w = grad(this->map(o + sectionZ + 1), localX, localY - 1.0, localZ - 1.0);
+    f64 x = grad(this->map(q + sectionZ + 1), localX - 1.0, localY - 1.0, localZ - 1.0);
     f64 y = perlinFade(localX);
-    f64 z = perlinFade(fadeLocalY); // equals 0 for y=0
+    f64 z = perlinFade(fadeLocalY);
     f64 aa = perlinFade(localZ);
-    return lerp3(y, z, aa, h, r, s, t, u, v, w, x); // y=0: a, a, <>, <>, a, a, <>, <> = lerp2(y, aa, h, r, u, v)
+    return lerp3(y, z, aa, h, r, s, t, u, v, w, x);
 }
 
 //pre-calculated tables to make things just a bit faster
@@ -105,27 +105,25 @@ const u64 md5_hashes[][2] = {
 const f64 lacunarity_init[] =   {1, .5, .25,  1./8, 1./16, 1./32,  1./64,  1./128,  1./256,   1./512,   1./1024, 1./2048, 1./4096, 1./8192, 1./16384, 1./32768, 1./65536};
 const f64 persistance_init[] =  {0, 1,  2./3, 4./7, 8./15, 16./31, 32./63, 64./127, 128./255, 256./511, 512./1023, 1023./2047, 2048./4095, 4096./8191, 8192./16383, 16384./32767, 32768./65535};
 
-OctavePerlinNoise::OctavePerlinNoise(XoroshiroRandom& rng, std::vector<f64> amplitudes, i32 firstOctave) : amplitudes(amplitudes) {
+OctavePerlinNoise::OctavePerlinNoise(XoroshiroRandom& rng, std::vector<f64> amplitudes, i32 firstOctave) : amplitudes(amplitudes), firstOctave(firstOctave) {
     i32 size = amplitudes.size();
     this->lacunarity = lacunarity_init[-firstOctave];
     this->persistance = persistance_init[size];
     u64 temp_lo = rng.next_u64();
     u64 temp_hi = rng.next_u64();
-    int n = 0;
 
-    for (int i = 0; i < size; i++) {
+    for (std::size_t i = 0; i < size; i++) {
         if (amplitudes[i] == 0) {
             this->octaves.push_back(nullptr);
         } else {
             XoroshiroRandom temp(temp_lo ^ md5_hashes[16 + firstOctave + i][0], temp_hi ^ md5_hashes[16 + firstOctave + i][1]);
-            this->octaves.push_back(std::shared_ptr<PerlinNoise>(new PerlinNoise(temp)));
+            this->octaves.push_back(std::make_unique<PerlinNoise>(temp));
         }
-        n++;
     }
 }
 
 // Probably redundant.
-OctavePerlinNoise::OctavePerlinNoise(CheckedRandom& rng, std::vector<f64> amplitudes, i32 firstOctave) : amplitudes(amplitudes) {
+OctavePerlinNoise::OctavePerlinNoise(CheckedRandom& rng, std::vector<f64> amplitudes, i32 firstOctave) : amplitudes(amplitudes), firstOctave(firstOctave) {
     i32 i;
     i32 size = amplitudes.size();
     this->octaves.reserve(size);
@@ -134,7 +132,7 @@ OctavePerlinNoise::OctavePerlinNoise(CheckedRandom& rng, std::vector<f64> amplit
     this->lacunarity = 1LL << lastOctave;
 
     if (lastOctave == 0) {
-        this->octaves.push_back(std::shared_ptr<PerlinNoise>(new PerlinNoise(rng)));
+        this->octaves.push_back(std::make_unique<PerlinNoise>(rng));
         i = 1;
     } else {
         rng.skip(-lastOctave * 262);
@@ -142,7 +140,7 @@ OctavePerlinNoise::OctavePerlinNoise(CheckedRandom& rng, std::vector<f64> amplit
     }
 
     for (; i < size; ++i) {
-        if (amplitudes[i] != 0.) this->octaves.push_back(std::shared_ptr<PerlinNoise>(new PerlinNoise(rng)));
+        if (amplitudes[i] != 0.) this->octaves.push_back(std::make_unique<PerlinNoise>(rng));
         else this->octaves.push_back(nullptr);
     }
 }
@@ -158,6 +156,22 @@ f64 OctavePerlinNoise::sample(f64 x, f64 y, f64 z) const {
         per /= 2.;
     }
     return ret;
+}
+
+void OctavePerlinNoise::replace(XoroshiroRandom& rng) {
+    u64 temp_lo = rng.next_u64();
+    u64 temp_hi = rng.next_u64();
+
+    for (std::size_t i = 0; i < this->octaves.size(); ++i) {
+        if (this->octaves[i]) {
+            XoroshiroRandom temp(temp_lo ^ md5_hashes[16 + this->firstOctave + i][0], temp_hi ^ md5_hashes[16 + this->firstOctave + i][1]);
+            this->octaves[i].reset(new PerlinNoise(temp));
+        }
+    }
+}
+
+void OctavePerlinNoise::replace(CheckedRandom& rng) {
+    throw std::runtime_error("Unimplemented function OctavePerlinNoise::replace!");
 }
 
 static const consteval inline f64 getAmp(const i32 idx) {
@@ -178,4 +192,14 @@ void DoublePerlinNoise::construct(std::vector<f64> amplitudes) {
     for (i32 i = size - 1; i >= 0 && amplitudes[i] == 0.0; i--) --size;
     for (i32 i = 0; amplitudes[i] == 0.0; i++) --size;
     this->amplitude = amplitude_init[size];
+}
+
+void DoublePerlinNoise::replace(XoroshiroRandom& rng) {
+    this->first.replace(rng);
+    this->second.replace(rng);
+}
+
+void DoublePerlinNoise::replace(CheckedRandom& rng) {
+    this->first.replace(rng);
+    this->second.replace(rng);
 }

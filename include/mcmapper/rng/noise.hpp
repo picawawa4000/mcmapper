@@ -21,16 +21,20 @@ private:
 };
 
 struct OctavePerlinNoise {
-    std::vector<std::shared_ptr<PerlinNoise>> octaves;
+    std::vector<std::unique_ptr<PerlinNoise>> octaves;
     std::vector<f64> amplitudes;
     f64 lacunarity;
     f64 persistance;
+    i32 firstOctave;
 
     OctavePerlinNoise(XoroshiroRandom& rng, std::vector<f64> amplitudes, i32 firstOctave);
     OctavePerlinNoise(CheckedRandom& rng, std::vector<f64> amplitudes, i32 firstOctave);
     OctavePerlinNoise() = default;
 
     f64 sample(f64 x, f64 y, f64 z) const;
+
+    void replace(XoroshiroRandom& rng);
+    void replace(CheckedRandom& rng);
 };
 
 struct DoublePerlinNoise {
@@ -42,6 +46,9 @@ struct DoublePerlinNoise {
     DoublePerlinNoise() = default;
 
     f64 sample(f64 x, f64 y, f64 z) const;
+
+    void replace(CheckedRandom& rng);
+    void replace(XoroshiroRandom& rng);
 
 private:
     void construct(std::vector<f64> amplitudes);

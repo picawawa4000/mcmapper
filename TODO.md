@@ -4,16 +4,12 @@ This is mostly just a list of bugs that need to be squashed or features that nee
 
 ## Bugs
 
-- [ ] `DoublePerlinNoise` is incorrect (beyond two decimal places), but `OctavePerlinNoise` and `PerlinNosie` are correct.
-  - Known issues that may be related:
-    - [ ] End density is incorrect.
-    - [ ] Overworld initial density suffers from potential scaling issues.
-    - [ ] Overworld final density is incorrect in some places.
-- [ ] Inputs (block coordinates) for all terrain functions need to be converted to longs.
+- [ ] End density is incorrect.
 
 ## Features
 
 - [ ] The whole biome and terrain generation system is ugly and should be reworked.
+  - Terrain is fixed (now uses data-driven density functions to support modified terrain generation).
 - [ ] Ore veins (see [vein.cpp](vein.cpp)).
 - [ ] Structure pieces are currently half-baked and non-functional.
 - [ ] A lot more structures need to be implemented.

@@ -8,29 +8,40 @@ MCMapper is currently in an **experimental** state. APIs are subject to constant
 
 Headers with a fairly stable API include:
 
-`mcmapper/util.hpp`  
-`mcmapper/rng/rng.hpp`  
-`mcmapper/rng/noise.hpp`  
-`mcmapper/biome/*.hpp`  
-`mcmapper/terrain/spline.hpp`  
-`mcmapper/terrain/internoise.hpp`  
-`mcmapper/data/*.hpp`
+- `mcmapper/densityfunction/*.hpp`
+- `mcmapper/biome/*.hpp`
+- `mcmapper/data/*.hpp`
+
+- `mcmapper/util.hpp`  
+- `mcmapper/rng/rng.hpp`  
+- `mcmapper/rng/noise.hpp`  
+- `mcmapper/terrain/spline.hpp`  
+- `mcmapper/terrain/internoise.hpp`  
+- `mcmapper/densityfunction/base.hpp`
 
 Headers that are currently lacking features, or that may be split or otherwise refactored, include:
 
-`mcmapper/rng/noises.hpp`  
-`mcmapper/loot/loot.hpp`  
-`mcmapper/loot/builtin_loot.hpp`  
-`mcmapper/misc/generator.hpp`  
-`mcmapper/structure/structure.hpp`  
-`mcmapper/structure/structures.hpp`  
-`mcmapper/structure/gen/mansion.hpp`  
-`mcmapper/terrain/terrain.hpp`  
-`mcmapper/terrain/terrainextra.hpp`  
+- `mcmapper/rng/noises.hpp`  
+- `mcmapper/loot/loot.hpp`  
+- `mcmapper/loot/builtin_loot.hpp`  
+- `mcmapper/misc/generator.hpp`  
+- `mcmapper/structure/structure.hpp`  
+- `mcmapper/structure/structures.hpp`  
+- `mcmapper/structure/gen/mansion.hpp`  
+- `mcmapper/terrain/terrain.hpp`  
+- `mcmapper/terrain/terrainextra.hpp`  
 
 Headers that are completely unfinished include:
 
-`mcmapper/mcmapper.hpp`  
-`mcmapper/structure/gen/spiece.hpp`  
+- `mcmapper/mcmapper.hpp`  
+- `mcmapper/structure/gen/spiece.hpp`  
+- `mcmapper/datapack/loader.hpp`
 
 See [TODO.md](./TODO.md) for a more precise list of places where the library needs fixing.
+
+## Dependencies
+
+Can be found in `thirdparty`.
+
+- [JSON](https://github.com/nlohmann/json)
+- [hashlib++](https://hashlib2plus.sourceforge.net)

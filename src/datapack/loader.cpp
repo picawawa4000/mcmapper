@@ -1,6 +1,9 @@
 #include <mcmapper/datapack/loader.hpp>
 
 #include <filesystem>
+#include <iostream>
+
+static std::shared_ptr<DensityFunction> makeDensityFunction(const nlohmann::json& jsondata, DFuncGenInfoCache& cache);
 
 static inline std::shared_ptr<DensityFunction> makeShiftedNoise(const nlohmann::json& jsondata, DFuncGenInfoCache& cache) {
     std::shared_ptr<DensityFunction>
@@ -28,12 +31,10 @@ static inline std::shared_ptr<DensityFunction> makeInterpolatedNoise(const nlohm
 }
 
 static inline SplineFunction makeSplineFunctionImpl(const nlohmann::json& jsondata, DFuncGenInfoCache& cache) {
-    nlohmann::json splinedata = jsondata["spline"];
-
-    std::shared_ptr<DensityFunction> coordinateFunction = makeDensityFunction(splinedata["coordinate"], cache);
+    std::shared_ptr<DensityFunction> coordinateFunction = makeDensityFunction(jsondata["coordinate"], cache);
     SplineFunction ret(coordinateFunction);
 
-    nlohmann::json points = splinedata["points"];
+    nlohmann::json points = jsondata["points"];
     for (nlohmann::json& point : points) {
         nlohmann::json jsonValue = point["value"];
         std::variant<float, SplineFunction> value;
@@ -50,7 +51,7 @@ static inline std::shared_ptr<DensityFunction> makeSplineFunction(const nlohmann
     if (splinedata.is_number())
         return std::make_shared<ConstantFunction>(splinedata.get<float>());
     
-    SplineFunction func = makeSplineFunctionImpl(jsondata, cache);
+    SplineFunction func = makeSplineFunctionImpl(jsondata["spline"], cache);
     /// TODO: slow hack
     return std::make_shared<SplineFunction>(func);
 }
@@ -61,7 +62,7 @@ static std::shared_ptr<DensityFunction> makeDensityFunction(const nlohmann::json
     if (jsondata.is_string()) {
         std::string id = jsondata.get<std::string>();
         if (!cache.namedFuncs->contains(id))
-            cache.namedFuncs->insert({id, std::make_shared<ErrorFunction>("Attempted call to uninitialised function!")});
+            cache.namedFuncs->insert({id, std::make_shared<ErrorFunction>("Attempted call to uninitialised function " + id)});
         return cache.namedFuncs->at(id);
     }
 
@@ -95,9 +96,9 @@ static std::shared_ptr<DensityFunction> makeDensityFunction(const nlohmann::json
     } else if (type == "minecraft:blend_density") {
         return makeDensityFunction(jsondata["argument"], cache);
     } else if (type == "minecraft:beardifier") {
-        throw std::runtime_error("beardifier should not be referenced in data packs!");
+        return std::make_shared<ErrorFunction>("beardifier should not be referenced in data packs!");
     } else if (type == "minecraft:end_islands") {
-        throw std::runtime_error("No end islands support yet!");
+        return std::make_shared<ErrorFunction>("No end islands support yet!");
     } else if (type == "minecraft:noise") {
         return std::make_shared<NoiseFunction>(cache.noisesById->at(jsondata["noise"].get<std::string>()), jsondata["xz_scale"].get<double>(), jsondata["y_scale"].get<double>());
     } else if (type == "minecraft:shifted_noise") {
@@ -155,35 +156,36 @@ std::shared_ptr<DensityFunction> loadDensityFunction(std::istream& file, DFuncGe
     return function;
 }
 
-std::shared_ptr<DoublePerlinNoise> loadNoise(std::istream& file) {
+DoublePerlinNoise loadNoise(std::istream& file) {
     nlohmann::json jsondata = nlohmann::json::parse(file);
-    i32 firstOctave = jsondata["first_octave"].get<i32>();
+    i32 firstOctave = jsondata["firstOctave"].get<i32>();
     std::vector<double> amplitudes = jsondata["amplitudes"].get<std::vector<double>>();
-    return std::make_shared<DoublePerlinNoise>(XoroshiroRandom(0), amplitudes, firstOctave);
+    XoroshiroRandom nullRandom(0);
+    return DoublePerlinNoise(nullRandom, amplitudes, firstOctave);
 }
 
 static std::filesystem::path getRelPath(const std::filesystem::path& path, const std::string& stop) {
     auto begin = path.end();
-    while (*--begin != "mcmapper");
-    
-    std::filesystem::path relpath;
-    while (++begin != path.end()) relpath /= *begin;
+    while (*--begin != stop);
+    return std::accumulate(++begin, path.end(), std::filesystem::path{}, std::divides{});
 }
 
 void loadNoises(const std::filesystem::path& subpackPath, DataPack& pack) {
     std::filesystem::path noisesPath = subpackPath / "worldgen/noise";
+    if (!std::filesystem::exists(noisesPath)) return;
     for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{noisesPath}) {
         if (dir_entry.is_regular_file()) {
             std::string id = getRelPath(dir_entry.path(), "noise").replace_extension();
             std::string namespaced_id = (std::string)(*--subpackPath.end()) + ":" + id;
             std::ifstream file(dir_entry.path());
-            pack.noises[namespaced_id] = loadNoise(file);
+            *pack.noises[namespaced_id] = loadNoise(file);
         }
     }
 }
 
 void loadDensityFunctions(const std::filesystem::path& subpack_path, DataPack& pack) {
     std::filesystem::path dfpath = subpack_path / "worldgen/density_function";
+    if (!std::filesystem::exists(dfpath)) return;
     for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{dfpath}) {
         if (dir_entry.is_regular_file()) {
             std::string id = getRelPath(dir_entry.path(), "density_function").replace_extension();
@@ -191,14 +193,16 @@ void loadDensityFunctions(const std::filesystem::path& subpack_path, DataPack& p
             std::ifstream file(dir_entry.path());
 
             DFuncGenInfoCache cache{
-                .namedFuncs=&pack.densityFunctions,
+                .namedFuncs=&pack.density_functions,
                 .noisesById=&pack.noises,
                 .useCaches=false,
                 .useFlatShiftHack=true,
                 .horizontalCellBlockCount=4,
                 .verticalCellBlockCount=8
             };
-            pack.densityFunctions[namespaced_id] = loadDensityFunction(file, cache);
+            /// TODO: Poor practice (loadDensityFunction should return a DensityFunction instead of a DFuncPtr)
+            *pack.density_functions[namespaced_id] = *loadDensityFunction(file, cache);
+            pack.legacy_noises = cache.interpolatedNoises;
         }
     }
 }
@@ -209,7 +213,7 @@ DataPack loadDataPack(const std::string& rootpath) {
     std::filesystem::path fsroot(rootpath);
     std::filesystem::path dataroot = fsroot.append("data");
 
-    std::vector<const std::filesystem::path> subpacks;
+    std::vector<std::filesystem::path> subpacks;
 
     for (const auto& dir_entry : std::filesystem::directory_iterator{dataroot}) {
         if (dir_entry.is_directory())

@@ -98,6 +98,12 @@ double InterpolatedNoise::sample(double x, double y, double z) {
     return clampedLerp(lowerTotal / 512., upperTotal / 512., interpolationTotal) / 128.;
 }
 
+void InterpolatedNoise::replace(Random& random) {
+    this->lowerInterpolatedNoise = createLegacy(random);
+    this->upperInterpolatedNoise = createLegacy(random);
+    this->interpolationNoise = createInterpolationLegacy(random);
+}
+
 EndIslandsNoise::EndIslandsNoise(u64 seed) {
     CheckedRandom rng(seed);
     rng.skip(17292);

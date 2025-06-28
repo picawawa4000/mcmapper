@@ -10,6 +10,8 @@ struct InterpolatedNoise {
 
     double sample(double x, double y, double z);
 
+    void replace(Random& random);
+
 private:
     double xzScale, yScale, xzFactor, yFactor, smearScaleMultiplier;
     double scaledXzScale, scaledYScale;
