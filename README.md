@@ -1,3 +1,9 @@
+# ARCHIVE NOTICE
+
+After some deliberation, I decided that hardcoding the world generation would not be worth it. Instead, I created a new library that can read world generation settings (among other things) from datapacks and act on them. This new library can be found at:
+
+https://github.com/picawawa4000/dpreader
+
 # MCMapper
 
 A C++ repository containing several Minecraft seed regeneration utilities.
